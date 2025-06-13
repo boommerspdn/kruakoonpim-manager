@@ -1,4 +1,10 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+import {
+  IconCash,
+  IconCreditCard,
+  IconInputX,
+  IconTrendingDown,
+  IconTrendingUp,
+} from "@tabler/icons-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -78,6 +84,37 @@ export function SectionCards({ data }: SectionCardsProps) {
           </CardContent>
         </Card>
       ))}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>ยอดเงินวันนี้</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            ฿4,415
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between">
+            <div className="line-clamp-1 flex gap-1 font-medium">
+              <IconCash />
+              เงินสด
+            </div>
+            <div className="text-muted-foreground">1,650฿</div>
+          </div>
+          <div className="flex justify-between">
+            <div className="line-clamp-1 flex gap-1 font-medium">
+              <IconCreditCard />
+              โอน
+            </div>
+            <div className="text-muted-foreground">2,250฿</div>
+          </div>
+          <div className="flex justify-between">
+            <div className="line-clamp-1 flex gap-1 font-medium">
+              <IconInputX />
+              ไม่ได้จ่ายหน้าร้าน
+            </div>
+            <div className="text-muted-foreground">515฿</div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
