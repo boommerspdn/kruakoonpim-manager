@@ -1,5 +1,3 @@
-"use client";
-
 import { SectionCards } from "@/components/section-cards";
 import { DataTable } from "./data-table";
 
