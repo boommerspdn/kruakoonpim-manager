@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   closestCenter,
   DndContext,
@@ -20,20 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronsLeft,
-  IconChevronsRight,
-  IconCircleCheckFilled,
-  IconDotsVertical,
-  IconGripVertical,
-  IconLayoutColumns,
-  IconLoader,
-  IconPlus,
-  IconTrendingUp,
-} from "@tabler/icons-react";
+import { IconDotsVertical, IconGripVertical } from "@tabler/icons-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -42,24 +28,21 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   Row,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import * as React from "react";
 
-import { toast } from "sonner";
-import { string, z } from "zod";
+import { z } from "zod";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -74,7 +57,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -85,8 +67,8 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import menu from "./data.json";
 import { Check } from "lucide-react";
+import menu from "./data.json";
 
 export const schema = z.object({
   id: z.number(),

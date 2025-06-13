@@ -1,18 +1,9 @@
-import {
-  IconCash,
-  IconCreditCard,
-  IconInputX,
-  IconTrendingDown,
-  IconTrendingUp,
-} from "@tabler/icons-react";
+import { IconCash, IconCreditCard, IconInputX } from "@tabler/icons-react";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";

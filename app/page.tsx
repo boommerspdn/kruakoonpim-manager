@@ -1,10 +1,12 @@
+"use client";
+
 import { SectionCards } from "@/components/section-cards";
 import { DataTable } from "./data-table";
 
 import menu from "./data.json";
 import data from "./xd-data.json";
 
-const IndexPage = async () => {
+const IndexPage = () => {
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
