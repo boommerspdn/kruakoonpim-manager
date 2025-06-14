@@ -218,7 +218,7 @@ export function DataTable({
       id: "confirm",
       size: 15,
       cell: () => (
-        <Button variant={"outline"} size={"sm"} className="focus:bg-primary/10">
+        <Button variant={"outline"} size={"sm"}>
           <Check />
         </Button>
       ),
