@@ -13,69 +13,76 @@ import {
   CircleCheck,
   Hourglass,
   ShoppingCart,
+  Star,
 } from "lucide-react";
+import { Menu } from "@/app/generated/prisma";
 
 type SectionCardsProps = {
-  data: { menuName: string; amount: number; price: number }[];
+  data: Menu[] | undefined;
 };
 
 export function SectionCards({ data }: SectionCardsProps) {
   const randBuyer = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
-      {data.map((menu, index) => (
+    <div className="grid grid-cols-3 gap-4">
+      {data?.map((menu, index) => (
         <Card className="@container/card" key={index}>
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              {menu.menuName}
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl flex justify-between">
+              <h2>{menu.name}</h2>
+              <div className="flex flex-col items-end text-destructive">
+                <h2>{menu.amount - 5}</h2>
+                <span className="text-base text-nowrap">ยังไม่มาเอา</span>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <div className="line-clamp-1 flex gap-1 font-medium">
+          <CardContent className="grid grid-cols-3 gap-y-4">
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">ยอดทั้งหมด</span>
+              <div className="flex gap-2 text-2xl items-center ">
                 <Box />
-                ยอดทั้งหมด
+                <span className="text-[#1E5FE0]">{menu.amount}</span>
               </div>
-              <div className="text-muted-foreground">{menu.amount}</div>
             </div>
-            <div className="flex justify-between">
-              <div className="line-clamp-1 flex gap-1 font-medium">
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">ยอดสั่งซื้อ</span>
+              <div className="flex gap-2 text-2xl items-center">
                 <ShoppingCart />
-                ยอดสั่งซื้อ
-              </div>
-              <div className="text-muted-foreground">
-                {menu.amount - randBuyer}
+                <span className="text-[#FF57E9]">{menu.amount}</span>
               </div>
             </div>
-            <div className="flex justify-between">
-              <div className="line-clamp-1 flex gap-1 font-medium">
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">ขายหน้าร้านได้</span>
+              <div className="flex gap-2 text-2xl items-center">
                 <ChartColumnDecreasing />
-                จำนวนเหลือที่ขายหน้าร้านได้
-              </div>
-              <div className="text-muted-foreground">
-                {menu.amount - (menu.amount - randBuyer)}
+                <span className="text-[#6B7280]">{menu.amount}</span>
               </div>
             </div>
-            <div className="flex justify-between">
-              <div className="line-clamp-1 flex gap-1 font-medium">
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">เอาไปแล้ว</span>
+              <div className="flex gap-2 text-2xl items-center">
                 <CircleCheck />
-                ลูกค้าเอาไปแล้ว
+                <span className="text-[#16A34A]">{menu.amount}</span>
               </div>
-              <div className="text-muted-foreground">5</div>
             </div>
-            <div className="flex justify-between">
-              <div className="line-clamp-1 flex gap-1 font-medium">
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">ต้องมีหน้าร้าน</span>
+              <div className="flex gap-2 text-2xl items-center">
                 <Hourglass />
-                ต้องมีหน้าร้าน
+                <span className="text-[#D93025]">{menu.amount}</span>
               </div>
-              <div className="text-muted-foreground">
-                {menu.amount - randBuyer - 5}
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">เมนูพิเศษ</span>
+              <div className="flex gap-2 text-2xl items-center">
+                <Star />
+                <span className="text-[#F28C28]">{menu.amount}</span>
               </div>
             </div>
           </CardContent>
         </Card>
       ))}
-      <Card className="@container/card">
+      {/* <Card className="@container/card">
         <CardHeader>
           <CardDescription>ยอดเงินวันนี้</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -105,7 +112,7 @@ export function SectionCards({ data }: SectionCardsProps) {
             <div className="text-muted-foreground">515฿</div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

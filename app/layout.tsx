@@ -1,7 +1,8 @@
-import { SiteHeader } from "@/components/site-header";
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
+import { SiteHeader } from "@/components/site-header";
 
 const anuphan = Anuphan({
   variable: "--font-anuphan",
@@ -20,9 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${anuphan.variable} font-anuphan antialiased`}>
-        <SiteHeader />
+      <body
+        className={`${anuphan.variable} font-anuphan antialiased size-full`}
+      >
         {children}
+        <Toaster />
       </body>
     </html>
   );

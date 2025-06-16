@@ -20,7 +20,7 @@ model Menu {
   name      String
   price     Int
   amount    Int
-  sortOrder Int      @unique
+  sortOrder Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
