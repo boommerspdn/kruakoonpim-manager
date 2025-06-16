@@ -30,7 +30,7 @@ export function SectionCards({ data }: SectionCardsProps) {
           <CardHeader>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl flex justify-between">
               <h2>{menu.name}</h2>
-              <div className="flex flex-col items-end text-destructive">
+              <div className="flex flex-col items-end text-primary">
                 <h2>{menu.amount - 5}</h2>
                 <span className="text-base text-nowrap">ยังไม่มาเอา</span>
               </div>
@@ -69,7 +69,7 @@ export function SectionCards({ data }: SectionCardsProps) {
               <span className="font-medium">ต้องมีหน้าร้าน</span>
               <div className="flex gap-2 text-2xl items-center">
                 <Hourglass />
-                <span className="text-[#D93025]">{menu.amount}</span>
+                <span className="text-destructive">{menu.amount}</span>
               </div>
             </div>
             <div className="flex flex-col gap-1">

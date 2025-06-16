@@ -9,6 +9,7 @@ import { Menu } from "@/app/generated/prisma";
 import MenuPrompt from "./menu-promt";
 import MenuEdit from "./menu-edit";
 import FinancialSection from "./financial-section";
+import { DataTable } from "@/app/data-table";
 
 const DashboardContent = () => {
   const { date } = useDateStore();
@@ -38,6 +39,10 @@ const DashboardContent = () => {
             <FinancialSection />
             <SectionCards data={data} />
             <MenuEdit menu={data} />
+            <DataTable
+              data={[{ id: 2, name: "2323", asdasdasd: "first" }]}
+              menu={data}
+            />
           </>
         ) : (
           <MenuPrompt />

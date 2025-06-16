@@ -68,13 +68,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Check } from "lucide-react";
-import menu from "./data.json";
-
-export const schema = z.object({
-  id: z.number(),
-  name: z.string(),
-  ...Object.fromEntries(menu.map((menuItem) => [menuItem.id, z.string()])),
-});
+import { useDateStore } from "@/hooks/use-date";
+import { format } from "date-fns";
+import useSWR from "swr";
+import { Menu } from "./generated/prisma";
+import { fetcher } from "@/lib/utils";
 
 // Create a separate component for the drag handle
 function DragHandle({ id }: { id: number }) {
@@ -96,7 +94,7 @@ function DragHandle({ id }: { id: number }) {
   );
 }
 
-function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
+function DraggableRow({ row }: { row: Row<z.infer<any>> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
   });
@@ -123,8 +121,10 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 
 export function DataTable({
   data: initialData,
+  menu,
 }: {
-  data: z.infer<typeof schema>[];
+  data: any[];
+  menu: Menu[];
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -147,26 +147,24 @@ export function DataTable({
   );
 
   const customColumnSize = 120;
-  const customMenuColumns: ColumnDef<z.infer<typeof schema>>[] = menu.map(
-    (menuItem) => ({
-      accessorKey: menuItem.id,
-      header: () => (
-        <div
-          className={`w-[${customColumnSize}px] text-center whitespace-pre-line`}
-        >
-          {menuItem.menuName}
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className={`w-[${customColumnSize}px] text-center`}>
-          {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
-        </div>
-      ),
-      size: customColumnSize, //starting column size
-    }),
-  );
+  const customMenuColumns: ColumnDef<z.infer<any>>[] = menu.map((menuItem) => ({
+    accessorKey: menuItem.id,
+    header: () => (
+      <div
+        className={`w-[${customColumnSize}px] text-center whitespace-pre-line`}
+      >
+        {menuItem.name}
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className={`w-[${customColumnSize}px] text-center`}>
+        {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
+      </div>
+    ),
+    size: customColumnSize, //starting column size
+  }));
 
-  const columns: ColumnDef<z.infer<typeof schema>>[] = [
+  const columns: ColumnDef<z.infer<any>>[] = [
     {
       id: "drag",
       size: 15,

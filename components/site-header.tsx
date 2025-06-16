@@ -1,3 +1,5 @@
+"use client";
+
 import { DatePickerForm } from "./date-picker";
 import { LogoutButton } from "./logout-button";
 
