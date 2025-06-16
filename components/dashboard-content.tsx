@@ -8,6 +8,7 @@ import { useDateStore } from "@/hooks/use-date";
 import { Menu } from "@/app/generated/prisma";
 import MenuPrompt from "./menu-promt";
 import MenuEdit from "./menu-edit";
+import FinancialSection from "./financial-section";
 
 const DashboardContent = () => {
   const { date } = useDateStore();
@@ -32,10 +33,11 @@ const DashboardContent = () => {
   if (mounted) {
     return (
       <div className="flex flex-col gap-4 md:gap-6 size-full">
-        {data?.length !== 0 ? (
+        {data?.length !== 0 && data ? (
           <>
+            <FinancialSection />
             <SectionCards data={data} />
-            <MenuEdit menu={data ? data : []} />
+            <MenuEdit menu={data} />
           </>
         ) : (
           <MenuPrompt />

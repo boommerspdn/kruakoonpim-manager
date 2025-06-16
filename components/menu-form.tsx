@@ -164,38 +164,40 @@ const MenuForm = ({ initialData }: MenuForm) => {
             <PlusCircle /> เพิ่มบรรทัด
           </Button>
           <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant={"outline"} type="button">
-                  <Trash />
-                  ลบเมนู
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>แน่ใจที่จะลบเมนู?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    หากกดยืนยันจะเป็นการยืนยันที่่จะลบเมนูวันที่{" "}
-                    {date?.toLocaleDateString("th-TH")} หากแน่ใจให้กดปุ่มสีแดง
-                    เมื่อยกเลิกแล้วจะไม่สามารถนำกลับคืนมาได้
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => handleDelete()}
-                    disabled={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Trash />
-                    )}
+            {initialData && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant={"outline"} type="button">
+                    <Trash />
                     ลบเมนู
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>แน่ใจที่จะลบเมนู?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      หากกดยืนยันจะเป็นการยืนยันที่จะลบเมนูวันที่{" "}
+                      {date?.toLocaleDateString("th-TH")} หากแน่ใจให้กดปุ่มสีแดง
+                      เมื่อยกเลิกแล้วจะไม่สามารถนำกลับคืนมาได้
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => handleDelete()}
+                      disabled={form.formState.isSubmitting}
+                    >
+                      {form.formState.isSubmitting ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <Trash />
+                      )}
+                      ลบเมนู
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? (
                 <Loader2 className="animate-spin" />
