@@ -28,8 +28,8 @@ export default function MenuEdit({ menu }: MenuEditProps) {
 
   return (
     <Dialog>
-      <form className="w-full">
-        <DialogTrigger className="grid place-items-start" asChild>
+      <form className="w-full flex justify-end">
+        <DialogTrigger asChild>
           <Button className="flex px-2">
             <Pencil />
             แก้ไขเมนู

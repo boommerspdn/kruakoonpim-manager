@@ -28,6 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
 import { Menu } from "@/app/generated/prisma";
+import { Badge } from "./ui/badge";
 
 type MenuForm = {
   initialData?: Menu[];
@@ -129,12 +130,18 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       type="number"
                       placeholder="จำนวน"
                     />
-                    <Input
-                      {...form.register(`menu.${index}.price`)}
-                      className="w-28"
-                      type="number"
-                      placeholder="ราคา"
-                    />
+                    <div className="relative">
+                      <Input
+                        {...form.register(`menu.${index}.price`)}
+                        className="w-28"
+                        type="number"
+                        placeholder="ราคา"
+                      />
+                      <Badge className="absolute top-1/2 right-[8px] transform  -translate-y-1/2">
+                        ฿
+                      </Badge>
+                    </div>
+
                     <CircleMinus
                       className="text-primary cursor-pointer"
                       size={40}

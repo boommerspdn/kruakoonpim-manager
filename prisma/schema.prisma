@@ -15,23 +15,46 @@ datasource db {
 }
 
 model Menu {
-  id        String   @id @default(uuid())
-  date      DateTime
-  name      String
-  price     Int
-  amount    Int
-  sortOrder Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+  id         String      @id @default(uuid())
+  date       DateTime
+  name       String
+  price      Int
+  amount     Int
+  sortOrder  Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
 }
 
 model Order {
-  id           String   @id @default(uuid())
-  customerName String   @unique
-  menu         Menu     @relation(fields: [menuId], references: [id])
-  menuId       String
-  orderAmount  Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id           String      @id @default(uuid())
+  customerName String      @unique
+  note         String?
+  payment      Payment     @default(PENDING)
+  status       Status      @default(PENDING)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  orderItem    OrderItem[]
+}
+
+model OrderItem {
+  id      String  @id @default(uuid())
+  orderId String
+  menuId  String
+  amount  Int
+  note    String?
+  menu    Menu    @relation(fields: [menuId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+}
+
+enum Status {
+  COMPLETED
+  PENDING
+}
+
+enum Payment {
+  PENDING
+  CASH
+  ONLINE
+  UNKNOWN
 }
