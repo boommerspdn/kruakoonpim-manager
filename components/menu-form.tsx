@@ -38,7 +38,7 @@ const formSchema = z.object({
   menu: z
     .array(
       z.object({
-        name: z.string().min(1),
+        name: z.string().min(1, "จำเป็นต้องใส่ชื่อเมนู"),
         amount: z.coerce.number().min(1).nullish(),
         price: z.coerce.number().min(1).nullish(),
       }),
@@ -141,7 +141,6 @@ const MenuForm = ({ initialData }: MenuForm) => {
                         ฿
                       </Badge>
                     </div>
-
                     <CircleMinus
                       className="text-primary cursor-pointer"
                       size={40}
