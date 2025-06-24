@@ -15,11 +15,11 @@ export const hasEnvVars =
 
 export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export async function getOrderData(date: Date | undefined): Promise<Order[]> {
+export async function getOrderData(date: Date | undefined){
   const API_URL = `/api/order?date=${date?.toISOString()}`;
 
   try {
-    const response = await axios.get<Order[]>(API_URL);
+    const response = await axios.get(API_URL);
     return response.data;
   } catch (error) {
     // Axios errors have a specific structure

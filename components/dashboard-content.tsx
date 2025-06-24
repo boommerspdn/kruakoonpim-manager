@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { SectionCards } from "@/components/section-cards";
 import { fetcher, getOrderData } from "@/lib/utils";
 import { useDateStore } from "@/hooks/use-date";
-import { Menu, Order } from "@/app/generated/prisma";
+import { Menu, Order, Prisma, PrismaClient } from "@/app/generated/prisma";
 import MenuPrompt from "./menu-promt";
 import MenuEdit from "./menu-edit";
 import FinancialSection from "./financial-section";
@@ -16,10 +16,17 @@ export type TableRowData = {
   name: string;
   delivery: boolean;
   note: string | null;
-  [key: string]: string | number | boolean | null;
+  [x: string]: string | number | boolean | null;
 };
 
 const DashboardContent = () => {
+  const prisma = new PrismaClient();
+
+  type OrderWithItems = Prisma.OrderGetPayload<{
+    include: {
+      orderItems: true
+    }
+  }>
   const { date } = useDateStore();
   const [mounted, setMounted] = useState(false);
 
@@ -33,16 +40,27 @@ const DashboardContent = () => {
     data: orders,
     error: ordersError,
     isLoading: orderIsLoading,
-  } = useSWR<Order[]>("order-key", () => getOrderData(date));
-  console.log(orders);
+  } = useSWR<OrderWithItems[]>(["order-key", swrKey], () => getOrderData(date));
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || isLoading) {
+  if (!mounted || isLoading || orderIsLoading) {
     return <>Loading...</>;
   }
+
+  const formatOrders: TableRowData[] | undefined = orders?.map((order) => {
+  const items = Object.assign({}, ...order.orderItems.map(item => ({ [item.menuId]: item.amount })));
+
+    return {
+      id: order.id,
+      name: order.customerName,
+      note: order.note || "",
+      delivery: order.delivery,
+      ...items
+    }
+  })
   const makeupData: TableRowData[] = [
     {
       id: "7552be95-14c9-462a-93f2-3b3f7727675f",
@@ -85,12 +103,13 @@ const DashboardContent = () => {
   if (mounted) {
     return (
       <div className="flex flex-col gap-4 md:gap-6 size-full">
+<button onClick={() => console.log(formatOrders)}>test</button>
         {data?.length !== 0 && data ? (
           <>
             <FinancialSection />
             <SectionCards data={data} />
             <MenuEdit menu={data} />
-            <DataTable menu={data} data={[]} />
+            <DataTable menu={data} data={formatOrders||[]} />
           </>
         ) : (
           <MenuPrompt />

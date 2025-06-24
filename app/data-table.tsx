@@ -247,7 +247,8 @@ export function DataTable({
     }));
 
     try {
-      await axios.post(`/api/order?date=${formattedDate}`, data);
+      const response = await axios.post(`/api/order?date=${formattedDate}`, data);
+      console.log(response)
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -287,6 +288,7 @@ export function DataTable({
                       {...form.register(name, { valueAsNumber: true })}
                       placeholder="จำนวน"
                       type="number"
+                      defaultValue={0}
                     />
                   </FormControl>
                 </FormItem>
@@ -297,16 +299,6 @@ export function DataTable({
               className={`w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`}
             >
               {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
-              {row.original.menuNote[menuItem.id] && (
-                <Popover>
-                  <PopoverTrigger>
-                    <Info size={20} className="text-destructive" />
-                  </PopoverTrigger>
-                  <PopoverContent align="center">
-                    {row.original.note}
-                  </PopoverContent>
-                </Popover>
-              )}
             </div>
           );
         },
