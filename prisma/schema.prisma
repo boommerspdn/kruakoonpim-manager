@@ -28,7 +28,7 @@ model Menu {
 
 model Order {
   id           String      @id @default(uuid())
-  customerName String      @unique
+  customerName String
   note         String?
   delivery     Boolean
   payment      Payment     @default(PENDING)
@@ -47,7 +47,7 @@ model OrderItem {
   amount  Int
   note    String?
   menu    Menu    @relation(fields: [menuId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 enum Status {

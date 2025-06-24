@@ -1,5 +1,6 @@
 "use client";
 
+import { v4 as uuidv4 } from "uuid";
 import {
   closestCenter,
   DndContext,
@@ -73,14 +74,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   Check,
+  CircleMinus,
   Info,
+  Loader2,
   PlusCircle,
   SaveAll,
   TableConfigIcon,
 } from "lucide-react";
 import { useDateStore } from "@/hooks/use-date";
 import { format } from "date-fns";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { Menu } from "./generated/prisma";
 import { cn, fetcher } from "@/lib/utils";
 import {
@@ -110,11 +113,12 @@ import { toast } from "sonner";
 
 // Finally, the schema for your entire table data (an array of rows)
 
-export const dynamicMenuValueSchema = z.coerce.number().min(0);
+export const dynamicMenuValueSchema = z.coerce.number();
 
 export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
   // Start with the fixed properties of your person object
   const baseProperties = {
+    id: z.string().optional(),
     name: z.string().min(1),
     note: z.string().optional(),
     delivery: z.boolean().optional(),
@@ -136,7 +140,7 @@ export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
 };
 
 // Create a separate component for the drag handle
-function DragHandle({ id }: { id: string }) {
+function DragHandle({ id, mode }: { id: string; mode?: "edit" | "default" }) {
   const { attributes, listeners } = useSortable({
     id,
   });
@@ -148,6 +152,7 @@ function DragHandle({ id }: { id: string }) {
       variant="ghost"
       size="icon"
       className="text-muted-foreground size-7 hover:bg-transparent"
+      disabled={mode === "edit"}
     >
       <IconGripVertical className="text-muted-foreground size-3" />
       <span className="sr-only">Drag to reorder</span>
@@ -234,24 +239,37 @@ export function DataTable({
   const { date } = useDateStore();
   const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
 
+  const { mutate } = useSWRConfig();
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const data: OrderBody[] = values.people.map((item: any, index) => ({
-      customerName: item.name,
-      note: item.note || "",
-      sortOrder: index,
-      delivery: item.delivery || false,
-      orderItems: menu.map((orderItem) => ({
-        menuId: orderItem.id,
-        amount: item[orderItem.id],
-      })),
-    }));
+    console.log(values);
+    const submittedData: OrderBody[] = values.people.map(
+      (item: any, index) => ({
+        id: item.id,
+        customerName: item.name,
+        note: item.note || "",
+        sortOrder: index,
+        delivery: item.delivery || false,
+        orderItems: menu.map((orderItem) => ({
+          menuId: orderItem.id,
+          amount: item[orderItem.id],
+        })),
+      }),
+    );
 
     try {
-      const response = await axios.post(`/api/order?date=${formattedDate}`, data);
-      console.log(response)
+      const response = await axios.post(
+        `/api/order?date=${formattedDate}`,
+        submittedData,
+      );
+      console.log(response);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
+    } finally {
+      setData(values.people);
+      await mutate(date);
+      setTableMode("default");
     }
   }
   /// React Hook Form
@@ -285,10 +303,9 @@ export function DataTable({
                   <FormControl>
                     <Input
                       className="h-8"
-                      {...form.register(name, { valueAsNumber: true })}
+                      {...form.register(name)}
                       placeholder="จำนวน"
                       type="number"
-                      defaultValue={0}
                     />
                   </FormControl>
                 </FormItem>
@@ -311,34 +328,54 @@ export function DataTable({
         id: "drag",
         size: 10,
         header: () => null,
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        cell: ({ row }) => {
+          const currentTableMode = (
+            table.options.meta as { tableMode: "edit" | "default" }
+          ).tableMode;
+
+          return <DragHandle id={row.original.id} mode={currentTableMode} />;
+        },
       },
       {
         id: "select",
         size: 10,
-        header: ({ table }) => (
-          <div className="flex items-center justify-center">
-            <Checkbox
-              checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && "indeterminate")
-              }
-              onCheckedChange={(value) =>
-                table.toggleAllPageRowsSelected(!!value)
-              }
-              aria-label="Select all"
-            />
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="flex items-center justify-center">
-            <Checkbox
-              checked={row.getIsSelected()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              aria-label="Select row"
-            />
-          </div>
-        ),
+        header: ({ table }) => {
+          const currentTableMode = (
+            table.options.meta as { tableMode: "edit" | "default" }
+          ).tableMode;
+
+          return (
+            <div className="flex items-center justify-center">
+              <Checkbox
+                checked={
+                  table.getIsAllPageRowsSelected() ||
+                  (table.getIsSomePageRowsSelected() && "indeterminate")
+                }
+                onCheckedChange={(value) =>
+                  table.toggleAllPageRowsSelected(!!value)
+                }
+                aria-label="Select all"
+                disabled={currentTableMode === "edit"}
+              />
+            </div>
+          );
+        },
+        cell: ({ row }) => {
+          const currentTableMode = (
+            table.options.meta as { tableMode: "edit" | "default" }
+          ).tableMode;
+
+          return (
+            <div className="flex items-center justify-center">
+              <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+                disabled={currentTableMode === "edit"}
+              />
+            </div>
+          );
+        },
         enableSorting: false,
         enableHiding: false,
       },
@@ -497,25 +534,48 @@ export function DataTable({
       {
         id: "actions",
         size: 10,
-        cell: () => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size="icon"
-              >
-                <IconDotsVertical />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem>แก้ไข</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">ลบ</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
+        cell: ({ row }) => {
+          const currentTableMode = (
+            table.options.meta as { tableMode: "edit" | "default" }
+          ).tableMode;
+          const rowIndex = row.index; // Get the TanStack row index
+          return (
+            <div>
+              {currentTableMode === "default" ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                      size="icon"
+                    >
+                      <IconDotsVertical />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-32">
+                    <DropdownMenuItem>แก้ไข</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem variant="destructive">
+                      ลบ
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <CircleMinus
+                  className="text-primary cursor-pointer"
+                  size={30}
+                  onClick={() => {
+                    remove(rowIndex);
+                    setData((prev) =>
+                      prev.filter((_, index) => index !== rowIndex),
+                    );
+                  }}
+                />
+              )}
+            </div>
+          );
+        },
       },
     ];
   }, [menu]); // Recreate columns only when `menu` prop changes
@@ -547,11 +607,10 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     meta: {
       addNewRow: () => {
-        const newId = crypto.randomUUID();
-
+        const newId = uuidv4();
         const dynamicProperties: any = {};
         menu.forEach((menuItem) => {
-          dynamicProperties[menuItem.id] = 0;
+          dynamicProperties[menuItem.id] = "";
         });
 
         const newRow = {
@@ -663,7 +722,7 @@ export function DataTable({
           </div>
           <div
             className={cn(
-              "flex justify-end",
+              "flex justify-end pt-4",
               tableMode === "edit" && "justify-between",
             )}
           >
@@ -676,6 +735,7 @@ export function DataTable({
                   table.options.meta?.addNewRow();
                   e.preventDefault();
                 }}
+                disabled={form.formState.isSubmitting}
               >
                 <PlusCircle /> เพิ่มบรรทัด
               </Button>
@@ -695,8 +755,13 @@ export function DataTable({
                 แก้ไขตารางออเดอร์
               </Button>
             ) : (
-              <Button type="submit">
-                <SaveAll /> บันทึกตารางออเดอร์
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <SaveAll />
+                )}
+                บันทึกตารางออเดอร์
               </Button>
             )}
           </div>
