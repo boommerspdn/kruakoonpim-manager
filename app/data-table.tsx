@@ -432,12 +432,12 @@ export function DataTable({
       },
       ...customMenuColumns,
       {
-        id: "confirm",
-        size: 15,
+        id: "actions",
         cell: ({ row }) => {
           const currentTableMode = (
             table.options.meta as { tableMode: "edit" | "default" }
           ).tableMode;
+          const rowIndex = row.index; // Get the TanStack row index
           const [isSubmitting, setIsSubmitting] = React.useState(false);
 
           const status = row.original.status;
@@ -458,136 +458,117 @@ export function DataTable({
             }
           };
           return (
-            <Button
-              size={"sm"}
-              className={cn(
-                currentTableMode === "edit"
-                  ? "invisible transition-colors"
-                  : "",
-              )}
-              disabled={currentTableMode === "edit" || isSubmitting}
-              onClick={() => {
-                handleConfirm(status === "COMPLETED" ? "PENDING" : "COMPLETED");
-              }}
-              type="button"
-              variant={status === "COMPLETED" ? "secondary" : "default"}
-            >
-              {status === "COMPLETED" ? (
-                <X />
-              ) : isSubmitting ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Check />
-              )}
-            </Button>
-          );
-        },
-      },
-      {
-        id: "payment",
-        cell: ({ row }) => (
-          <>
-            <Label htmlFor={`${row.original.id}-payment`} className="sr-only">
-              วิธีจ่ายเงิน
-            </Label>
-            <Select>
-              <SelectTrigger
-                className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-                size="sm"
-                id={`${row.original.id}-payment`}
-              >
-                <SelectValue placeholder="วิธีจ่ายเงิน" />
-              </SelectTrigger>
-              <SelectContent align="end">
-                <SelectItem value="cash">เงินสด</SelectItem>
-                <SelectItem value="scan">โอน</SelectItem>
-                <SelectItem value="unknown">ไม่ได้จ่ายหน้าร้าน</SelectItem>
-              </SelectContent>
-            </Select>
-          </>
-        ),
-      },
-      {
-        id: "info",
-        size: 20,
-        cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-          const rowIndex = row.index; // Get the TanStack row index
-
-          return (
             <div className="flex gap-2">
-              {currentTableMode === "edit" ? (
-                <>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button size={"icon"}>
-                        <Info />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent align="end">
-                      <FormField
-                        control={form.control}
-                        name={`people.${rowIndex}.note`}
-                        render={() => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea
-                                className="resize-none"
-                                {...form.register(`people.${rowIndex}.note`)}
-                                placeholder="โน๊ต"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {/* delivery */}
+              <Button
+                size={"sm"}
+                className={cn(
+                  currentTableMode === "edit"
+                    ? "invisible transition-colors"
+                    : "",
+                )}
+                disabled={currentTableMode === "edit" || isSubmitting}
+                onClick={() => {
+                  handleConfirm(
+                    status === "COMPLETED" ? "PENDING" : "COMPLETED",
+                  );
+                }}
+                type="button"
+                variant={status === "COMPLETED" ? "secondary" : "default"}
+              >
+                {status === "COMPLETED" ? (
+                  <X />
+                ) : isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <Check />
+                )}
+              </Button>
 
-                  <div className="flex gap-2 items-center">
-                    <Checkbox />
-                    <Label>ส่ง</Label>
-                  </div>
-                </>
-              ) : (
+              {currentTableMode === "default" ? (
                 <>
-                  {row.original.note && (
+                  <Label
+                    htmlFor={`${row.original.id}-payment`}
+                    className="sr-only"
+                  >
+                    วิธีจ่ายเงิน
+                  </Label>
+                  <Select>
+                    <SelectTrigger
+                      className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
+                      size="sm"
+                      id={`${row.original.id}-payment`}
+                    >
+                      <SelectValue placeholder="วิธีจ่ายเงิน" />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      <SelectItem value="cash">เงินสด</SelectItem>
+                      <SelectItem value="scan">โอน</SelectItem>
+                      <SelectItem value="unknown">
+                        ไม่ได้จ่ายหน้าร้าน
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </>
+              ) : null}
+
+              <div className="flex gap-2">
+                {currentTableMode === "edit" ? (
+                  <>
                     <Popover>
-                      <PopoverTrigger>
-                        <Info size={20} className="text-destructive" />
+                      <PopoverTrigger asChild>
+                        <Button size={"icon"}>
+                          <Info />
+                        </Button>
                       </PopoverTrigger>
                       <PopoverContent align="end">
-                        {row.original.note}
+                        <FormField
+                          control={form.control}
+                          name={`people.${rowIndex}.note`}
+                          render={() => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  className="resize-none"
+                                  {...form.register(`people.${rowIndex}.note`)}
+                                  placeholder="โน๊ต"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
                       </PopoverContent>
                     </Popover>
-                  )}
-                  {row.original.delivery && (
-                    <IconTruck className="text-primary" />
-                  )}
-                </>
-              )}
-            </div>
-          );
-        },
-      },
-      {
-        id: "actions",
-        size: 10,
-        cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-          const rowIndex = row.index; // Get the TanStack row index
-          return (
-            <div>
+                    {/* delivery */}
+
+                    <div className="flex gap-2 items-center">
+                      <Checkbox />
+                      <Label>ส่ง</Label>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {row.original.note && (
+                      <Popover>
+                        <PopoverTrigger>
+                          <Info size={20} className="text-destructive" />
+                        </PopoverTrigger>
+                        <PopoverContent align="end">
+                          {row.original.note}
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                    {row.original.delivery && (
+                      <IconTruck className="text-primary" />
+                    )}
+                  </>
+                )}
+              </div>
               {currentTableMode === "default" ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8 ms-auto"
                       size="icon"
                     >
                       <IconDotsVertical />
@@ -604,7 +585,7 @@ export function DataTable({
                 </DropdownMenu>
               ) : (
                 <CircleMinus
-                  className="text-primary cursor-pointer"
+                  className="text-primary cursor-pointer ms-auto me-4"
                   size={30}
                   onClick={() => {
                     remove(rowIndex);
@@ -753,7 +734,7 @@ export function DataTable({
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        ไม่มีผลลัพธ์ของผู้ซื้อ
+                        ไม่มีลูกค้าเลย :(
                       </TableCell>
                     </TableRow>
                   )}
