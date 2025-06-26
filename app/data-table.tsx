@@ -316,7 +316,9 @@ export function DataTable({
             <div
               className={cn(
                 `w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`,
-                status === "COMPLETED" ? "text-destructive line-through" : "",
+                status === "COMPLETED"
+                  ? "text-muted-foreground line-through"
+                  : "",
               )}
             >
               {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
@@ -414,7 +416,9 @@ export function DataTable({
             <div
               className={cn(
                 "flex gap-2",
-                status === "COMPLETED" ? "line-through text-destructive" : "",
+                status === "COMPLETED"
+                  ? "line-through text-muted-foreground"
+                  : "",
               )}
             >
               {row.original.name}
@@ -427,6 +431,7 @@ export function DataTable({
       ...customMenuColumns,
       {
         id: "actions",
+        size: 320,
         cell: ({ row }) => {
           const currentTableMode = (
             table.options.meta as { tableMode: "edit" | "default" }
@@ -438,6 +443,7 @@ export function DataTable({
             React.useState(false);
 
           const status = row.original.status;
+          const payment = row.original.payment;
 
           const handleConfirm = async (status: Status) => {
             try {
@@ -472,13 +478,11 @@ export function DataTable({
           };
 
           return (
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center ps-4">
               <Button
                 size={"sm"}
                 className={cn(
-                  currentTableMode === "edit"
-                    ? "invisible transition-colors"
-                    : "",
+                  currentTableMode === "edit" ? "hidden transition-colors" : "",
                 )}
                 disabled={currentTableMode === "edit" || isSubmittingConfirm}
                 onClick={() => {
@@ -508,7 +512,7 @@ export function DataTable({
                   </Label>
                   <Select
                     onValueChange={(value) => handlePayment(value)}
-                    defaultValue={row.original.payment}
+                    defaultValue={payment === "PENDING" ? undefined : payment}
                     disabled={isSubmittingPayment}
                   >
                     <SelectTrigger
@@ -681,17 +685,32 @@ export function DataTable({
     },
   });
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
       setData((current) => {
         const currentIds = current.map((item) => item.id);
         const oldIndex = currentIds.indexOf(active.id);
         const newIndex = currentIds.indexOf(over.id);
-
         if (oldIndex === -1 || newIndex === -1) return current;
         return arrayMove(current, oldIndex, newIndex);
       });
+
+      // Async call after state update
+      try {
+        const currentIds = data.map((item) => item.id); // or get these values from event
+        const oldIndex = currentIds.indexOf(active.id);
+        const newIndex = currentIds.indexOf(over.id);
+        // console.log("old", oldIndex, "new", newIndex);
+        // console.log("active id", active.id, "over id", over.id);
+        const response = await axios.put("/api/order/swap-row", {
+          oldIndex: { id: active.id, index: oldIndex },
+          newIndex: { id: over.id, index: newIndex },
+        });
+        console.log(response);
+      } catch (error) {
+        console.error("Error while swapping rows:", error);
+      }
     }
   }
 

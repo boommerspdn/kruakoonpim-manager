@@ -119,11 +119,3 @@ export async function POST(req: NextRequest) {
     return new NextResponse(`${error}`);
   }
 }
-
-export async function PUT(req: NextRequest) {
-  try {
-  } catch (error) {
-    console.log(error);
-    return new NextResponse(`${error}`);
-  }
-}
