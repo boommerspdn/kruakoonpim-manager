@@ -64,6 +64,7 @@ const DashboardContent = () => {
       name: order.customerName,
       note: order.note || "",
       delivery: order.delivery,
+      status: order.status,
       ...items,
     };
   });
@@ -76,6 +77,7 @@ const DashboardContent = () => {
             <FinancialSection />
             <SectionCards data={data} />
             <MenuEdit menu={data} />
+            {formatOrders ? formatOrders[0].status : ""}
             <DataTable menu={data} data={formatOrders || []} />
           </>
         ) : (

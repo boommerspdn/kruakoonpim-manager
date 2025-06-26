@@ -80,11 +80,12 @@ import {
   PlusCircle,
   SaveAll,
   TableConfigIcon,
+  X,
 } from "lucide-react";
 import { useDateStore } from "@/hooks/use-date";
 import { format } from "date-fns";
 import useSWR, { useSWRConfig } from "swr";
-import { Menu } from "./generated/prisma";
+import { Menu, Status } from "./generated/prisma";
 import { cn, fetcher } from "@/lib/utils";
 import {
   Tooltip,
@@ -122,6 +123,7 @@ export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
     name: z.string().min(1),
     note: z.string().optional(),
     delivery: z.boolean().optional(),
+    status: z.string().optional(),
   };
 
   // Dynamically add properties for each menu item's ID
@@ -193,6 +195,10 @@ export function DataTable({
   menu: Menu[];
 }) {
   const [data, setData] = React.useState(() => initialData);
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
   const [tableMode, setTableMode] = React.useState<"edit" | "default">(
     "default",
   );
@@ -267,7 +273,6 @@ export function DataTable({
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
     } finally {
-      setData(values.people);
       await mutate(date);
       setTableMode("default");
     }
@@ -294,6 +299,8 @@ export function DataTable({
 
           const name = `people.${rowIndex}.${menuItem.id}` as any;
 
+          const status = row.original.status;
+
           return currentTableMode === "edit" ? (
             <FormField
               control={form.control}
@@ -313,7 +320,10 @@ export function DataTable({
             />
           ) : (
             <div
-              className={`w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`}
+              className={cn(
+                `w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`,
+                status === "COMPLETED" ? "text-destructive line-through" : "",
+              )}
             >
               {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
             </div>
@@ -388,6 +398,8 @@ export function DataTable({
           ).tableMode;
           const rowIndex = row.index; // Get the TanStack row index
 
+          const status = row.original.status;
+
           return currentTableMode === "edit" ? (
             <FormField
               control={form.control}
@@ -405,7 +417,12 @@ export function DataTable({
               )}
             />
           ) : (
-            <div className="flex gap-2">
+            <div
+              className={cn(
+                "flex gap-2",
+                status === "COMPLETED" ? "line-through text-destructive" : "",
+              )}
+            >
               {row.original.name}
               <span className="text-destructive"></span>
             </div>
@@ -417,19 +434,48 @@ export function DataTable({
       {
         id: "confirm",
         size: 15,
-        cell: () => {
+        cell: ({ row }) => {
           const currentTableMode = (
             table.options.meta as { tableMode: "edit" | "default" }
           ).tableMode;
+          const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+          const status = row.original.status;
+
+          const handleConfirm = async (status: Status) => {
+            try {
+              setIsSubmitting(true);
+              const response = await axios.put(
+                `/api/order/confirm?id=${row.original.id}&status=${status}`,
+              );
+              console.log(response);
+            } catch (error) {
+              toast.error("เกิดข้อผิดพลาด");
+              console.log(error);
+            } finally {
+              await mutate(date);
+              setIsSubmitting(false);
+            }
+          };
           return (
             <Button
               size={"sm"}
               className={
                 currentTableMode === "edit" ? "invisible transition-none" : ""
               }
-              disabled={currentTableMode === "edit"}
+              disabled={currentTableMode === "edit" || isSubmitting}
+              onClick={() => {
+                handleConfirm(status === "COMPLETED" ? "PENDING" : "COMPLETED");
+              }}
+              type="button"
             >
-              <Check />
+              {status === "COMPLETED" ? (
+                <X />
+              ) : isSubmitting ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Check />
+              )}
             </Button>
           );
         },
@@ -496,19 +542,11 @@ export function DataTable({
                     </PopoverContent>
                   </Popover>
                   {/* delivery */}
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button size={"icon"}>
-                        <IconTruck />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent align="center" className="w-fit">
-                      <div className="flex gap-2">
-                        <Checkbox />
-                        <Label>ส่ง</Label>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+
+                  <div className="flex gap-2 items-center">
+                    <Checkbox />
+                    <Label>ส่ง</Label>
+                  </div>
                 </>
               ) : (
                 <>
