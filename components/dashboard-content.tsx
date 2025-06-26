@@ -65,6 +65,7 @@ const DashboardContent = () => {
       note: order.note || "",
       delivery: order.delivery,
       status: order.status,
+      payment: order.payment,
       ...items,
     };
   });

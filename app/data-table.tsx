@@ -104,7 +104,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
-import { Menu, Status } from "./generated/prisma";
+import { Menu, Payment, Status } from "./generated/prisma";
 
 // Finally, the schema for your entire table data (an array of rows)
 
@@ -451,6 +451,23 @@ export function DataTable({
               setIsSubmitting(false);
             }
           };
+
+          const handlePayment = async (payment: Payment | string) => {
+            try {
+              setIsSubmitting(true);
+              const response = await axios.put(
+                `/api/order/payment?id=${row.original.id}&payment=${payment}`,
+              );
+              console.log(response);
+            } catch (error) {
+              toast.error("เกิดข้อผิดพลาด");
+              console.log(error);
+            } finally {
+              await mutate(date);
+              setIsSubmitting(false);
+            }
+          };
+
           return (
             <div className="flex gap-2 items-center">
               <Button
@@ -486,7 +503,10 @@ export function DataTable({
                   >
                     วิธีจ่ายเงิน
                   </Label>
-                  <Select>
+                  <Select
+                    onValueChange={(value) => handlePayment(value)}
+                    defaultValue={row.original.payment}
+                  >
                     <SelectTrigger
                       className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
                       size="sm"
@@ -495,9 +515,9 @@ export function DataTable({
                       <SelectValue placeholder="วิธีจ่ายเงิน" />
                     </SelectTrigger>
                     <SelectContent align="end">
-                      <SelectItem value="cash">เงินสด</SelectItem>
-                      <SelectItem value="scan">โอน</SelectItem>
-                      <SelectItem value="unknown">
+                      <SelectItem value="CASH">เงินสด</SelectItem>
+                      <SelectItem value="ONLINE">โอน</SelectItem>
+                      <SelectItem value="UNKNOWN">
                         ไม่ได้จ่ายหน้าร้าน
                       </SelectItem>
                     </SelectContent>
