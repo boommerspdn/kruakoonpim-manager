@@ -1,6 +1,5 @@
 "use client";
 
-import { v4 as uuidv4 } from "uuid";
 import {
   closestCenter,
   DndContext,
@@ -40,6 +39,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import { z } from "zod";
 
@@ -70,8 +70,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { useDateStore } from "@/hooks/use-date";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { format } from "date-fns";
 import {
   Check,
   CircleMinus,
@@ -82,35 +100,11 @@ import {
   TableConfigIcon,
   X,
 } from "lucide-react";
-import { useDateStore } from "@/hooks/use-date";
-import { format } from "date-fns";
-import useSWR, { useSWRConfig } from "swr";
-import { Menu, Status } from "./generated/prisma";
-import { cn, fetcher } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { TableRowData } from "@/components/dashboard-content";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { OrderBody } from "./api/order/route";
-import axios from "axios";
 import { toast } from "sonner";
+import { useSWRConfig } from "swr";
+import { OrderBody } from "./api/order/route";
+import { Menu, Status } from "./generated/prisma";
 
 // Finally, the schema for your entire table data (an array of rows)
 
@@ -458,7 +452,7 @@ export function DataTable({
             }
           };
           return (
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Button
                 size={"sm"}
                 className={cn(
@@ -511,7 +505,7 @@ export function DataTable({
                 </>
               ) : null}
 
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 {currentTableMode === "edit" ? (
                   <>
                     <Popover>
@@ -539,14 +533,26 @@ export function DataTable({
                       </PopoverContent>
                     </Popover>
                     {/* delivery */}
-
-                    <div className="flex gap-2 items-center">
-                      <Checkbox />
-                      <Label>ส่ง</Label>
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name={`people.${rowIndex}.delivery`}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2">
+                          <FormLabel className="text-sm font-normal">
+                            ส่ง
+                          </FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </>
                 ) : (
-                  <>
+                  <div className="flex gap-2 items-center">
                     {row.original.note && (
                       <Popover>
                         <PopoverTrigger>
@@ -560,7 +566,7 @@ export function DataTable({
                     {row.original.delivery && (
                       <IconTruck className="text-primary" />
                     )}
-                  </>
+                  </div>
                 )}
               </div>
               {currentTableMode === "default" ? (

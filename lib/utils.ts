@@ -15,7 +15,7 @@ export const hasEnvVars =
 
 export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export async function getOrderData(date: Date | undefined){
+export async function getOrderData(date: Date | undefined) {
   const API_URL = `/api/order?date=${date?.toISOString()}`;
 
   try {
