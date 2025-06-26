@@ -422,7 +422,7 @@ export function DataTable({
               )}
             >
               {row.original.name}
-              <span className="text-destructive"></span>
+              <span className="text-destructive">s</span>
             </div>
           );
         },
@@ -699,13 +699,13 @@ export function DataTable({
       // Async call after state update
       try {
         const currentIds = data.map((item) => item.id); // or get these values from event
-        const oldIndex = currentIds.indexOf(active.id);
-        const newIndex = currentIds.indexOf(over.id);
+        // const oldId = currentIds.indexOf(active.id);
+        // const newId = currentIds.indexOf(over.id);
         // console.log("old", oldIndex, "new", newIndex);
         // console.log("active id", active.id, "over id", over.id);
         const response = await axios.put("/api/order/swap-row", {
-          oldIndex: { id: active.id, index: oldIndex },
-          newIndex: { id: over.id, index: newIndex },
+          oldId: active.id,
+          newId: over.id,
         });
         console.log(response);
       } catch (error) {
