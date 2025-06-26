@@ -432,13 +432,16 @@ export function DataTable({
             table.options.meta as { tableMode: "edit" | "default" }
           ).tableMode;
           const rowIndex = row.index; // Get the TanStack row index
-          const [isSubmitting, setIsSubmitting] = React.useState(false);
+          const [isSubmittingConfirm, setIsSubmittingConfirm] =
+            React.useState(false);
+          const [isSubmittingPayment, setIsSubmittingPayment] =
+            React.useState(false);
 
           const status = row.original.status;
 
           const handleConfirm = async (status: Status) => {
             try {
-              setIsSubmitting(true);
+              setIsSubmittingConfirm(true);
               const response = await axios.put(
                 `/api/order/confirm?id=${row.original.id}&status=${status}`,
               );
@@ -448,13 +451,13 @@ export function DataTable({
               console.log(error);
             } finally {
               await mutate(date);
-              setIsSubmitting(false);
+              setIsSubmittingConfirm(false);
             }
           };
 
           const handlePayment = async (payment: Payment | string) => {
             try {
-              setIsSubmitting(true);
+              setIsSubmittingPayment(true);
               const response = await axios.put(
                 `/api/order/payment?id=${row.original.id}&payment=${payment}`,
               );
@@ -464,7 +467,7 @@ export function DataTable({
               console.log(error);
             } finally {
               await mutate(date);
-              setIsSubmitting(false);
+              setIsSubmittingPayment(false);
             }
           };
 
@@ -477,7 +480,7 @@ export function DataTable({
                     ? "invisible transition-colors"
                     : "",
                 )}
-                disabled={currentTableMode === "edit" || isSubmitting}
+                disabled={currentTableMode === "edit" || isSubmittingConfirm}
                 onClick={() => {
                   handleConfirm(
                     status === "COMPLETED" ? "PENDING" : "COMPLETED",
@@ -488,7 +491,7 @@ export function DataTable({
               >
                 {status === "COMPLETED" ? (
                   <X />
-                ) : isSubmitting ? (
+                ) : isSubmittingConfirm ? (
                   <Loader2 className="animate-spin" />
                 ) : (
                   <Check />
@@ -506,6 +509,7 @@ export function DataTable({
                   <Select
                     onValueChange={(value) => handlePayment(value)}
                     defaultValue={row.original.payment}
+                    disabled={isSubmittingPayment}
                   >
                     <SelectTrigger
                       className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
