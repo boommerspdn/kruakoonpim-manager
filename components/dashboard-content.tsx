@@ -77,7 +77,6 @@ const DashboardContent = () => {
             <FinancialSection />
             <SectionCards data={data} />
             <MenuEdit menu={data} />
-            {formatOrders ? formatOrders[0].status : ""}
             <DataTable menu={data} data={formatOrders || []} />
           </>
         ) : (

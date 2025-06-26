@@ -460,14 +460,17 @@ export function DataTable({
           return (
             <Button
               size={"sm"}
-              className={
-                currentTableMode === "edit" ? "invisible transition-none" : ""
-              }
+              className={cn(
+                currentTableMode === "edit"
+                  ? "invisible transition-colors"
+                  : "",
+              )}
               disabled={currentTableMode === "edit" || isSubmitting}
               onClick={() => {
                 handleConfirm(status === "COMPLETED" ? "PENDING" : "COMPLETED");
               }}
               type="button"
+              variant={status === "COMPLETED" ? "secondary" : "default"}
             >
               {status === "COMPLETED" ? (
                 <X />
