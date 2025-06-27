@@ -148,3 +148,26 @@ export async function POST(req: NextRequest) {
     return new NextResponse(`${error}`);
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const body = await req.json();
+
+    const { ids } = body;
+
+    if (!Array.isArray(ids)) {
+      return new NextResponse("Id(s) must be an array", { status: 400 });
+    }
+
+    await prisma.order.deleteMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+
+    return NextResponse.json(`Deleted rows indexed of ${ids}`);
+  } catch (error) {
+    console.log(error);
+    return new NextResponse("Internal error", { status: 500 });
+  }
+}

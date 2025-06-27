@@ -79,7 +79,12 @@ const DashboardContent = () => {
           <>
             <FinancialSection />
             <SectionCards data={data} />
-            <MenuEdit menu={data} />
+            <div className="flex justify-between">
+              <p className="text-muted-foreground w-full">
+                *ถ้าตักเสร็จแล้วอย่าลืมแก้ยอดทั้งหมดให้เท่าจำนวนที่ตักได้ด้วย
+              </p>
+              <MenuEdit menu={data} />
+            </div>
             <DataTable menu={data} data={formatOrders || []} />
           </>
         ) : (

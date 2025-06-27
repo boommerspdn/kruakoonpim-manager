@@ -78,6 +78,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import {
   Popover,
@@ -98,6 +99,7 @@ import {
   PlusCircle,
   SaveAll,
   TableConfigIcon,
+  Trash2,
   X,
 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -105,6 +107,17 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
 import { Menu, Payment, Status } from "./generated/prisma";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Finally, the schema for your entire table data (an array of rows)
 
@@ -114,7 +127,7 @@ export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
   // Start with the fixed properties of your person object
   const baseProperties = {
     id: z.string().optional(),
-    name: z.string().min(1),
+    name: z.string().min(1, "ชื่อลูกค้าต้องมามากกว่า 1 ตัวอักษร"),
     note: z.string().optional(),
     delivery: z.boolean().optional(),
     status: z.string().optional(),
@@ -189,24 +202,8 @@ export function DataTable({
   menu: Menu[];
 }) {
   const [data, setData] = React.useState(() => initialData);
-  React.useEffect(() => {
-    setData(initialData);
-  }, [initialData]);
-
-  const [tableMode, setTableMode] = React.useState<"edit" | "default">(
-    "default",
-  );
-  React.useEffect(() => {
-    if (tableMode === "edit") setSelectedTab("all");
-  }, [tableMode]);
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-
   const [selectedTab, setSelectedTab] = React.useState("all");
+
   const filteredData = React.useMemo(() => {
     if (selectedTab === "delivery")
       return data.filter((row) => row.delivery === true);
@@ -217,6 +214,21 @@ export function DataTable({
 
     return data;
   }, [selectedTab, data]);
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  const [tableMode, setTableMode] = React.useState<"edit" | "default">(
+    "default",
+  );
+  React.useEffect(() => {
+    if (tableMode === "edit") setSelectedTab("all");
+  }, [tableMode]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const sortableId = React.useId();
@@ -287,6 +299,24 @@ export function DataTable({
       setTableMode("default");
     }
   }
+
+  const [isSubmittingDelete, setIsSubmittingDelete] = React.useState(false);
+  const handleDelete = async (ids: string[]) => {
+    try {
+      setIsSubmittingDelete(true);
+      const response = await axios.delete(`/api/order`, {
+        data: { ids },
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log(response);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด");
+      console.log(error);
+    } finally {
+      await mutate(date);
+      setIsSubmittingDelete(false);
+    }
+  };
   /// React Hook Form
 
   const columns = React.useMemo<ColumnDef<z.infer<any>>[]>(() => {
@@ -357,49 +387,6 @@ export function DataTable({
         },
       },
       {
-        id: "select",
-        size: 10,
-        header: ({ table }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-
-          return (
-            <div className="flex items-center justify-center">
-              <Checkbox
-                checked={
-                  table.getIsAllPageRowsSelected() ||
-                  (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) =>
-                  table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-                disabled={currentTableMode === "edit"}
-              />
-            </div>
-          );
-        },
-        cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-
-          return (
-            <div className="flex items-center justify-center">
-              <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-                disabled={currentTableMode === "edit"}
-              />
-            </div>
-          );
-        },
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
         accessorKey: "name",
         header: "ชื่อ",
         cell: ({ row }) => {
@@ -423,6 +410,7 @@ export function DataTable({
                       placeholder="ชื่อลูกค้า"
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -445,7 +433,7 @@ export function DataTable({
       ...customMenuColumns,
       {
         id: "actions",
-        size: 320,
+        size: 160,
         cell: ({ row }) => {
           const currentTableMode = (
             table.options.meta as { tableMode: "edit" | "default" }
@@ -492,7 +480,7 @@ export function DataTable({
           };
 
           return (
-            <div className="flex gap-2 items-center ps-4">
+            <div className="flex gap-2 items-center ps-4 w-[160px]">
               <Button
                 size={"sm"}
                 className={cn(
@@ -580,15 +568,15 @@ export function DataTable({
                       name={`people.${rowIndex}.delivery`}
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-2">
-                          <FormLabel className="text-sm font-normal">
-                            ส่ง
-                          </FormLabel>
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            ส่ง
+                          </FormLabel>
                         </FormItem>
                       )}
                     />
@@ -611,27 +599,7 @@ export function DataTable({
                   </div>
                 )}
               </div>
-              {currentTableMode === "default" ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8 ms-auto"
-                      size="icon"
-                    >
-                      <IconDotsVertical />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-32">
-                    <DropdownMenuItem>แก้ไข</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">
-                      ลบ
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
+              {currentTableMode === "edit" && (
                 <CircleMinus
                   className="text-primary cursor-pointer ms-auto me-4"
                   size={30}
@@ -661,12 +629,10 @@ export function DataTable({
     state: {
       sorting,
       columnVisibility,
-      rowSelection,
       columnFilters,
     },
     getRowId: (row) => row.id,
     enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -727,6 +693,10 @@ export function DataTable({
       }
     }
   }
+
+  const selectedIds = table
+    .getFilteredSelectedRowModel()
+    .rows.map(({ original }) => (original as { id: string }).id);
 
   return (
     <div className="space-y-4 pb-4">
