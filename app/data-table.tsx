@@ -196,6 +196,9 @@ export function DataTable({
   const [tableMode, setTableMode] = React.useState<"edit" | "default">(
     "default",
   );
+  React.useEffect(() => {
+    if (tableMode === "edit") setSelectedTab("all");
+  }, [tableMode]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -318,7 +321,7 @@ export function DataTable({
                     <Input
                       className="h-8"
                       {...form.register(name)}
-                      placeholder="จำนวน"
+                      placeholder={menuItem.name}
                       type="number"
                     />
                   </FormControl>
@@ -740,9 +743,15 @@ export function DataTable({
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
             <TabsTrigger value="all">ทั้งหมด</TabsTrigger>
-            <TabsTrigger value="delivery">คนส่ง</TabsTrigger>
-            <TabsTrigger value="pending">คนที่ยังไม่มาเอา</TabsTrigger>
-            <TabsTrigger value="completed">คนที่มาเอาไปแล้ว</TabsTrigger>
+            <TabsTrigger value="delivery" disabled={tableMode === "edit"}>
+              คนส่ง
+            </TabsTrigger>
+            <TabsTrigger value="pending" disabled={tableMode === "edit"}>
+              คนที่ยังไม่มาเอา
+            </TabsTrigger>
+            <TabsTrigger value="completed" disabled={tableMode === "edit"}>
+              คนที่มาเอาไปแล้ว
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
