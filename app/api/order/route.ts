@@ -28,13 +28,26 @@ export async function GET(req: NextRequest) {
           lte: end,
         },
       },
-      include: { orderItems: true },
+      include: { orderItems: { include: { menu: true } } },
       orderBy: { sortOrder: "asc" },
     });
 
-    console.log(orders.map((order) => order.orderItems));
+    const ordersWithTotal = orders.map((order) => {
+      // Calculate each item total
+      const itemTotals = order.orderItems.map(
+        (item) => item.amount * item.menu.price,
+      );
 
-    return NextResponse.json(orders);
+      // Sum up item totals
+      const totalPrice = itemTotals.reduce((sum, val) => sum + val, 0);
+
+      return {
+        ...order,
+        totalPrice,
+      };
+    });
+
+    return NextResponse.json(ordersWithTotal);
   } catch (error) {
     console.log(error);
     return new NextResponse(`${error}`);
@@ -68,9 +81,11 @@ export async function POST(req: NextRequest) {
     // 2. Calculate which IDs to delete
     const toDelete = existingIds.filter((id) => !newIds.includes(id));
 
-    const upsertOps = body.map((order) =>
-      prisma.order.upsert({
-        where: { id: order.id || "00000000-0000-0000-0000-000000000000" },
+    for (const order of body) {
+      const upsertedOrder = await prisma.order.upsert({
+        where: {
+          id: order.id || "00000000-0000-0000-0000-000000000000",
+        },
         create: {
           customerName: order.customerName,
           date: new Date(date),
@@ -79,10 +94,10 @@ export async function POST(req: NextRequest) {
           delivery: order.delivery,
           orderItems: {
             create: order.orderItems
-              .filter((orderItem) => orderItem.amount !== 0)
-              .map((orderItem) => ({
-                menuId: orderItem.menuId,
-                amount: orderItem.amount,
+              .filter((item) => item.amount !== 0)
+              .map((item) => ({
+                menuId: item.menuId,
+                amount: item.amount,
               })),
           },
         },
@@ -92,17 +107,31 @@ export async function POST(req: NextRequest) {
           sortOrder: order.sortOrder,
           note: order.note,
           delivery: order.delivery,
-          orderItems: {
-            create: order.orderItems
-              .filter((orderItem) => orderItem.amount !== 0)
-              .map((orderItem) => ({
-                menuId: orderItem.menuId,
-                amount: orderItem.amount,
-              })),
-          },
         },
-      }),
-    );
+      });
+
+      // Upsert orderItems manually (after order upserted)
+      for (const item of order.orderItems) {
+        if (item.amount === 0) continue;
+
+        await prisma.orderItem.upsert({
+          where: {
+            orderId_menuId: {
+              orderId: upsertedOrder.id,
+              menuId: item.menuId,
+            },
+          },
+          update: {
+            amount: item.amount,
+          },
+          create: {
+            orderId: upsertedOrder.id,
+            menuId: item.menuId,
+            amount: item.amount,
+          },
+        });
+      }
+    }
 
     // 4. Run everything in a transaction
     await prisma.$transaction([
@@ -112,8 +141,6 @@ export async function POST(req: NextRequest) {
           id: { in: toDelete },
         },
       }),
-      // Upsert all items
-      ...upsertOps,
     ]);
 
     return NextResponse.json("Order created successfully");

@@ -27,7 +27,8 @@ const DashboardContent = () => {
     include: {
       orderItems: true;
     };
-  }>;
+  }> & { totalPrice: number };
+
   const { date } = useDateStore();
   const [mounted, setMounted] = useState(false);
 
@@ -66,7 +67,7 @@ const DashboardContent = () => {
       delivery: order.delivery,
       status: order.status,
       payment: order.payment,
-      priceAmount: 150,
+      totalPrice: order.totalPrice,
       ...items,
     };
   });

@@ -435,7 +435,7 @@ export function DataTable({
             >
               {row.original.name}
               <span className="text-destructive text-sm">
-                {row.original.priceAmount}฿
+                {row.original.totalPrice}฿
               </span>
             </div>
           );
@@ -805,7 +805,7 @@ export function DataTable({
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        ไม่มีลูกค้าเลย :(
+                        ไม่มีผลลัพธ์
                       </TableCell>
                     </TableRow>
                   )}
