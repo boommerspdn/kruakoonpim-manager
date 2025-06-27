@@ -66,6 +66,7 @@ const DashboardContent = () => {
       delivery: order.delivery,
       status: order.status,
       payment: order.payment,
+      priceAmount: 150,
       ...items,
     };
   });

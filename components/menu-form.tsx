@@ -137,7 +137,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
                         type="number"
                         placeholder="ราคา"
                       />
-                      <Badge className="absolute top-1/2 right-[8px] transform  -translate-y-1/2">
+                      <Badge className="absolute top-1/2 right-[8px] transform  -translate-y-1/2 pointer-events-none">
                         ฿
                       </Badge>
                     </div>

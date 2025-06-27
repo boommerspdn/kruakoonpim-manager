@@ -202,6 +202,19 @@ export function DataTable({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+
+  const [selectedTab, setSelectedTab] = React.useState("all");
+  const filteredData = React.useMemo(() => {
+    if (selectedTab === "delivery")
+      return data.filter((row) => row.delivery === true);
+    if (selectedTab === "pending")
+      return data.filter((row) => row.status === "PENDING");
+    if (selectedTab === "completed")
+      return data.filter((row) => row.status === "COMPLETED");
+
+    return data;
+  }, [selectedTab, data]);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const sortableId = React.useId();
   const sensors = useSensors(
@@ -316,9 +329,7 @@ export function DataTable({
             <div
               className={cn(
                 `w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`,
-                status === "COMPLETED"
-                  ? "text-muted-foreground line-through"
-                  : "",
+                status === "COMPLETED" ? "text-destructive line-through" : "",
               )}
             >
               {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
@@ -415,14 +426,14 @@ export function DataTable({
           ) : (
             <div
               className={cn(
-                "flex gap-2",
-                status === "COMPLETED"
-                  ? "line-through text-muted-foreground"
-                  : "",
+                "flex gap-2 items-center",
+                status === "COMPLETED" ? "line-through text-destructive" : "",
               )}
             >
               {row.original.name}
-              <span className="text-destructive">s</span>
+              <span className="text-destructive text-sm">
+                {row.original.priceAmount}฿
+              </span>
             </div>
           );
         },
@@ -642,7 +653,7 @@ export function DataTable({
   );
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       sorting,
@@ -726,10 +737,12 @@ export function DataTable({
           }
           className="max-w-md "
         />
-        <Tabs defaultValue="all">
+        <Tabs value={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
             <TabsTrigger value="all">ทั้งหมด</TabsTrigger>
             <TabsTrigger value="delivery">คนส่ง</TabsTrigger>
+            <TabsTrigger value="pending">คนที่ยังไม่มาเอา</TabsTrigger>
+            <TabsTrigger value="completed">คนที่มาเอาไปแล้ว</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

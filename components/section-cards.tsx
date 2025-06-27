@@ -29,7 +29,9 @@ export function SectionCards({ data }: SectionCardsProps) {
         <Card className="@container/card" key={index}>
           <CardHeader>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl flex justify-between">
-              <h2>{menu.name}</h2>
+              <h2>
+                {menu.name} {menu.price}฿
+              </h2>
               <div className="flex flex-col items-end text-primary">
                 <h2>{menu.amount - 5}</h2>
                 <span className="text-base text-nowrap">ยังไม่มาเอา</span>

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     const { start, end } = getDayRange(new Date(date));
 
-    const order = await prisma.order.findMany({
+    const orders = await prisma.order.findMany({
       where: {
         date: {
           gte: start,
@@ -32,7 +32,9 @@ export async function GET(req: NextRequest) {
       orderBy: { sortOrder: "asc" },
     });
 
-    return NextResponse.json(order);
+    console.log(orders.map((order) => order.orderItems));
+
+    return NextResponse.json(orders);
   } catch (error) {
     console.log(error);
     return new NextResponse(`${error}`);
