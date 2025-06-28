@@ -133,7 +133,7 @@ export async function DELETE(req: NextRequest) {
 
     const { start, end } = getDayRange(new Date(date));
 
-    const menu = await prisma.menu.deleteMany({
+    const deleteMenu = prisma.menu.deleteMany({
       where: {
         date: {
           gte: start,
@@ -142,7 +142,18 @@ export async function DELETE(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(menu);
+    const deleteOrder = prisma.order.deleteMany({
+      where: {
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
+    await prisma.$transaction([deleteMenu, deleteOrder]);
+
+    return NextResponse.json("Menu deleted successfully");
   } catch (error) {
     console.log(error);
     return new NextResponse(`${error}`);

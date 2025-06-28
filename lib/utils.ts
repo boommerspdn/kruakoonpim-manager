@@ -53,6 +53,44 @@ export async function getOrderData(date: Date | undefined) {
   }
 }
 
+export async function getDashboardData(date: Date | undefined) {
+  const API_URL = `/api/dashboard?date=${date?.toISOString()}`;
+
+  try {
+    const response = await axios.get(API_URL);
+    return response.data;
+  } catch (error) {
+    // Axios errors have a specific structure
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        console.error(
+          "API Error (Response):",
+          error.response.status,
+          error.response.data,
+        );
+        throw new Error(
+          `API Error: ${error.response.status} - ${JSON.stringify(
+            error.response.data || error.message,
+          )}`,
+        );
+      } else if (error.request) {
+        console.error("API Error (No Response):", error.request);
+        throw new Error("Network Error: No response received from server.");
+      } else {
+        console.error("API Error (Request Setup):", error.message);
+        throw new Error(`Request Error: ${error.message}`);
+      }
+    } else {
+      console.error("Unknown Error during API call:", error);
+      throw new Error(
+        `An unexpected error occurred: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
+}
+
 export function getDayRange(date: Date) {
   const start = new Date(date);
   start.setHours(0, 0, 0, 0);

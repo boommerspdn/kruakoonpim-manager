@@ -45,7 +45,7 @@ model OrderItem {
   orderId String
   menuId  String
   amount  Int
-  menu    Menu   @relation(fields: [menuId], references: [id])
+  menu    Menu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@unique([orderId, menuId])

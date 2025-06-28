@@ -874,7 +874,7 @@ export function DataTable({
               sensors={sensors}
               id={sortableId}
             >
-              <div className="h-[80vh] relative overflow-auto">
+              <div className="max-h-[80vh] relative overflow-auto">
                 <Table className="text-base">
                   <TableHeader className="bg-muted sticky top-0 z-10">
                     {table.getHeaderGroups().map((headerGroup) => (

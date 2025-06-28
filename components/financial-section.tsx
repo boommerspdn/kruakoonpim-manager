@@ -5,6 +5,11 @@ import {
   IconCreditCardOff,
   IconCreditCardPay,
 } from "@tabler/icons-react";
+import { Financial } from "@/app/api/dashboard/route";
+
+type FinancialSectionProps = {
+  data: Financial | undefined;
+};
 
 const FinancialItem = ({
   children,
@@ -32,21 +37,21 @@ const FinancialItem = ({
   );
 };
 
-const FinancialSection = () => {
+const FinancialSection = ({ data }: FinancialSectionProps) => {
   return (
     <div className="grid grid-cols-4 gap-4 border shadow-md rounded-2xl py-6">
-      <FinancialItem title="ยอดเงินรวม" value="฿4,415">
+      <FinancialItem title="ยอดขายวันนี้" value={`฿${data?.total}`}>
         <PiggyBank className="h-full w-[70px] text-primary" />
       </FinancialItem>
-      <FinancialItem title="เงินสด" value="฿4,415">
+      <FinancialItem title="เงินสด" value={`฿${data?.cash}`}>
         <IconCash className="h-full w-[70px] text-primary" />
       </FinancialItem>
-      <FinancialItem title="โอน" value="฿4,415">
+      <FinancialItem title="โอน" value={`฿${data?.online}`}>
         <IconCreditCardPay className="h-full w-[70px] text-primary" />
       </FinancialItem>
       <FinancialItem
         title="ไม่ได้จ่ายหน้าร้าน"
-        value="฿4,415"
+        value={`฿${data?.unknown}`}
         hideSeparator={true}
       >
         <IconCreditCardOff className="h-full w-[70px] text-primary" />

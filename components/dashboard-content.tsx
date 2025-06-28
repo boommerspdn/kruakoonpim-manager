@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import useSWR from "swr";
 import { SectionCards } from "@/components/section-cards";
-import { fetcher, getOrderData } from "@/lib/utils";
+import { fetcher, getDashboardData, getOrderData } from "@/lib/utils";
 import { useDateStore } from "@/hooks/use-date";
 import { Menu, Order, Prisma, PrismaClient } from "@/app/generated/prisma";
 import MenuPrompt from "./menu-promt";
@@ -11,6 +11,7 @@ import MenuEdit from "./menu-edit";
 import FinancialSection from "./financial-section";
 import { DataTable } from "@/app/data-table";
 import { useSWRConfig } from "swr";
+import { DashboardData } from "@/app/api/dashboard/route";
 
 export type TableRowData = {
   id: string;
@@ -38,19 +39,23 @@ const DashboardContent = () => {
 
   const { data, error, isLoading } = useSWR<Menu[]>(swrKey, fetcher);
 
-  const { mutate } = useSWRConfig();
-
   const {
     data: orders,
     error: ordersError,
     isLoading: orderIsLoading,
   } = useSWR<OrderWithItems[]>(date, getOrderData);
 
+  const {
+    data: dashboardData,
+    error: dashboardError,
+    isLoading: dashboardIsLoading,
+  } = useSWR<DashboardData>(`/api/dashboard?date=${formattedDate}`, fetcher);
+  console.log(dashboardData);
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || isLoading || orderIsLoading) {
+  if (!mounted || isLoading || orderIsLoading || dashboardIsLoading) {
     return <>Loading...</>;
   }
 
@@ -77,8 +82,8 @@ const DashboardContent = () => {
       <div className="flex flex-col gap-4 md:gap-6 size-full">
         {data?.length !== 0 && data ? (
           <>
-            <FinancialSection />
-            <SectionCards data={data} />
+            <FinancialSection data={dashboardData?.financial} />
+            <SectionCards data={dashboardData?.menuSummary} />
             <div className="flex justify-between">
               <p className="text-muted-foreground w-full">
                 *ถ้าตักเสร็จแล้วอย่าลืมแก้ยอดทั้งหมดให้เท่าจำนวนที่ตักได้ด้วย
