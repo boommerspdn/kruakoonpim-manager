@@ -33,17 +33,20 @@ const DashboardContent = () => {
   const { date } = useDateStore();
   const [mounted, setMounted] = useState(false);
 
-  const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
+  const formattedDate = date
+    ? format(date, "yyyy-MM-dd")
+    : format(new Date(), "yyyy-MM-dd");
 
-  const swrKey = formattedDate ? `/api/menu?date=${formattedDate}` : null;
-
-  const { data, error, isLoading } = useSWR<Menu[]>(swrKey, fetcher);
+  const { data, error, isLoading } = useSWR<Menu[]>(
+    `/api/menu?date=${formattedDate}`,
+    fetcher,
+  );
 
   const {
     data: orders,
     error: ordersError,
     isLoading: orderIsLoading,
-  } = useSWR<OrderWithItems[]>(date, getOrderData);
+  } = useSWR<OrderWithItems[]>(`/api/order?date=${formattedDate}`, fetcher);
 
   const {
     data: dashboardData,

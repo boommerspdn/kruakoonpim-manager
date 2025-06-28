@@ -50,7 +50,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
   const { date } = useDateStore();
   const { mutate } = useSWRConfig();
 
-  const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
+  const formattedDate = date
+    ? format(date, "yyyy-MM-dd")
+    : format(new Date(), "yyyy-MM-dd");
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -101,7 +103,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
       console.log(error);
     } finally {
       await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(date);
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   };
 

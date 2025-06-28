@@ -266,12 +266,13 @@ export function DataTable({
   });
   // 2. Define a submit handler.
   const { date } = useDateStore();
-  const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
+  const formattedDate = date
+    ? format(date, "yyyy-MM-dd")
+    : format(new Date(), "yyyy-MM-dd");
 
   const { mutate } = useSWRConfig();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     const submittedData: OrderBody[] = values.people.map(
       (item: any, index) => ({
         id: item.id,
@@ -296,28 +297,12 @@ export function DataTable({
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
     } finally {
-      await mutate(date);
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
       setTableMode("default");
+      toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
     }
   }
-
-  const [isSubmittingDelete, setIsSubmittingDelete] = React.useState(false);
-  const handleDelete = async (ids: string[]) => {
-    try {
-      setIsSubmittingDelete(true);
-      const response = await axios.delete(`/api/order`, {
-        data: { ids },
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log(response);
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
-    } finally {
-      await mutate(date);
-      setIsSubmittingDelete(false);
-    }
-  };
   /// React Hook Form
 
   const columns = React.useMemo<ColumnDef<z.infer<any>>[]>(() => {
@@ -458,7 +443,8 @@ export function DataTable({
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
             } finally {
-              await mutate(date);
+              await mutate(`/api/order?date=${formattedDate}`);
+              await mutate(`/api/dashboard?date=${formattedDate}`);
               setIsSubmittingConfirm(false);
             }
           };
@@ -474,7 +460,8 @@ export function DataTable({
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
             } finally {
-              await mutate(date);
+              await mutate(`/api/order?date=${formattedDate}`);
+              await mutate(`/api/dashboard?date=${formattedDate}`);
               setIsSubmittingPayment(false);
             }
           };
@@ -874,54 +861,52 @@ export function DataTable({
               sensors={sensors}
               id={sortableId}
             >
-              <div className="max-h-[80vh] relative overflow-auto">
-                <Table className="text-base">
-                  <TableHeader className="bg-muted sticky top-0 z-10">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => {
-                          return (
-                            <TableHead
-                              key={header.id}
-                              colSpan={header.colSpan}
-                              style={{ width: `${header.getSize()}px` }}
-                              className="py-2 font-medium"
-                            >
-                              {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext(),
-                                  )}
-                            </TableHead>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                    {table.getRowModel().rows?.length ? (
-                      <SortableContext
-                        items={dataIds}
-                        strategy={verticalListSortingStrategy}
+              <Table className="text-base">
+                <TableHeader className="bg-muted sticky top-0 z-10">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead
+                            key={header.id}
+                            colSpan={header.colSpan}
+                            style={{ width: `${header.getSize()}px` }}
+                            className="py-2 font-medium"
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                  {table.getRowModel().rows?.length ? (
+                    <SortableContext
+                      items={dataIds}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {table.getRowModel().rows.map((row) => (
+                        <DraggableRow key={row.original.id} row={row} />
+                      ))}
+                    </SortableContext>
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
                       >
-                        {table.getRowModel().rows.map((row) => (
-                          <DraggableRow key={row.original.id} row={row} />
-                        ))}
-                      </SortableContext>
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className="h-24 text-center"
-                        >
-                          ไม่มีผลลัพธ์
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                        ไม่มีผลลัพธ์
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             </DndContext>
           </div>
           <div
