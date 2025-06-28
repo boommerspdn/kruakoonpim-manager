@@ -14,6 +14,7 @@ import {
   Hourglass,
   ShoppingCart,
   Star,
+  XCircle,
 } from "lucide-react";
 import { Menu } from "@/app/generated/prisma";
 
@@ -68,17 +69,17 @@ export function SectionCards({ data }: SectionCardsProps) {
               </div>
             </div>
             <div className="flex flex-col gap-1">
+              <span className="font-medium">ยังไม่มาเอา</span>
+              <div className="flex gap-2 text-2xl items-center">
+                <XCircle />
+                <span className="text-[#F28C28]">{menu.amount}</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
               <span className="font-medium">ต้องมีหน้าร้าน</span>
               <div className="flex gap-2 text-2xl items-center">
                 <Hourglass />
                 <span className="text-destructive">{menu.amount}</span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="font-medium">เมนูพิเศษ</span>
-              <div className="flex gap-2 text-2xl items-center">
-                <Star />
-                <span className="text-[#F28C28]">{menu.amount}</span>
               </div>
             </div>
           </CardContent>

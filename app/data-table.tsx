@@ -118,6 +118,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
 // Finally, the schema for your entire table data (an array of rows)
 
@@ -539,7 +540,7 @@ export function DataTable({
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-3">
                   <Button
                     size={"sm"}
                     disabled={isSubmittingConfirm}
@@ -839,15 +840,26 @@ export function DataTable({
         />
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
-            <TabsTrigger value="all">ทั้งหมด</TabsTrigger>
+            <TabsTrigger value="all">
+              ทั้งหมด <Badge>{data.length}</Badge>
+            </TabsTrigger>
             <TabsTrigger value="delivery" disabled={tableMode === "edit"}>
               คนส่ง
+              <Badge>
+                {data.filter((row) => row.delivery === true).length}
+              </Badge>
             </TabsTrigger>
             <TabsTrigger value="pending" disabled={tableMode === "edit"}>
               คนที่ยังไม่มาเอา
+              <Badge>
+                {data.filter((row) => row.status === "PENDING").length}
+              </Badge>
             </TabsTrigger>
             <TabsTrigger value="completed" disabled={tableMode === "edit"}>
               คนที่มาเอาไปแล้ว
+              <Badge>
+                {data.filter((row) => row.status === "COMPLETED").length}
+              </Badge>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -862,52 +874,54 @@ export function DataTable({
               sensors={sensors}
               id={sortableId}
             >
-              <Table className="text-base">
-                <TableHeader className="bg-muted sticky top-0 z-10">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead
-                            key={header.id}
-                            colSpan={header.colSpan}
-                            style={{ width: `${header.getSize()}px` }}
-                            className="py-2 font-medium"
-                          >
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                  {table.getRowModel().rows?.length ? (
-                    <SortableContext
-                      items={dataIds}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {table.getRowModel().rows.map((row) => (
-                        <DraggableRow key={row.original.id} row={row} />
-                      ))}
-                    </SortableContext>
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
+              <div className="h-[80vh] relative overflow-auto">
+                <Table className="text-base">
+                  <TableHeader className="bg-muted sticky top-0 z-10">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                          return (
+                            <TableHead
+                              key={header.id}
+                              colSpan={header.colSpan}
+                              style={{ width: `${header.getSize()}px` }}
+                              className="py-2 font-medium"
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </TableHead>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                    {table.getRowModel().rows?.length ? (
+                      <SortableContext
+                        items={dataIds}
+                        strategy={verticalListSortingStrategy}
                       >
-                        ไม่มีผลลัพธ์
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                        {table.getRowModel().rows.map((row) => (
+                          <DraggableRow key={row.original.id} row={row} />
+                        ))}
+                      </SortableContext>
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={columns.length}
+                          className="h-24 text-center"
+                        >
+                          ไม่มีผลลัพธ์
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </DndContext>
           </div>
           <div
