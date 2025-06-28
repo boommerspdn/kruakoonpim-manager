@@ -320,14 +320,12 @@ export function DataTable({
   /// React Hook Form
 
   const columns = React.useMemo<ColumnDef<z.infer<any>>[]>(() => {
-    const customColumnSize = 120;
+    const customColumnSize = 110;
     const customMenuColumns: ColumnDef<z.infer<any>>[] = menu.map(
       (menuItem) => ({
         accessorKey: menuItem.id,
         header: () => (
-          <div
-            className={`w-[${customColumnSize}px] text-center whitespace-pre-line`}
-          >
+          <div className={`w-auto text-center whitespace-pre-line`}>
             {menuItem.name}
           </div>
         ),
@@ -376,7 +374,7 @@ export function DataTable({
     return [
       {
         id: "drag",
-        size: 10,
+        size: 0,
         header: () => null,
         cell: ({ row }) => {
           const currentTableMode = (
@@ -389,6 +387,7 @@ export function DataTable({
       {
         accessorKey: "name",
         header: "ชื่อ",
+        size: 110,
         cell: ({ row }) => {
           const currentTableMode = (
             table.options.meta as { tableMode: "edit" | "default" }
@@ -433,7 +432,7 @@ export function DataTable({
       ...customMenuColumns,
       {
         id: "actions",
-        size: 160,
+        size: 260,
         cell: ({ row }) => {
           const currentTableMode = (
             table.options.meta as { tableMode: "edit" | "default" }
@@ -480,64 +479,10 @@ export function DataTable({
           };
 
           return (
-            <div className="flex gap-2 items-center ps-4 w-[160px]">
-              <Button
-                size={"sm"}
-                className={cn(
-                  currentTableMode === "edit" ? "hidden transition-colors" : "",
-                )}
-                disabled={currentTableMode === "edit" || isSubmittingConfirm}
-                onClick={() => {
-                  handleConfirm(
-                    status === "COMPLETED" ? "PENDING" : "COMPLETED",
-                  );
-                }}
-                type="button"
-                variant={status === "COMPLETED" ? "secondary" : "default"}
-              >
-                {status === "COMPLETED" ? (
-                  <X />
-                ) : isSubmittingConfirm ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <Check />
-                )}
-              </Button>
-
-              {currentTableMode === "default" ? (
-                <>
-                  <Label
-                    htmlFor={`${row.original.id}-payment`}
-                    className="sr-only"
-                  >
-                    วิธีจ่ายเงิน
-                  </Label>
-                  <Select
-                    onValueChange={(value) => handlePayment(value)}
-                    defaultValue={payment === "PENDING" ? undefined : payment}
-                    disabled={isSubmittingPayment}
-                  >
-                    <SelectTrigger
-                      className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-                      size="sm"
-                      id={`${row.original.id}-payment`}
-                    >
-                      <SelectValue placeholder="วิธีจ่ายเงิน" />
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      <SelectItem value="CASH">เงินสด</SelectItem>
-                      <SelectItem value="ONLINE">โอน</SelectItem>
-                      <SelectItem value="UNKNOWN">
-                        ไม่ได้จ่ายหน้าร้าน
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </>
-              ) : null}
-
-              <div className="flex gap-4">
-                {currentTableMode === "edit" ? (
-                  <>
+            <div className="w-full max-w-full overflow-x-hidden">
+              {currentTableMode === "edit" ? (
+                <div className="flex justify-between items-center gap-2">
+                  <div className="flex gap-4">
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button size={"icon"}>
@@ -580,9 +525,70 @@ export function DataTable({
                         </FormItem>
                       )}
                     />
-                  </>
-                ) : (
-                  <div className="flex gap-2 items-center">
+                  </div>
+
+                  <CircleMinus
+                    className="text-primary cursor-pointer ms-auto me-4 col-span-2"
+                    size={30}
+                    onClick={() => {
+                      remove(rowIndex);
+                      setData((prev) =>
+                        prev.filter((_, index) => index !== rowIndex),
+                      );
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-7 gap-2">
+                  <Button
+                    size={"sm"}
+                    disabled={isSubmittingConfirm}
+                    onClick={() => {
+                      handleConfirm(
+                        status === "COMPLETED" ? "PENDING" : "COMPLETED",
+                      );
+                    }}
+                    type="button"
+                    variant={status === "COMPLETED" ? "secondary" : "default"}
+                  >
+                    {status === "COMPLETED" ? (
+                      <X />
+                    ) : isSubmittingConfirm ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Check />
+                    )}
+                  </Button>
+                  <div className="col-span-4">
+                    <Label
+                      htmlFor={`${row.original.id}-payment`}
+                      className="sr-only"
+                    >
+                      วิธีจ่ายเงิน
+                    </Label>
+                    <Select
+                      onValueChange={(value) => handlePayment(value)}
+                      defaultValue={payment === "PENDING" ? undefined : payment}
+                      disabled={isSubmittingPayment}
+                    >
+                      <SelectTrigger
+                        className="w-full **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
+                        size="sm"
+                        id={`${row.original.id}-payment`}
+                      >
+                        <SelectValue placeholder="วิธีจ่ายเงิน" />
+                      </SelectTrigger>
+                      <SelectContent align="end">
+                        <SelectItem value="CASH">เงินสด</SelectItem>
+                        <SelectItem value="ONLINE">โอน</SelectItem>
+                        <SelectItem value="UNKNOWN">
+                          ไม่ได้จ่ายหน้าร้าน
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex gap-2 items-center col-span-2">
                     {row.original.note && (
                       <Popover>
                         <PopoverTrigger>
@@ -597,21 +603,142 @@ export function DataTable({
                       <IconTruck className="text-primary" />
                     )}
                   </div>
-                )}
-              </div>
-              {currentTableMode === "edit" && (
-                <CircleMinus
-                  className="text-primary cursor-pointer ms-auto me-4"
-                  size={30}
-                  onClick={() => {
-                    remove(rowIndex);
-                    setData((prev) =>
-                      prev.filter((_, index) => index !== rowIndex),
-                    );
-                  }}
-                />
+                </div>
               )}
             </div>
+
+            // <div className="flex gap-2 items-center ps-4 w-[160px]">
+            //   <Button
+            //     size={"sm"}
+            //     className={cn(
+            //       currentTableMode === "edit" ? "hidden transition-colors" : "",
+            //     )}
+            //     disabled={currentTableMode === "edit" || isSubmittingConfirm}
+            //     onClick={() => {
+            //       handleConfirm(
+            //         status === "COMPLETED" ? "PENDING" : "COMPLETED",
+            //       );
+            //     }}
+            //     type="button"
+            //     variant={status === "COMPLETED" ? "secondary" : "default"}
+            //   >
+            //     {status === "COMPLETED" ? (
+            //       <X />
+            //     ) : isSubmittingConfirm ? (
+            //       <Loader2 className="animate-spin" />
+            //     ) : (
+            //       <Check />
+            //     )}
+            //   </Button>
+
+            //   {currentTableMode === "default" ? (
+            //     <>
+            //       <Label
+            //         htmlFor={`${row.original.id}-payment`}
+            //         className="sr-only"
+            //       >
+            //         วิธีจ่ายเงิน
+            //       </Label>
+            //       <Select
+            //         onValueChange={(value) => handlePayment(value)}
+            //         defaultValue={payment === "PENDING" ? undefined : payment}
+            //         disabled={isSubmittingPayment}
+            //       >
+            //         <SelectTrigger
+            //           className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
+            //           size="sm"
+            //           id={`${row.original.id}-payment`}
+            //         >
+            //           <SelectValue placeholder="วิธีจ่ายเงิน" />
+            //         </SelectTrigger>
+            //         <SelectContent align="end">
+            //           <SelectItem value="CASH">เงินสด</SelectItem>
+            //           <SelectItem value="ONLINE">โอน</SelectItem>
+            //           <SelectItem value="UNKNOWN">
+            //             ไม่ได้จ่ายหน้าร้าน
+            //           </SelectItem>
+            //         </SelectContent>
+            //       </Select>
+            //     </>
+            //   ) : null}
+
+            //   <div className="flex gap-4">
+            //     {currentTableMode === "edit" ? (
+            //       <>
+            //         <Popover>
+            //           <PopoverTrigger asChild>
+            //             <Button size={"icon"}>
+            //               <Info />
+            //             </Button>
+            //           </PopoverTrigger>
+            //           <PopoverContent align="end">
+            //             <FormField
+            //               control={form.control}
+            //               name={`people.${rowIndex}.note`}
+            //               render={() => (
+            //                 <FormItem>
+            //                   <FormControl>
+            //                     <Textarea
+            //                       className="resize-none"
+            //                       {...form.register(`people.${rowIndex}.note`)}
+            //                       placeholder="โน๊ต"
+            //                     />
+            //                   </FormControl>
+            //                 </FormItem>
+            //               )}
+            //             />
+            //           </PopoverContent>
+            //         </Popover>
+            //         {/* delivery */}
+            //         <FormField
+            //           control={form.control}
+            //           name={`people.${rowIndex}.delivery`}
+            //           render={({ field }) => (
+            //             <FormItem className="flex flex-row items-center gap-2">
+            //               <FormControl>
+            //                 <Checkbox
+            //                   checked={field.value}
+            //                   onCheckedChange={field.onChange}
+            //                 />
+            //               </FormControl>
+            //               <FormLabel className="text-sm font-normal">
+            //                 ส่ง
+            //               </FormLabel>
+            //             </FormItem>
+            //           )}
+            //         />
+            //       </>
+            //     ) : (
+            //       <div className="flex gap-2 items-center">
+            //         {row.original.note && (
+            //           <Popover>
+            //             <PopoverTrigger>
+            //               <Info size={20} className="text-destructive" />
+            //             </PopoverTrigger>
+            //             <PopoverContent align="end">
+            //               {row.original.note}
+            //             </PopoverContent>
+            //           </Popover>
+            //         )}
+            //         {row.original.delivery && (
+            //           <IconTruck className="text-primary" />
+            //         )}
+            //       </div>
+            //     )}
+            //   </div>
+            //   {currentTableMode === "edit" && (
+            //     <CircleMinus
+            //       className="text-primary cursor-pointer ms-auto me-4"
+            //       size={30}
+            //       onClick={() => {
+            //         remove(rowIndex);
+            //         setData((prev) =>
+            //           prev.filter((_, index) => index !== rowIndex),
+            //         );
+            //       }}
+            //     />
+            //   )}
+            // </div>
           );
         },
       },
