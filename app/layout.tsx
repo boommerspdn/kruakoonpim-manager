@@ -1,8 +1,7 @@
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import { SiteHeader } from "@/components/site-header";
 
 const anuphan = Anuphan({
   variable: "--font-anuphan",

@@ -1,17 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
-import { format } from "date-fns";
-import useSWR from "swr";
-import { SectionCards } from "@/components/section-cards";
-import { fetcher, getDashboardData, getOrderData } from "@/lib/utils";
-import { useDateStore } from "@/hooks/use-date";
-import { Menu, Order, Prisma, PrismaClient } from "@/app/generated/prisma";
-import MenuPrompt from "./menu-promt";
-import MenuEdit from "./menu-edit";
-import FinancialSection from "./financial-section";
-import { DataTable } from "@/app/data-table";
-import { useSWRConfig } from "swr";
 import { DashboardData } from "@/app/api/dashboard/route";
+import { DataTable } from "@/app/data-table";
+import { Menu, Prisma } from "@/app/generated/prisma";
+import { SectionCards } from "@/components/section-cards";
+import { useDateStore } from "@/hooks/use-date";
+import { fetcher } from "@/lib/utils";
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+import FinancialSection from "./financial-section";
+import Loading from "./loading";
+import MenuEdit from "./menu-edit";
+import MenuPrompt from "./menu-promt";
 
 export type TableRowData = {
   id: string;
@@ -22,8 +22,6 @@ export type TableRowData = {
 };
 
 const DashboardContent = () => {
-  const prisma = new PrismaClient();
-
   type OrderWithItems = Prisma.OrderGetPayload<{
     include: {
       orderItems: true;
@@ -37,29 +35,25 @@ const DashboardContent = () => {
     ? format(date, "yyyy-MM-dd")
     : format(new Date(), "yyyy-MM-dd");
 
-  const { data, error, isLoading } = useSWR<Menu[]>(
+  const { data, isLoading } = useSWR<Menu[]>(
     `/api/menu?date=${formattedDate}`,
     fetcher,
   );
 
-  const {
-    data: orders,
-    error: ordersError,
-    isLoading: orderIsLoading,
-  } = useSWR<OrderWithItems[]>(`/api/order?date=${formattedDate}`, fetcher);
+  const { data: orders, isLoading: orderIsLoading } = useSWR<OrderWithItems[]>(
+    `/api/order?date=${formattedDate}`,
+    fetcher,
+  );
 
-  const {
-    data: dashboardData,
-    error: dashboardError,
-    isLoading: dashboardIsLoading,
-  } = useSWR<DashboardData>(`/api/dashboard?date=${formattedDate}`, fetcher);
+  const { data: dashboardData, isLoading: dashboardIsLoading } =
+    useSWR<DashboardData>(`/api/dashboard?date=${formattedDate}`, fetcher);
   console.log(dashboardData);
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted || isLoading || orderIsLoading || dashboardIsLoading) {
-    return <>Loading...</>;
+    return <Loading />;
   }
 
   const formatOrders: TableRowData[] | undefined = orders?.map((order) => {

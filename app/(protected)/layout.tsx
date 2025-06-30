@@ -7,10 +7,9 @@ export default async function ProtectedLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.time("Supabase getUser");
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
-  console.timeEnd("Supabase getUser");
+
   if (error || !data?.user) {
     redirect("/login");
   }

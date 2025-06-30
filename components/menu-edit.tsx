@@ -1,23 +1,19 @@
 "use client";
 
+import { Menu } from "@/app/generated/prisma";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useDateStore } from "@/hooks/use-date";
 import { Calendar, Pencil } from "lucide-react";
-import { Badge } from "./ui/badge";
-import { Menu } from "@/app/generated/prisma";
 import MenuForm from "./menu-form";
+import { Badge } from "./ui/badge";
 
 type MenuEditProps = {
   menu: Menu[];

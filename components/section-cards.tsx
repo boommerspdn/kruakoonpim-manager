@@ -1,12 +1,5 @@
-import { IconCash, IconCreditCard, IconInputX } from "@tabler/icons-react";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { MenuSummary } from "@/app/api/dashboard/route";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Box,
   ChartColumnDecreasing,
@@ -15,15 +8,12 @@ import {
   ShoppingCart,
   Star,
 } from "lucide-react";
-import { Menu } from "@/app/generated/prisma";
-import { MenuSummary } from "@/app/api/dashboard/route";
 
 type SectionCardsProps = {
   data: MenuSummary[] | undefined;
 };
 
 export function SectionCards({ data }: SectionCardsProps) {
-  const randBuyer = Math.floor(Math.random() * (15 - 10 + 1)) + 10;
   return (
     <div className="grid grid-cols-3 gap-4">
       {data?.map((menu, index) => (

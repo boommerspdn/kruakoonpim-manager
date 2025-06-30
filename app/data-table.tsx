@@ -19,11 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  IconDotsVertical,
-  IconGripVertical,
-  IconTruck,
-} from "@tabler/icons-react";
+import { IconGripVertical, IconTruck } from "@tabler/icons-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -46,13 +42,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -72,6 +61,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Form,
   FormControl,
@@ -99,7 +89,6 @@ import {
   PlusCircle,
   SaveAll,
   TableConfigIcon,
-  Trash2,
   X,
 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -107,25 +96,10 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
 import { Menu, Payment, Status } from "./generated/prisma";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-
-// Finally, the schema for your entire table data (an array of rows)
 
 export const dynamicMenuValueSchema = z.coerce.number();
 
 export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
-  // Start with the fixed properties of your person object
   const baseProperties = {
     id: z.string().optional(),
     name: z.string().min(1, "ชื่อลูกค้าต้องมามากกว่า 1 ตัวอักษร"),
@@ -134,22 +108,15 @@ export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
     status: z.string().optional(),
   };
 
-  // Dynamically add properties for each menu item's ID
-  // This object will hold the key-schema pairs for the dynamic part
   const dynamicProperties: Record<string, z.ZodTypeAny> = {};
 
   menu.forEach((menuItem) => {
-    // For each menu item, use its 'id' as a property key in the schema
-    // and assign dynamicMenuValueSchema for its validation.
-    // Use .optional() if a menu item might not always be present in the data.
     dynamicProperties[menuItem.id] = dynamicMenuValueSchema;
   });
 
-  // Combine fixed and dynamic properties into a single Zod object schema
   return z.object({ ...baseProperties, ...dynamicProperties });
 };
 
-// Create a separate component for the drag handle
 function DragHandle({ id, mode }: { id: string; mode?: "edit" | "default" }) {
   const { attributes, listeners } = useSortable({
     id,
@@ -594,139 +561,6 @@ export function DataTable({
                 </div>
               )}
             </div>
-
-            // <div className="flex gap-2 items-center ps-4 w-[160px]">
-            //   <Button
-            //     size={"sm"}
-            //     className={cn(
-            //       currentTableMode === "edit" ? "hidden transition-colors" : "",
-            //     )}
-            //     disabled={currentTableMode === "edit" || isSubmittingConfirm}
-            //     onClick={() => {
-            //       handleConfirm(
-            //         status === "COMPLETED" ? "PENDING" : "COMPLETED",
-            //       );
-            //     }}
-            //     type="button"
-            //     variant={status === "COMPLETED" ? "secondary" : "default"}
-            //   >
-            //     {status === "COMPLETED" ? (
-            //       <X />
-            //     ) : isSubmittingConfirm ? (
-            //       <Loader2 className="animate-spin" />
-            //     ) : (
-            //       <Check />
-            //     )}
-            //   </Button>
-
-            //   {currentTableMode === "default" ? (
-            //     <>
-            //       <Label
-            //         htmlFor={`${row.original.id}-payment`}
-            //         className="sr-only"
-            //       >
-            //         วิธีจ่ายเงิน
-            //       </Label>
-            //       <Select
-            //         onValueChange={(value) => handlePayment(value)}
-            //         defaultValue={payment === "PENDING" ? undefined : payment}
-            //         disabled={isSubmittingPayment}
-            //       >
-            //         <SelectTrigger
-            //           className="w-36 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-            //           size="sm"
-            //           id={`${row.original.id}-payment`}
-            //         >
-            //           <SelectValue placeholder="วิธีจ่ายเงิน" />
-            //         </SelectTrigger>
-            //         <SelectContent align="end">
-            //           <SelectItem value="CASH">เงินสด</SelectItem>
-            //           <SelectItem value="ONLINE">โอน</SelectItem>
-            //           <SelectItem value="UNKNOWN">
-            //             ไม่ได้จ่ายหน้าร้าน
-            //           </SelectItem>
-            //         </SelectContent>
-            //       </Select>
-            //     </>
-            //   ) : null}
-
-            //   <div className="flex gap-4">
-            //     {currentTableMode === "edit" ? (
-            //       <>
-            //         <Popover>
-            //           <PopoverTrigger asChild>
-            //             <Button size={"icon"}>
-            //               <Info />
-            //             </Button>
-            //           </PopoverTrigger>
-            //           <PopoverContent align="end">
-            //             <FormField
-            //               control={form.control}
-            //               name={`people.${rowIndex}.note`}
-            //               render={() => (
-            //                 <FormItem>
-            //                   <FormControl>
-            //                     <Textarea
-            //                       className="resize-none"
-            //                       {...form.register(`people.${rowIndex}.note`)}
-            //                       placeholder="โน๊ต"
-            //                     />
-            //                   </FormControl>
-            //                 </FormItem>
-            //               )}
-            //             />
-            //           </PopoverContent>
-            //         </Popover>
-            //         {/* delivery */}
-            //         <FormField
-            //           control={form.control}
-            //           name={`people.${rowIndex}.delivery`}
-            //           render={({ field }) => (
-            //             <FormItem className="flex flex-row items-center gap-2">
-            //               <FormControl>
-            //                 <Checkbox
-            //                   checked={field.value}
-            //                   onCheckedChange={field.onChange}
-            //                 />
-            //               </FormControl>
-            //               <FormLabel className="text-sm font-normal">
-            //                 ส่ง
-            //               </FormLabel>
-            //             </FormItem>
-            //           )}
-            //         />
-            //       </>
-            //     ) : (
-            //       <div className="flex gap-2 items-center">
-            //         {row.original.note && (
-            //           <Popover>
-            //             <PopoverTrigger>
-            //               <Info size={20} className="text-destructive" />
-            //             </PopoverTrigger>
-            //             <PopoverContent align="end">
-            //               {row.original.note}
-            //             </PopoverContent>
-            //           </Popover>
-            //         )}
-            //         {row.original.delivery && (
-            //           <IconTruck className="text-primary" />
-            //         )}
-            //       </div>
-            //     )}
-            //   </div>
-            //   {currentTableMode === "edit" && (
-            //     <CircleMinus
-            //       className="text-primary cursor-pointer ms-auto me-4"
-            //       size={30}
-            //       onClick={() => {
-            //         remove(rowIndex);
-            //         setData((prev) =>
-            //           prev.filter((_, index) => index !== rowIndex),
-            //         );
-            //       }}
-            //     />
-            //   )}
-            // </div>
           );
         },
       },
@@ -791,13 +625,7 @@ export function DataTable({
         return arrayMove(current, oldIndex, newIndex);
       });
 
-      // Async call after state update
       try {
-        const currentIds = data.map((item) => item.id); // or get these values from event
-        // const oldId = currentIds.indexOf(active.id);
-        // const newId = currentIds.indexOf(over.id);
-        // console.log("old", oldIndex, "new", newIndex);
-        // console.log("active id", active.id, "over id", over.id);
         const response = await axios.put("/api/order/swap-row", {
           oldId: active.id,
           newId: over.id,

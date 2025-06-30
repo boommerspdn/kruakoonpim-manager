@@ -1,11 +1,11 @@
-import { CreditCard, PiggyBank } from "lucide-react";
-import { Separator } from "./ui/separator";
+import { Financial } from "@/app/api/dashboard/route";
 import {
   IconCash,
   IconCreditCardOff,
   IconCreditCardPay,
 } from "@tabler/icons-react";
-import { Financial } from "@/app/api/dashboard/route";
+import { PiggyBank } from "lucide-react";
+import { Separator } from "./ui/separator";
 
 type FinancialSectionProps = {
   data: Financial | undefined;
@@ -20,7 +20,7 @@ const FinancialItem = ({
   children?: React.ReactNode;
   title: string;
   value: string;
-  hideSeparator?: Boolean;
+  hideSeparator?: boolean;
 }) => {
   return (
     <div className="flex justify-center gap-4">

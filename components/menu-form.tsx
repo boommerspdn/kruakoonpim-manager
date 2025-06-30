@@ -1,17 +1,4 @@
-import { toast } from "sonner";
-import { useSWRConfig } from "swr";
-import z from "zod";
-import { format } from "date-fns"; // or your preferred formatter
-import { Button } from "@/components/ui/button";
-import { useFieldArray, useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Menu } from "@/app/generated/prisma";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,11 +10,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { useDateStore } from "@/hooks/use-date";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { format } from "date-fns"; // or your preferred formatter
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
-import { Menu } from "@/app/generated/prisma";
+import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useSWRConfig } from "swr";
+import z from "zod";
 import { Badge } from "./ui/badge";
 
 type MenuForm = {
@@ -64,9 +64,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
     },
   });
 
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<
-    z.infer<typeof formSchema>
-  >({
+  const { fields, append, remove } = useFieldArray<z.infer<typeof formSchema>>({
     control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
     name: "menu", // unique name for your Field Array
   });
@@ -92,6 +90,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
       console.log(error);
     } finally {
       await mutate(`/api/menu?date=${formattedDate}`);
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   }
 
@@ -103,8 +103,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
       console.log(error);
     } finally {
       await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutate(`/api/order?date=${formattedDate}`);
     }
   };
 

@@ -1,16 +1,10 @@
 "use client";
 
-import { z } from "zod";
-import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import { Calendar, CircleMinus, PlusCircle, Save } from "lucide-react";
+import { Calendar } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDateStore } from "@/hooks/use-date";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "./ui/separator";
 import menuApi from "../public/kruakoonpim_menu_API.json";
 
 import { useState } from "react";
@@ -18,7 +12,7 @@ import MenuForm from "./menu-form";
 
 const MenuPrompt = () => {
   const [randomItems, setRandomItems] = useState<{ name: string }[]>([]);
-  const { date, setDate } = useDateStore();
+  const { date } = useDateStore();
 
   const getRandomItems = () => {
     // Shuffle the array and pick first 10
