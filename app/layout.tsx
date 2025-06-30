@@ -9,8 +9,7 @@ const anuphan = Anuphan({
 });
 
 export const metadata: Metadata = {
-  title: "monkey",
-  description: "jeung",
+  title: "Kruakoonpim",
 };
 
 export default function RootLayout({
