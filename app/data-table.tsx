@@ -96,6 +96,13 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
 import { Menu, Payment, Status } from "./generated/prisma";
+import { RowData } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    addNewRow: () => void;
+  }
+}
 
 export const dynamicMenuValueSchema = z.coerce.number();
 
