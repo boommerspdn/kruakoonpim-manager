@@ -1,8 +1,15 @@
-import { updateSession } from "@/lib/supabase/middleware";
-import { type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+export async function middleware(req: NextRequest) {
+  const session = req.cookies.get("session")?.value;
+
+  if (!session && !req.nextUrl.pathname.startsWith("/login")) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
@@ -15,6 +22,6 @@ export const config = {
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!manifest|sw\\.js|icon|favicon\\.ico|robots\\.txt).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|manifest|sw\\.js|icon|api|login|auth).*)",
   ],
 };

@@ -184,7 +184,9 @@ export function DataTable({
     setData(initialData);
   }, [initialData]);
   React.useEffect(() => {
-    form.reset({ people: data });
+    if (tableMode === "default") {
+      form.reset({ people: data });
+    }
   }, [data]);
   const [selectedTab, setSelectedTab] = React.useState("all");
 
@@ -756,8 +758,8 @@ export function DataTable({
                 className="w-fit place-self-end"
                 variant={"secondary"}
                 onClick={(e) => {
-                  table.options.meta?.addNewRow();
                   e.preventDefault();
+                  table.options.meta?.addNewRow();
                 }}
                 disabled={form.formState.isSubmitting}
               >

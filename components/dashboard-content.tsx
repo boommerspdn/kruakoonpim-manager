@@ -76,7 +76,7 @@ const DashboardContent = () => {
   if (mounted || !isLoading || !orderIsLoading || !dashboardIsLoading) {
     return (
       <div className="flex flex-col gap-4 md:gap-6 size-full">
-        {data?.length !== 0 && data ? (
+        {data?.length !== 0 && data && dashboardData ? (
           <>
             <FinancialSection data={dashboardData?.financial} />
             <SectionCards data={dashboardData?.menuSummary} />

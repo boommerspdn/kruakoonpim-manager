@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -27,25 +27,19 @@ export function LoginForm({
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    const supabase = createClient();
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
+      await axios.post("/api/login", { email, password });
       router.push("/");
+      setIsLoading(false);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "เกิดข้อผิดพลาด");
       setIsLoading(false);
     }
   };
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -83,8 +77,7 @@ export function LoginForm({
               </div>
               {error && (
                 <p className="text-sm text-red-500">
-                  {error === "Invalid login credentials" &&
-                    "รหัสผ่านไม่ถูกต้อง"}
+                  {error && "รหัสผ่านไม่ถูกต้อง"}
                 </p>
               )}
               <Button type="submit" className="w-full" disabled={isLoading}>

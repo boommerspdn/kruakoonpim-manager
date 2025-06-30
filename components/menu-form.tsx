@@ -102,6 +102,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
       console.log(error);
     } finally {
       await mutate(`/api/menu?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   };
 
