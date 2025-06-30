@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import z from "zod";
 import { Badge } from "./ui/badge";
+import React from "react";
 
 type MenuForm = {
   initialData?: Menu[];
@@ -49,6 +50,7 @@ const formSchema = z.object({
 const MenuForm = ({ initialData }: MenuForm) => {
   const { date } = useDateStore();
   const { mutate } = useSWRConfig();
+  const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   const formattedDate = date
     ? format(date, "yyyy-MM-dd")
@@ -96,6 +98,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
   }
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
     try {
       await axios.delete(`/api/menu?date=${formattedDate}`);
     } catch (error) {
@@ -105,6 +108,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
       await mutate(`/api/menu?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
       await mutate(`/api/order?date=${formattedDate}`);
+      setDeleteLoading(false);
     }
   };
 
@@ -169,7 +173,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
             onClick={() =>
               append({ name: "", amount: undefined, price: undefined })
             }
-            disabled={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting || deleteLoading}
           >
             <PlusCircle /> เพิ่มบรรทัด
           </Button>
@@ -180,9 +184,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
                   <Button
                     variant={"outline"}
                     type="button"
-                    disabled={form.formState.isSubmitting}
+                    disabled={form.formState.isSubmitting || deleteLoading}
                   >
-                    {form.formState.isSubmitting ? (
+                    {form.formState.isSubmitting || deleteLoading ? (
                       <Loader2 className="animate-spin" />
                     ) : (
                       <Trash />
@@ -203,9 +207,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
                     <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => handleDelete()}
-                      disabled={form.formState.isSubmitting}
+                      disabled={form.formState.isSubmitting || deleteLoading}
                     >
-                      {form.formState.isSubmitting ? (
+                      {form.formState.isSubmitting || deleteLoading ? (
                         <Loader2 className="animate-spin" />
                       ) : (
                         <Trash />
@@ -216,8 +220,11 @@ const MenuForm = ({ initialData }: MenuForm) => {
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? (
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting || deleteLoading}
+            >
+              {form.formState.isSubmitting || deleteLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 <Save />
