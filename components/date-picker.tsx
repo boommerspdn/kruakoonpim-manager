@@ -12,10 +12,25 @@ import {
 } from "@/components/ui/popover";
 import { useDateStore } from "@/hooks/use-date";
 import { useState } from "react";
+import { format } from "date-fns"; // or your preferred formatter
+import { useSWRConfig } from "swr";
 
 export function DatePickerForm() {
   const [open, setOpen] = useState(false);
   const { date, setDate } = useDateStore();
+  const { mutate } = useSWRConfig();
+
+  const formattedDate = date
+    ? format(date, "yyyy-MM-dd")
+    : format(new Date(), "yyyy-MM-dd");
+
+  const handleSelect = async (selected: Date) => {
+    setDate(selected);
+    setOpen(false);
+    await mutate(`/api/menu?date=${formattedDate}`);
+    await mutate(`/api/order?date=${formattedDate}`);
+    await mutate(`/api/dashboard?date=${formattedDate}`);
+  };
 
   return (
     <div className="flex gap-3 col-start-2">
@@ -43,8 +58,7 @@ export function DatePickerForm() {
             selected={date}
             captionLayout="dropdown"
             onSelect={(selected) => {
-              setDate(selected);
-              setOpen(false);
+              handleSelect(selected);
             }}
             required
           />
