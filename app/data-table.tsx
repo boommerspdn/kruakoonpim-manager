@@ -273,6 +273,7 @@ export function DataTable({
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
     } finally {
+      form.reset();
       await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
       setTableMode("default");
