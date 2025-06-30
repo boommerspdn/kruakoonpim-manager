@@ -175,7 +175,11 @@ const MenuForm = ({ initialData }: MenuForm) => {
             {initialData && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant={"outline"} type="button">
+                  <Button
+                    variant={"outline"}
+                    type="button"
+                    disabled={form.formState.isSubmitting}
+                  >
                     <Trash />
                     ลบเมนู
                   </Button>
