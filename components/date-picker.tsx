@@ -1,7 +1,8 @@
 "use client";
 
 import { th } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Pencil } from "lucide-react";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -12,25 +13,12 @@ import {
 } from "@/components/ui/popover";
 import { useDateStore } from "@/hooks/use-date";
 import { useState } from "react";
-import { format } from "date-fns"; // or your preferred formatter
-import { useSWRConfig } from "swr";
+import { useTableModeStore } from "@/hooks/use-table-mode";
 
 export function DatePickerForm() {
   const [open, setOpen] = useState(false);
   const { date, setDate } = useDateStore();
-  const { mutate } = useSWRConfig();
-
-  const formattedDate = date
-    ? format(date, "yyyy-MM-dd")
-    : format(new Date(), "yyyy-MM-dd");
-
-  const handleSelect = async (selected: Date) => {
-    setDate(selected);
-    setOpen(false);
-    await mutate(`/api/menu?date=${formattedDate}`);
-    await mutate(`/api/order?date=${formattedDate}`);
-    await mutate(`/api/dashboard?date=${formattedDate}`);
-  };
+  const { tableMode } = useTableModeStore();
 
   return (
     <div className="flex gap-3 col-start-2">
@@ -40,6 +28,7 @@ export function DatePickerForm() {
             variant="outline"
             id="date"
             className="w-56 justify-between font-normal"
+            disabled={tableMode === "edit"}
           >
             {date
               ? date.toLocaleDateString("th-TH", {
@@ -58,7 +47,8 @@ export function DatePickerForm() {
             selected={date}
             captionLayout="dropdown"
             onSelect={(selected) => {
-              handleSelect(selected);
+              setDate(selected);
+              setOpen(false);
             }}
             required
           />

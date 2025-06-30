@@ -47,7 +47,6 @@ const DashboardContent = () => {
 
   const { data: dashboardData, isLoading: dashboardIsLoading } =
     useSWR<DashboardData>(`/api/dashboard?date=${formattedDate}`, fetcher);
-  console.log(dashboardData);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -74,7 +73,7 @@ const DashboardContent = () => {
     };
   });
 
-  if (mounted) {
+  if (mounted || !isLoading || !orderIsLoading || !dashboardIsLoading) {
     return (
       <div className="flex flex-col gap-4 md:gap-6 size-full">
         {data?.length !== 0 && data ? (

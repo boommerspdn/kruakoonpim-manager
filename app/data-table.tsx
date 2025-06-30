@@ -97,6 +97,7 @@ import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
 import { Menu, Payment, Status } from "./generated/prisma";
 import { RowData } from "@tanstack/react-table";
+import { useTableModeStore } from "@/hooks/use-table-mode";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -179,6 +180,12 @@ export function DataTable({
   menu: Menu[];
 }) {
   const [data, setData] = React.useState(() => initialData);
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+  React.useEffect(() => {
+    form.reset({ people: data });
+  }, [data]);
   const [selectedTab, setSelectedTab] = React.useState("all");
 
   const filteredData = React.useMemo(() => {
@@ -191,13 +198,8 @@ export function DataTable({
 
     return data;
   }, [selectedTab, data]);
-  React.useEffect(() => {
-    setData(initialData);
-  }, [initialData]);
 
-  const [tableMode, setTableMode] = React.useState<"edit" | "default">(
-    "default",
-  );
+  const { tableMode, setTableMode } = useTableModeStore();
   React.useEffect(() => {
     if (tableMode === "edit") setSelectedTab("all");
   }, [tableMode]);
@@ -273,7 +275,6 @@ export function DataTable({
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
     } finally {
-      form.reset();
       await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
       setTableMode("default");
@@ -575,7 +576,7 @@ export function DataTable({
         },
       },
     ];
-  }, [menu]); // Recreate columns only when `menu` prop changes
+  }, [menu, date]); // Recreate columns only when `menu` prop changes
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
@@ -769,9 +770,7 @@ export function DataTable({
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  setTableMode((prev) =>
-                    prev === "default" ? "edit" : "default",
-                  );
+                  setTableMode(tableMode === "default" ? "edit" : "default");
                 }}
               >
                 <TableConfigIcon />
