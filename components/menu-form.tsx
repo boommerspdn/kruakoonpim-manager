@@ -91,6 +91,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
     } finally {
       await mutate(`/api/menu?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutate(`/api/order?date=${formattedDate}`);
     }
   }
 
@@ -103,6 +104,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
     } finally {
       await mutate(`/api/menu?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutate(`/api/order?date=${formattedDate}`);
     }
   };
 
@@ -180,7 +182,11 @@ const MenuForm = ({ initialData }: MenuForm) => {
                     type="button"
                     disabled={form.formState.isSubmitting}
                   >
-                    <Trash />
+                    {form.formState.isSubmitting ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Trash />
+                    )}
                     ลบเมนู
                   </Button>
                 </AlertDialogTrigger>
