@@ -10,6 +10,7 @@ const anuphan = Anuphan({
 
 export const metadata: Metadata = {
   title: "Kruakoonpim",
+  manifest: "/maniest",
 };
 
 export default function RootLayout({
