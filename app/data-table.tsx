@@ -101,6 +101,8 @@ import { RowData } from "@tanstack/react-table";
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
     addNewRow: () => void;
+    tableMode: "edit" | "default";
+    fields: any; // You can type this more strictly if needed
   }
 }
 
@@ -643,10 +645,6 @@ export function DataTable({
       }
     }
   }
-
-  const selectedIds = table
-    .getFilteredSelectedRowModel()
-    .rows.map(({ original }) => (original as { id: string }).id);
 
   return (
     <div className="space-y-4 pb-4">
