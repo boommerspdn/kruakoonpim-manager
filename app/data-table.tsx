@@ -277,8 +277,8 @@ export function DataTable({
     } finally {
       await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
-      setTableMode("default");
       toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
+      setTableMode("default");
     }
   }
   /// React Hook Form
