@@ -184,9 +184,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
                   <Button
                     variant={"outline"}
                     type="button"
-                    disabled={form.formState.isSubmitting || deleteLoading}
+                    disabled={deleteLoading}
                   >
-                    {form.formState.isSubmitting || deleteLoading ? (
+                    {deleteLoading ? (
                       <Loader2 className="animate-spin" />
                     ) : (
                       <Trash />
@@ -205,26 +205,16 @@ const MenuForm = ({ initialData }: MenuForm) => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDelete()}
-                      disabled={form.formState.isSubmitting || deleteLoading}
-                    >
-                      {form.formState.isSubmitting || deleteLoading ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <Trash />
-                      )}
+                    <AlertDialogAction onClick={() => handleDelete()}>
+                      <Trash />
                       ลบเมนู
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting || deleteLoading}
-            >
-              {form.formState.isSubmitting || deleteLoading ? (
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 <Save />

@@ -89,6 +89,7 @@ import {
   PlusCircle,
   SaveAll,
   TableConfigIcon,
+  Trash2,
   X,
 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -653,15 +654,23 @@ export function DataTable({
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between">
-        <Input
-          placeholder="ค้นหาชื่อ"
-          type="search"
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-md "
-        />
+        <div className="w-[600px] space-x-2 flex">
+          <Input
+            placeholder="ค้นหาชื่อ"
+            type="search"
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-md "
+          />
+          <Button
+            variant={"secondary"}
+            onClick={() => table.getColumn("name")?.setFilterValue("")}
+          >
+            <Trash2 className="text-primary" /> ล้าง
+          </Button>
+        </div>
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
             <TabsTrigger value="all">
@@ -698,7 +707,7 @@ export function DataTable({
               sensors={sensors}
               id={sortableId}
             >
-              <div className="h-[70vh] relative overflow-auto">
+              <div className="max-h-[70vh] relative overflow-auto">
                 <Table className="text-base">
                   <TableHeader className="bg-muted sticky top-0 z-10">
                     {table.getHeaderGroups().map((headerGroup) => (
