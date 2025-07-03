@@ -116,6 +116,7 @@ export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
     name: z.string().min(1, "ชื่อลูกค้าต้องมามากกว่า 1 ตัวอักษร"),
     note: z.string().optional(),
     delivery: z.boolean().optional(),
+    payment: z.enum(["PENDING", "CASH", "ONLINE", "UNKNOWN"]),
     status: z.string().optional(),
   };
 
@@ -261,6 +262,7 @@ export function DataTable({
         note: item.note || "",
         sortOrder: index,
         delivery: item.delivery || false,
+        paid: item.payment || false,
         orderItems: menu.map((orderItem) => ({
           menuId: orderItem.id,
           amount: item[orderItem.id],
@@ -494,10 +496,37 @@ export function DataTable({
                         </FormItem>
                       )}
                     />
+                    {/* paid button */}
+                    <FormField
+                      control={form.control}
+                      name={`people.${rowIndex}.payment`}
+                      render={({ field }) => (
+                        <FormItem className="w-[140px]">
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full" size="sm">
+                                <SelectValue placeholder="วิธีจ่ายเงิน" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent align="end">
+                              <SelectItem value="CASH">เงินสด</SelectItem>
+                              <SelectItem value="ONLINE">โอน</SelectItem>
+                              <SelectItem value="UNKNOWN">
+                                ไม่ได้จ่ายหน้าร้าน
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <CircleMinus
-                    className="text-primary cursor-pointer ms-auto me-4 col-span-2"
+                    className="text-primary cursor-pointer ms-auto me-4"
                     size={30}
                     onClick={() => {
                       remove(rowIndex);

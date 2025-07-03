@@ -9,6 +9,7 @@ export type OrderBody = {
   sortOrder: number;
   note: string;
   delivery: boolean;
+  paid: "PENDING" | "CASH" | "ONLINE" | "UNKNOWN";
   orderItems: { menuId: string; amount: number }[];
 };
 
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
           sortOrder: order.sortOrder,
           note: order.note,
           delivery: order.delivery,
+          payment: order.paid,
           orderItems: {
             create: order.orderItems
               .filter((item) => item.amount !== 0)
@@ -107,6 +109,7 @@ export async function POST(req: NextRequest) {
           sortOrder: order.sortOrder,
           note: order.note,
           delivery: order.delivery,
+          payment: order.paid,
         },
       });
 
