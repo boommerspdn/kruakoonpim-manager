@@ -9,6 +9,7 @@ import menuApi from "../public/kruakoonpim_menu_API.json";
 
 import { useState } from "react";
 import MenuForm from "./menu-form";
+import Image from "next/image";
 
 const MenuPrompt = () => {
   const [randomItems, setRandomItems] = useState<{ name: string }[]>([]);
@@ -37,7 +38,7 @@ const MenuPrompt = () => {
         <MenuForm />
       </div>
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-2 place-items-center">
           <div className="flex flex-col items-end">
             <span className="text-4xl text-nowrap">แม่คิดเมนูไม่ออกเลย</span>
             <span className="text-muted-foreground text-end">
@@ -47,7 +48,15 @@ const MenuPrompt = () => {
               สุ่มรายการอาหาร
             </Button>
           </div>
-          <img src="/pim.png" alt="" className="w-[270px]" />
+          <div className="w-full h-[300px] relative">
+            <Image
+              src="/pim.png"
+              alt=""
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
         </div>
         <div className="flex-1 p-4 space-y-2 space-x-2 overflow-y-auto">
           {randomItems.map((item, index) => (
