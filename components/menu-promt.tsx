@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useDateStore } from "@/hooks/use-date";
 import menuApi from "../public/kruakoonpim_menu_API.json";
 
+import Image from "next/image";
 import { useState } from "react";
 import MenuForm from "./menu-form";
-import Image from "next/image";
 
 const MenuPrompt = () => {
   const [randomItems, setRandomItems] = useState<{ name: string }[]>([]);
@@ -55,6 +55,7 @@ const MenuPrompt = () => {
               fill
               className="object-contain"
               priority
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
         </div>

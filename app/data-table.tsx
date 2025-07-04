@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { IconGripVertical, IconTruck } from "@tabler/icons-react";
+import { IconCancel, IconGripVertical, IconTruck } from "@tabler/icons-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import OrderActions from "@/components/order-actions";
 import { Badge } from "@/components/ui/badge";
 import {
   Form,
@@ -77,8 +78,10 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { useDateStore } from "@/hooks/use-date";
+import { useTableModeStore } from "@/hooks/use-table-mode";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RowData } from "@tanstack/react-table";
 import axios from "axios";
 import { format } from "date-fns";
 import {
@@ -86,8 +89,6 @@ import {
   CircleMinus,
   Info,
   Loader2,
-  MoreHorizontal,
-  Pencil,
   PlusCircle,
   SaveAll,
   TableConfigIcon,
@@ -99,9 +100,6 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
 import { Menu, Payment, Status } from "./generated/prisma";
-import { RowData } from "@tanstack/react-table";
-import { useTableModeStore } from "@/hooks/use-table-mode";
-import OrderActions from "@/components/order-actions";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -274,11 +272,13 @@ export function DataTable({
     );
 
     try {
-      const response = await axios.post(
-        `/api/order?date=${formattedDate}`,
-        submittedData,
-      );
-      console.log(response);
+      if (form.formState.isDirty) {
+        const response = await axios.post(
+          `/api/order?date=${formattedDate}`,
+          submittedData,
+        );
+        console.log(response);
+      }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -835,14 +835,28 @@ export function DataTable({
                 แก้ไขตารางออเดอร์
               </Button>
             ) : (
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <SaveAll />
-                )}
-                บันทึกตารางออเดอร์
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant={"outline"}
+                  onClick={() => setTableMode("default")}
+                >
+                  <IconCancel />
+                  ยกเลิกแก้ไขตารางออเดอร์
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    form.formState.isSubmitting || !form.formState.isDirty
+                  }
+                >
+                  {form.formState.isSubmitting ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <SaveAll />
+                  )}
+                  บันทึกตารางออเดอร์
+                </Button>
+              </div>
             )}
           </div>
         </form>

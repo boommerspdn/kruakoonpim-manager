@@ -23,9 +23,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useDateStore } from "@/hooks/use-date";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { format } from "date-fns";
 import { Loader2, MoreHorizontal, Pencil, Save, Trash2 } from "lucide-react";
+import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSWRConfig } from "swr";
 import { z } from "zod";
@@ -39,10 +42,6 @@ import {
 } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
-import { useDateStore } from "@/hooks/use-date";
-import { format } from "date-fns";
-import React from "react";
-import { Order } from "@/app/generated/prisma";
 
 const formSchema = z.object({
   id: z.string(),
@@ -108,7 +107,7 @@ const OrderActions = ({
       payment,
       status,
     });
-  }, [id, name, orders, delivery, note, payment, status]);
+  }, [id, name, orders, delivery, note, payment, status, form]);
 
   const { fields } = useFieldArray({
     control: form.control,
@@ -126,10 +125,12 @@ const OrderActions = ({
     };
 
     try {
-      const order = await axios.put("/api/order/", formattedValues);
-      console.log("Response: ", order);
-      await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
+      if (form.formState.isDirty) {
+        const order = await axios.put("/api/order/", formattedValues);
+        console.log("Response: ", order);
+        await mutate(`/api/order?date=${formattedDate}`);
+        await mutate(`/api/dashboard?date=${formattedDate}`);
+      }
     } catch (error) {
       console.log(error);
     }
