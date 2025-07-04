@@ -86,6 +86,8 @@ import {
   CircleMinus,
   Info,
   Loader2,
+  MoreHorizontal,
+  Pencil,
   PlusCircle,
   SaveAll,
   TableConfigIcon,
@@ -99,6 +101,7 @@ import { OrderBody } from "./api/order/route";
 import { Menu, Payment, Status } from "./generated/prisma";
 import { RowData } from "@tanstack/react-table";
 import { useTableModeStore } from "@/hooks/use-table-mode";
+import OrderActions from "@/components/order-actions";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -537,7 +540,7 @@ export function DataTable({
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-7 gap-3">
+                <div className="grid grid-cols-8 gap-3 pe-2">
                   <Button
                     size={"sm"}
                     disabled={isSubmittingConfirm}
@@ -601,6 +604,19 @@ export function DataTable({
                       <IconTruck className="text-primary" />
                     )}
                   </div>
+                  <OrderActions
+                    id={row.original.id}
+                    name={row.original.name}
+                    orders={menu.map((menuItem) => ({
+                      id: menuItem.id,
+                      name: menuItem.name,
+                      amount: row.original[menuItem.id],
+                    }))}
+                    note={row.original.note}
+                    delivery={row.original.delivery}
+                    status={row.original.status}
+                    payment={row.original.payment}
+                  />
                 </div>
               )}
             </div>

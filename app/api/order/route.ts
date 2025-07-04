@@ -11,6 +11,7 @@ export type OrderBody = {
   delivery: boolean;
   paid: "PENDING" | "CASH" | "ONLINE" | "UNKNOWN";
   orderItems: { menuId: string; amount: number }[];
+  status?: "COMPLETED" | "PENDING";
 };
 
 export async function GET(req: NextRequest) {
@@ -51,6 +52,32 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(ordersWithTotal);
   } catch (error) {
     console.log(error);
+    return new NextResponse(`${error}`);
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body: OrderBody = await req.json();
+    const { id, customerName, delivery, note, orderItems, paid, status } = body;
+
+    if (!id) throw new Error("ID was not included in the params");
+
+    await prisma.order.update({
+      where: {
+        id,
+      },
+      data: {
+        customerName,
+        delivery,
+        note,
+        payment: paid,
+        status,
+      },
+    });
+
+    return NextResponse.json(`Order editted succesfully`);
+  } catch (error) {
     return new NextResponse(`${error}`);
   }
 }
