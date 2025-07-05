@@ -99,7 +99,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { OrderBody } from "./api/order/route";
-import { Menu, Payment, Status } from "./generated/prisma";
+import type { Menu, Payment, Status } from "./generated/prisma";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -186,11 +186,7 @@ export function DataTable({
   React.useEffect(() => {
     setData(initialData);
   }, [initialData]);
-  React.useEffect(() => {
-    if (tableMode === "default") {
-      form.reset({ people: data });
-    }
-  }, [data]);
+
   const [selectedTab, setSelectedTab] = React.useState("all");
 
   const filteredData = React.useMemo(() => {
@@ -241,9 +237,13 @@ export function DataTable({
     mode: "onChange",
   });
 
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<
-    z.infer<typeof formSchema>
-  >({
+  React.useEffect(() => {
+    if (tableMode === "default") {
+      form.reset({ people: data });
+    }
+  }, [data, form, tableMode]);
+
+  const { fields, append, remove } = useFieldArray<z.infer<typeof formSchema>>({
     control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
     name: "people", // unique name for your Field Array
   });

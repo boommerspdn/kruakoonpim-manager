@@ -1,4 +1,4 @@
-import { Menu } from "@/app/generated/prisma";
+import z from "zod";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,25 +27,22 @@ import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
-import z from "zod";
 import { Badge } from "./ui/badge";
 import React from "react";
+import {
+  formMenuSchema,
+  PublicMenu,
+  PostMenu,
+  PutMenuItem,
+  PatchMenu,
+} from "@/app/types/menu";
+import { easyDiff } from "@/lib/utils";
 
 type MenuForm = {
-  initialData?: Menu[];
+  initialData?: PublicMenu[];
 };
 
-const formSchema = z.object({
-  menu: z
-    .array(
-      z.object({
-        name: z.string().min(1, "จำเป็นต้องใส่ชื่อเมนู"),
-        amount: z.coerce.number().min(1).nullish(),
-        price: z.coerce.number().min(1).nullish(),
-      }),
-    )
-    .min(1),
-});
+const formSchema = formMenuSchema;
 
 const MenuForm = ({ initialData }: MenuForm) => {
   const { date } = useDateStore();
@@ -60,9 +57,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      menu: initialData
-        ? initialData
-        : [{ name: "", amount: undefined, price: undefined }],
+      menu: initialData ? initialData : [{ name: "", amount: 0, price: 0 }],
     },
   });
 
@@ -70,30 +65,61 @@ const MenuForm = ({ initialData }: MenuForm) => {
     control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
     name: "menu", // unique name for your Field Array
   });
+
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      if (initialData) {
-        const data = values.menu.map((item, index) => ({
-          id: initialData[index] ? initialData[index].id : undefined,
-          name: item.name,
-          amount: item.amount,
-          price: item.price,
-          sortOrder: index,
-        }));
-        await axios.put(`/api/menu?date=${formattedDate}`, data);
-        document.getElementById("closeDialog")?.click();
-      } else {
-        await axios.post(`/api/menu?date=${formattedDate}`, values);
-        form.reset();
+      if (form.formState.isDirty) {
+        if (initialData) {
+          const formatInitial: PutMenuItem =
+            initialData?.map((item, index) => ({
+              id: item.id || "",
+              name: item.name || "",
+              amount: item.amount || 0,
+              price: item.price || 0,
+              sortOrder: index,
+            })) || [];
+
+          const putItem: PutMenuItem = values.menu.map((item, index) => ({
+            id: item.id || "",
+            name: item.name || "",
+            amount: item.amount || 0,
+            price: item.price || 0,
+            sortOrder: index,
+          }));
+
+          const findDifference = easyDiff(formatInitial, putItem);
+          const PatchData: PatchMenu = findDifference;
+
+          const response = await axios.patch(
+            `/api/menu?date=${formattedDate}`,
+            PatchData,
+          );
+
+          await mutate(`/api/dashboard?date=${formattedDate}`);
+          await mutate(`/api/menu?date=${formattedDate}`);
+          await mutate(`/api/order?date=${formattedDate}`);
+          console.log(response);
+        } else {
+          const postData: PostMenu = values.menu.map((item) => ({
+            name: item.name || "",
+            amount: item.amount || 0,
+            price: item.price || 0,
+          }));
+
+          const response = await axios.post(
+            `/api/menu?date=${formattedDate}`,
+            postData,
+          );
+          await mutate(`/api/dashboard?date=${formattedDate}`);
+          await mutate(`/api/menu?date=${formattedDate}`);
+          await mutate(`/api/order?date=${formattedDate}`);
+          console.log(response);
+        }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
-    } finally {
-      await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
     }
   }
 
@@ -105,8 +131,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
     } finally {
-      await mutate(`/api/menu?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutate(`/api/menu?date=${formattedDate}`);
       await mutate(`/api/order?date=${formattedDate}`);
       setDeleteLoading(false);
     }
@@ -115,9 +141,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-6">
-        {fields.map((_field, index) => (
+        {fields.map((field, index) => (
           <FormField
-            key={_field.id}
+            key={field.id}
             control={form.control}
             name="menu"
             render={() => (
@@ -153,9 +179,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       className="text-primary cursor-pointer"
                       size={40}
                       onClick={() => {
-                        if (fields.length != 1) {
-                          remove(index);
-                        }
+                        if (fields.length === 1) return;
+                        remove(index);
                       }}
                     />
                   </div>
@@ -170,9 +195,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
             type="button"
             className="w-fit place-self-end"
             variant={"secondary"}
-            onClick={() =>
-              append({ name: "", amount: undefined, price: undefined })
-            }
+            onClick={() => append({ name: "", amount: null, price: null })}
             disabled={form.formState.isSubmitting || deleteLoading}
           >
             <PlusCircle /> เพิ่มบรรทัด
@@ -213,7 +236,10 @@ const MenuForm = ({ initialData }: MenuForm) => {
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <Button type="submit" disabled={form.formState.isSubmitting}>
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting || !form.formState.isDirty}
+            >
               {form.formState.isSubmitting ? (
                 <Loader2 className="animate-spin" />
               ) : (

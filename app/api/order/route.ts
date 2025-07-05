@@ -1,4 +1,3 @@
-import { TableRowData } from "@/components/dashboard-content";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -59,7 +58,7 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body: OrderBody = await req.json();
-    const { id, customerName, delivery, note, orderItems, paid, status } = body;
+    const { id, customerName, delivery, note, paid, status } = body;
 
     if (!id) throw new Error("ID was not included in the params");
 

@@ -1,3 +1,4 @@
+import { PostMenu, PatchMenu } from "@/app/types/menu";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -30,93 +31,59 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body: { menu: { name: string; amount: number; price: number }[] } =
-      await req.json();
-    const searchParams = req.nextUrl.searchParams;
-    const date = searchParams.get("date");
-
-    if (!date) throw new Error("Date was not included in the params");
-    if (!body.menu || body.menu.length === 0)
-      throw new Error("Body was not included");
-
-    const menu = await prisma.menu.createMany({
-      data: body.menu.map((item, index) => ({
-        ...item,
-        date: new Date(date),
-        sortOrder: index,
-      })),
-    });
-
-    return NextResponse.json(menu);
-  } catch (error) {
-    return new NextResponse(`${error}`);
-  }
-}
-
-export async function PUT(req: NextRequest) {
-  try {
-    const body: {
-      id: string;
-      name: string;
-      amount: number;
-      price: number;
-      sortOrder: number;
-    }[] = await req.json();
+    const body: PostMenu = await req.json();
     const searchParams = req.nextUrl.searchParams;
     const date = searchParams.get("date");
 
     if (!date) throw new Error("Date was not included in the params");
     if (!body || body.length === 0) throw new Error("Body was not included");
 
-    const { start, end } = getDayRange(new Date(date));
-
-    // 1. Get existing item IDs in the DB
-    const existingItems = await prisma.menu.findMany({
-      where: {
-        date: {
-          gte: start,
-          lte: end,
-        },
-      },
-      select: { id: true },
+    await prisma.menu.createMany({
+      data: body.map((item, index) => ({
+        name: item.name,
+        amount: item.amount,
+        price: item.price,
+        date: new Date(date),
+        sortOrder: index,
+      })),
     });
 
-    const existingIds = existingItems.map((item) => item.id);
-    const newIds = body.map((item) => item.id).filter(Boolean) as string[];
+    return NextResponse.json("Menu created successfully");
+  } catch (error) {
+    return new NextResponse(`${error}`);
+  }
+}
 
-    // 2. Calculate which IDs to delete
-    const toDelete = existingIds.filter((id) => !newIds.includes(id));
+export async function PATCH(req: NextRequest) {
+  try {
+    const body: PatchMenu = await req.json();
+    const { toCreate, toUpdate, toDeleteIds } = body;
+    const searchParams = req.nextUrl.searchParams;
+    const date = searchParams.get("date");
 
-    const upsertOps = body.map((item) =>
-      prisma.menu.upsert({
-        where: { id: item.id || "00000000-0000-0000-0000-000000000000" }, // Dummy UUID if no id
-        update: {
-          name: item.name,
-          price: item.price,
-          amount: item.amount,
-          sortOrder: item.sortOrder,
-        },
-        create: {
-          name: item.name,
-          price: item.price,
-          amount: item.amount,
-          date: new Date(date),
-          sortOrder: item.sortOrder,
-        },
-      }),
-    );
+    if (!date) throw new Error("Date was not included in the params");
+    if (!body) throw new Error("Body was not included");
 
-    // 4. Run everything in a transaction
-    await prisma.$transaction([
-      // Delete old items
-      prisma.menu.deleteMany({
-        where: {
-          id: { in: toDelete },
+    await prisma.menu.createMany({
+      data: toCreate.map((item) => ({
+        ...item,
+        date: new Date(date),
+      })),
+    });
+
+    for (const updateItem of toUpdate) {
+      await prisma.menu.updateMany({
+        where: { id: updateItem.id },
+        data: {
+          name: updateItem.changes.name,
+          amount: updateItem.changes.amount,
+          price: updateItem.changes.price,
+          sortOrder: updateItem.changes.sortOrder,
         },
-      }),
-      // Upsert all items
-      ...upsertOps,
-    ]);
+      });
+    }
+
+    await prisma.menu.deleteMany({ where: { id: { in: toDeleteIds } } });
 
     return new NextResponse("Edited Successfully");
   } catch (error) {
