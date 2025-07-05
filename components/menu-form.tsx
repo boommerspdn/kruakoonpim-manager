@@ -57,7 +57,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      menu: initialData ? initialData : [{ name: "", amount: 0, price: 0 }],
+      menu: initialData
+        ? initialData
+        : [{ name: "", amount: null, price: null }],
     },
   });
 

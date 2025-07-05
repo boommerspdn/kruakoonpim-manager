@@ -1,4 +1,4 @@
-import { Payment } from "@/app/generated/prisma";
+import { Payment } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { Menu } from "@/app/generated/prisma";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,9 +14,10 @@ import { Calendar, Pencil } from "lucide-react";
 import MenuForm from "./menu-form";
 import { Badge } from "./ui/badge";
 import { useTableModeStore } from "@/hooks/use-table-mode";
+import { PublicMenu } from "@/app/types/menu";
 
 type MenuEditProps = {
-  menu: Menu[];
+  menu: PublicMenu[];
 };
 
 export default function MenuEdit({ menu }: MenuEditProps) {

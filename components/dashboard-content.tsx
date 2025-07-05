@@ -1,4 +1,7 @@
 "use client";
+import React from "react";
+import useSWR from "swr";
+import { format } from "date-fns";
 import { DataTable } from "@/app/data-table";
 import { publicDashboard } from "@/app/types/dashboard";
 import { PublicMenu } from "@/app/types/menu";
@@ -10,17 +13,6 @@ import MenuPrompt from "@/components/menu-promt";
 import { SectionCards } from "@/components/section-cards";
 import { useDateStore } from "@/hooks/use-date";
 import { fetcher } from "@/lib/utils";
-import { format } from "date-fns";
-import React from "react";
-import useSWR from "swr";
-
-export type TableRowData = {
-  id: string;
-  name: string;
-  delivery: boolean;
-  note: string | null;
-  [x: string]: string | number | boolean | null;
-};
 
 const DashboardContent = () => {
   const { date } = useDateStore();
@@ -50,24 +42,6 @@ const DashboardContent = () => {
     return <Loading />;
   }
 
-  const formatOrders: TableRowData[] | undefined = orders?.map((order) => {
-    const items = Object.assign(
-      {},
-      ...order.orderItems.map((item) => ({ [item.menuId]: item.amount })),
-    );
-
-    return {
-      id: order.id,
-      name: order.customerName,
-      note: order.note || "",
-      delivery: order.delivery,
-      status: order.status,
-      payment: order.payment,
-      totalPrice: order.totalPrice,
-      ...items,
-    };
-  });
-
   if (mounted || !isLoading || !orderIsLoading || !dashboardIsLoading) {
     return (
       <div className="flex flex-col gap-4 md:gap-6 size-full">
@@ -81,7 +55,7 @@ const DashboardContent = () => {
               </p>
               <MenuEdit menu={data} />
             </div>
-            <DataTable menu={data} data={formatOrders || []} />
+            <DataTable menu={data} data={orders || []} />
           </>
         ) : (
           <MenuPrompt />

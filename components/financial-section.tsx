@@ -1,4 +1,3 @@
-import { Financial } from "@/app/api/dashboard/route";
 import {
   IconCash,
   IconCreditCardOff,
@@ -6,9 +5,10 @@ import {
 } from "@tabler/icons-react";
 import { PiggyBank } from "lucide-react";
 import { Separator } from "./ui/separator";
+import { PaymentStatus } from "@/app/types/dashboard";
 
 type FinancialSectionProps = {
-  data: Financial | undefined;
+  data: PaymentStatus | undefined;
 };
 
 const FinancialItem = ({

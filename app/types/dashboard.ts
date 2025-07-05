@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { paymentStatusSchema } from "./order";
+
+export const paymentStatusSchema = z.object({
+  total: z.number(),
+  cash: z.number(),
+  online: z.number(),
+  unknown: z.number(),
+});
+
+export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
 
 export const menuSummary = z.object({
   id: z.string(),

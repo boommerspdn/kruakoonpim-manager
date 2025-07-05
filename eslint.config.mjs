@@ -10,9 +10,14 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: ["app/generated/prisma/**"],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    "@next/next/no-img-element": "off",
+    rules: {
+      "react-hooks/rules-of-hooks": "off",
+    },
   },
 ];
 

@@ -61,7 +61,6 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import OrderActions from "@/components/order-actions";
 import { Badge } from "@/components/ui/badge";
 import {
   Form,
@@ -98,37 +97,52 @@ import {
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
-import { OrderBody } from "./api/order/route";
-import type { Menu, Payment, Status } from "./generated/prisma";
+import { PublicMenu } from "./types/menu";
+import {
+  OrderStatus,
+  Payment,
+  PublicOrder,
+  publicOrderSchema,
+} from "./types/order";
 
-declare module "@tanstack/react-table" {
+// declare module "@tanstack/react-table" {
+//   interface TableMeta<TData extends RowData> {
+//     addNewRow: () => void;
+//     tableMode: "edit" | "default";
+//     fields: any; // You can type this more strictly if needed
+//   }
+// }
+
+declare module "@tanstack/table-core" {
   interface TableMeta<TData extends RowData> {
     addNewRow: () => void;
     tableMode: "edit" | "default";
-    fields: any; // You can type this more strictly if needed
+    _?: TData;
   }
 }
 
-export const dynamicMenuValueSchema = z.coerce.number();
+// const schema = publicOrderSchema;
 
-export const createPersonSchemaWithDynamicMenu = (menu: Menu[]) => {
-  const baseProperties = {
-    id: z.string().optional(),
-    name: z.string().min(1, "ชื่อลูกค้าต้องมามากกว่า 1 ตัวอักษร"),
-    note: z.string().optional(),
-    delivery: z.boolean().optional(),
-    payment: z.enum(["PENDING", "CASH", "ONLINE", "UNKNOWN"]),
-    status: z.string().optional(),
-  };
+// export const dynamicMenuValueSchema = z.coerce.number();
 
-  const dynamicProperties: Record<string, z.ZodTypeAny> = {};
+// export const createPersonSchemaWithDynamicMenu = (menu: PublicMenu[]) => {
+//   const baseProperties = {
+//     id: z.string().optional(),
+//     name: z.string().min(1, "ชื่อลูกค้าต้องมามากกว่า 1 ตัวอักษร"),
+//     note: z.string().optional(),
+//     delivery: z.boolean().optional(),
+//     payment: z.enum(["PENDING", "CASH", "ONLINE", "UNKNOWN"]),
+//     status: z.string().optional(),
+//   };
 
-  menu.forEach((menuItem) => {
-    dynamicProperties[menuItem.id] = dynamicMenuValueSchema;
-  });
+//   const dynamicProperties: Record<string, z.ZodTypeAny> = {};
 
-  return z.object({ ...baseProperties, ...dynamicProperties });
-};
+//   menu.forEach((menuItem) => {
+//     dynamicProperties[menuItem.id] = dynamicMenuValueSchema;
+//   });
+
+//   return z.object({ ...baseProperties, ...dynamicProperties });
+// };
 
 function DragHandle({ id, mode }: { id: string; mode?: "edit" | "default" }) {
   const { attributes, listeners } = useSortable({
@@ -150,7 +164,11 @@ function DragHandle({ id, mode }: { id: string; mode?: "edit" | "default" }) {
   );
 }
 
-function DraggableRow({ row }: { row: Row<any[] & { id: string }> }) {
+function DraggableRow({
+  row,
+}: {
+  row: Row<z.infer<typeof publicOrderSchema> & { id: string }>;
+}) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
   });
@@ -179,8 +197,8 @@ export function DataTable({
   data: initialData,
   menu,
 }: {
-  data: any[];
-  menu: Menu[];
+  data: z.infer<typeof publicOrderSchema>[];
+  menu: PublicMenu[];
 }) {
   const [data, setData] = React.useState(() => initialData);
   React.useEffect(() => {
@@ -218,34 +236,38 @@ export function DataTable({
     useSensor(KeyboardSensor, {}),
   );
   /// React Hook Form
-  const dynamicPersonSchema = React.useMemo(
-    () => createPersonSchemaWithDynamicMenu(menu),
-    [menu], // Re-generate schema if 'menu' prop changes
-  );
+  // const dynamicPersonSchema = React.useMemo(
+  //   () => createPersonSchemaWithDynamicMenu(menu),
+  //   [menu], // Re-generate schema if 'menu' prop changes
+  // );
 
-  const personSchema = dynamicPersonSchema;
+  // const personSchema = dynamicPersonSchema;
 
   // And then, a schema for an array of these persons
   const formSchema = z.object({
     // This 'people' key will be the name of your array in the form data
-    people: z.array(personSchema),
+    order: z.array(publicOrderSchema),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { people: data },
+    defaultValues: { order: data },
     mode: "onChange",
   });
 
   React.useEffect(() => {
     if (tableMode === "default") {
-      form.reset({ people: data });
-    }
-  }, [data, form, tableMode]);
+      const filtered = data.filter((item) => item._status !== "created");
 
-  const { fields, append, remove } = useFieldArray<z.infer<typeof formSchema>>({
+      setData(filtered);
+      form.reset({ order: filtered });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableMode]);
+
+  const { append, remove } = useFieldArray<z.infer<typeof formSchema>>({
     control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
-    name: "people", // unique name for your Field Array
+    name: "order", // unique name for your Field Array
   });
   // 2. Define a submit handler.
   const { date } = useDateStore();
@@ -256,28 +278,26 @@ export function DataTable({
   const { mutate } = useSWRConfig();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const submittedData: OrderBody[] = values.people.map(
-      (item: any, index) => ({
-        id: item.id,
-        customerName: item.name,
-        note: item.note || "",
-        sortOrder: index,
-        delivery: item.delivery || false,
-        paid: item.payment || false,
-        orderItems: menu.map((orderItem) => ({
-          menuId: orderItem.id,
-          amount: item[orderItem.id],
-        })),
-      }),
-    );
-
+    // const submittedData: OrderBody[] = values.order.map((item: any, index) => ({
+    //   id: item.id,
+    //   customerName: item.name,
+    //   note: item.note || "",
+    //   sortOrder: index,
+    //   delivery: item.delivery || false,
+    //   paid: item.payment || false,
+    //   orderItems: menu.map((orderItem) => ({
+    //     menuId: orderItem.id,
+    //     amount: item[orderItem.id],
+    //   })),
+    // }));
+    console.log(values);
     try {
       if (form.formState.isDirty) {
-        const response = await axios.post(
-          `/api/order?date=${formattedDate}`,
-          submittedData,
-        );
-        console.log(response);
+        // const response = await axios.post(
+        //   `/api/order?date=${formattedDate}`,
+        //   submittedData,
+        // );
+        // console.log(response);
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
@@ -291,10 +311,12 @@ export function DataTable({
   }
   /// React Hook Form
 
-  const columns = React.useMemo<ColumnDef<z.infer<any>>[]>(() => {
+  const columns = React.useMemo<
+    ColumnDef<z.infer<typeof publicOrderSchema>>[]
+  >(() => {
     const customColumnSize = 110;
-    const customMenuColumns: ColumnDef<z.infer<any>>[] = menu.map(
-      (menuItem) => ({
+    const customMenuColumns: ColumnDef<z.infer<typeof publicOrderSchema>>[] =
+      menu.map((menuItem) => ({
         accessorKey: menuItem.id,
         header: () => (
           <div className={`w-auto text-center whitespace-pre-line`}>
@@ -307,20 +329,28 @@ export function DataTable({
           ).tableMode;
           const rowIndex = row.index; // Get the TanStack row index
 
-          const name = `people.${rowIndex}.${menuItem.id}` as any;
-
           const status = row.original.status;
+
+          const orderItemIndex = row.original.orderItems.findIndex(
+            (item) => item.menuId === menuItem.id,
+          );
+          const existingOrderItem =
+            orderItemIndex !== -1
+              ? row.original.orderItems[orderItemIndex]
+              : undefined;
 
           return currentTableMode === "edit" ? (
             <FormField
               control={form.control}
-              name={name}
+              name={`order.${rowIndex}.orderItems`}
               render={() => (
                 <FormItem>
                   <FormControl>
                     <Input
                       className="h-8"
-                      {...form.register(name)}
+                      {...form.register(
+                        `order.${rowIndex}.orderItems.${orderItemIndex}.amount`,
+                      )}
                       placeholder={menuItem.name}
                       type="number"
                     />
@@ -335,13 +365,12 @@ export function DataTable({
                 status === "COMPLETED" ? "text-destructive line-through" : "",
               )}
             >
-              {row.getValue(menuItem.id) == 0 ? "-" : row.getValue(menuItem.id)}
+              {existingOrderItem?.amount}
             </div>
           );
         },
         size: customColumnSize, //starting column size
-      }),
-    );
+      }));
 
     return [
       {
@@ -371,13 +400,13 @@ export function DataTable({
           return currentTableMode === "edit" ? (
             <FormField
               control={form.control}
-              name={`people.${rowIndex}.name`}
+              name={`order.${rowIndex}.customerName`}
               render={() => (
                 <FormItem>
                   <FormControl>
                     <Input
                       className="h-8"
-                      {...form.register(`people.${rowIndex}.name`)}
+                      {...form.register(`order.${rowIndex}.customerName`)}
                       placeholder="ชื่อลูกค้า"
                     />
                   </FormControl>
@@ -392,7 +421,7 @@ export function DataTable({
                 status === "COMPLETED" ? "line-through text-destructive" : "",
               )}
             >
-              {row.original.name}
+              {row.original.customerName}
               <span className="text-destructive text-sm">
                 {row.original.totalPrice}฿
               </span>
@@ -416,9 +445,8 @@ export function DataTable({
             React.useState(false);
 
           const status = row.original.status;
-          const payment = row.original.payment;
 
-          const handleConfirm = async (status: Status) => {
+          const handleConfirm = async (status: OrderStatus) => {
             try {
               setIsSubmittingConfirm(true);
               const response = await axios.put(
@@ -466,13 +494,13 @@ export function DataTable({
                       <PopoverContent align="end">
                         <FormField
                           control={form.control}
-                          name={`people.${rowIndex}.note`}
+                          name={`order.${rowIndex}.note`}
                           render={() => (
                             <FormItem>
                               <FormControl>
                                 <Textarea
                                   className="resize-none"
-                                  {...form.register(`people.${rowIndex}.note`)}
+                                  {...form.register(`order.${rowIndex}.note`)}
                                   placeholder="โน๊ต"
                                 />
                               </FormControl>
@@ -484,7 +512,7 @@ export function DataTable({
                     {/* delivery */}
                     <FormField
                       control={form.control}
-                      name={`people.${rowIndex}.delivery`}
+                      name={`order.${rowIndex}.delivery`}
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-2">
                           <FormControl>
@@ -502,12 +530,16 @@ export function DataTable({
                     {/* paid button */}
                     <FormField
                       control={form.control}
-                      name={`people.${rowIndex}.payment`}
+                      name={`order.${rowIndex}.payment`}
                       render={({ field }) => (
                         <FormItem className="w-[140px]">
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={
+                              field.value !== "PENDING"
+                                ? row.original.payment
+                                : undefined
+                            }
                           >
                             <FormControl>
                               <SelectTrigger className="w-full" size="sm">
@@ -569,7 +601,11 @@ export function DataTable({
                     </Label>
                     <Select
                       onValueChange={(value) => handlePayment(value)}
-                      defaultValue={payment === "PENDING" ? undefined : payment}
+                      defaultValue={
+                        row.original.payment !== "PENDING"
+                          ? row.original.payment
+                          : undefined
+                      }
                       disabled={isSubmittingPayment}
                     >
                       <SelectTrigger
@@ -604,9 +640,9 @@ export function DataTable({
                       <IconTruck className="text-primary" />
                     )}
                   </div>
-                  <OrderActions
+                  {/* <OrderActions
                     id={row.original.id}
-                    name={row.original.name}
+                    name={row.original.customerName}
                     orders={menu.map((menuItem) => ({
                       id: menuItem.id,
                       name: menuItem.name,
@@ -616,7 +652,7 @@ export function DataTable({
                     delivery={row.original.delivery}
                     status={row.original.status}
                     payment={row.original.payment}
-                  />
+                  /> */}
                 </div>
               )}
             </div>
@@ -652,47 +688,58 @@ export function DataTable({
     meta: {
       addNewRow: () => {
         const newId = uuidv4();
-        const dynamicProperties: any = {};
-        menu.forEach((menuItem) => {
-          dynamicProperties[menuItem.id] = "";
-        });
-
-        const newRow = {
+        const newMenus = menu.map((menu) => ({
           id: newId,
-          name: "",
-          ...dynamicProperties,
+          menuId: menu.id,
+        }));
+
+        const newRow: PublicOrder = {
+          id: newId,
+          customerName: "",
           delivery: false,
           note: "",
+          orderItems: newMenus,
+          _status: "created",
         };
+
         append(newRow);
 
         setData((prevData) => [...prevData, newRow]);
       },
       tableMode: tableMode,
-      fields,
     },
   });
 
-  async function handleDragEnd(event: DragEndEvent) {
+  //   async function handleDragEnd(event: DragEndEvent) {
+  //     const { active, over } = event;
+  // if (active && over && active.id !== over.id) {
+  //       setData((data) => {
+  //         const oldIndex = dataIds.indexOf(active.id)
+  //         const newIndex = dataIds.indexOf(over.id)
+  //         return arrayMove(data, oldIndex, newIndex)
+  //       })
+  //     }
+
+  //       try {
+  //         const response = await axios.put("/api/order/swap-row", {
+  //           oldId: active.id,
+  //           newId: over.id,
+  //         });
+  //         console.log(response);
+  //       } catch (error) {
+  //         console.error("Error while swapping rows:", error);
+  //       }
+  //     }
+  //   }
+
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      setData((current) => {
-        const currentIds = current.map((item) => item.id);
-        const oldIndex = currentIds.indexOf(active.id);
-        const newIndex = currentIds.indexOf(over.id);
-        if (oldIndex === -1 || newIndex === -1) return current;
-        return arrayMove(current, oldIndex, newIndex);
+      setData((data) => {
+        const oldIndex = dataIds.indexOf(active.id);
+        const newIndex = dataIds.indexOf(over.id);
+        return arrayMove(data, oldIndex, newIndex);
       });
-
-      try {
-        const response = await axios.put("/api/order/swap-row", {
-          oldId: active.id,
-          newId: over.id,
-        });
-        console.log(response);
-      } catch (error) {
-        console.error("Error while swapping rows:", error);
-      }
     }
   }
 

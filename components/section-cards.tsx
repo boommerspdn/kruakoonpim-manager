@@ -1,4 +1,4 @@
-import { MenuSummary } from "@/app/api/dashboard/route";
+import { MenuSummary } from "@/app/types/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Box,

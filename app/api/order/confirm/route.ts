@@ -1,4 +1,4 @@
-import { Status } from "@/app/generated/prisma";
+import { OrderStatus } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -16,7 +16,7 @@ export async function PUT(req: NextRequest) {
         id,
       },
       data: {
-        status: status as Status,
+        status: status as OrderStatus,
       },
     });
 
