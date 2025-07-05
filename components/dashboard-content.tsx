@@ -1,17 +1,18 @@
 "use client";
-import { DashboardData } from "@/app/api/dashboard/route";
 import { DataTable } from "@/app/data-table";
-import { Menu, Prisma } from "@/app/generated/prisma";
+import { publicDashboard } from "@/app/types/dashboard";
+import { PublicMenu } from "@/app/types/menu";
+import { PublicOrder } from "@/app/types/order";
+import FinancialSection from "@/components/financial-section";
+import Loading from "@/components/loading";
+import MenuEdit from "@/components/menu-edit";
+import MenuPrompt from "@/components/menu-promt";
 import { SectionCards } from "@/components/section-cards";
 import { useDateStore } from "@/hooks/use-date";
 import { fetcher } from "@/lib/utils";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import React from "react";
 import useSWR from "swr";
-import FinancialSection from "./financial-section";
-import Loading from "./loading";
-import MenuEdit from "./menu-edit";
-import MenuPrompt from "./menu-promt";
 
 export type TableRowData = {
   id: string;
@@ -22,32 +23,26 @@ export type TableRowData = {
 };
 
 const DashboardContent = () => {
-  type OrderWithItems = Prisma.OrderGetPayload<{
-    include: {
-      orderItems: true;
-    };
-  }> & { totalPrice: number };
-
   const { date } = useDateStore();
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
   const formattedDate = date
     ? format(date, "yyyy-MM-dd")
     : format(new Date(), "yyyy-MM-dd");
 
-  const { data, isLoading } = useSWR<Menu[]>(
+  const { data, isLoading } = useSWR<PublicMenu[]>(
     `/api/menu?date=${formattedDate}`,
     fetcher,
   );
 
-  const { data: orders, isLoading: orderIsLoading } = useSWR<OrderWithItems[]>(
+  const { data: orders, isLoading: orderIsLoading } = useSWR<PublicOrder[]>(
     `/api/order?date=${formattedDate}`,
     fetcher,
   );
 
   const { data: dashboardData, isLoading: dashboardIsLoading } =
-    useSWR<DashboardData>(`/api/dashboard?date=${formattedDate}`, fetcher);
-  useEffect(() => {
+    useSWR<publicDashboard>(`/api/dashboard?date=${formattedDate}`, fetcher);
+  React.useEffect(() => {
     setMounted(true);
   }, []);
 

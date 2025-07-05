@@ -1,4 +1,7 @@
 import z from "zod";
+import React from "react";
+import { useSWRConfig } from "swr";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,10 +28,7 @@ import axios from "axios";
 import { format } from "date-fns"; // or your preferred formatter
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { useSWRConfig } from "swr";
 import { Badge } from "./ui/badge";
-import React from "react";
 import {
   formMenuSchema,
   PublicMenu,
@@ -99,6 +99,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
           await mutate(`/api/dashboard?date=${formattedDate}`);
           await mutate(`/api/menu?date=${formattedDate}`);
           await mutate(`/api/order?date=${formattedDate}`);
+
+          document.getElementById("closeDialog")?.click();
           console.log(response);
         } else {
           const postData: PostMenu = values.menu.map((item) => ({

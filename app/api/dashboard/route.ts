@@ -1,35 +1,8 @@
+import { publicDashboard, MenuSummary } from "@/app/types/dashboard";
+import { PaymentStatus } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
-
-export type Financial = {
-  total: number;
-  cash: number;
-  online: number;
-  unknown: number;
-};
-
-type MenuData = {
-  unpicked: number;
-  total: number;
-  ordered: number;
-  sellable: number;
-  picked: number;
-  require: number;
-  special: number;
-};
-
-export type MenuSummary = {
-  id: string;
-  name: string;
-  price: number;
-  menuData: MenuData;
-};
-
-export type DashboardData = {
-  financial: Financial;
-  menuSummary: MenuSummary[];
-};
 
 export async function GET(req: NextRequest) {
   try {
@@ -103,7 +76,7 @@ export async function GET(req: NextRequest) {
       .filter((order) => order.payment === "UNKNOWN")
       .reduce((sum, val) => sum + val.totalPrice, 0);
 
-    const financial: Financial = {
+    const financial: PaymentStatus = {
       total: totalOfAllOrders,
       cash: totalOfCashPaid,
       online: totalOfOnlinePaid,
@@ -191,7 +164,7 @@ export async function GET(req: NextRequest) {
       }),
     );
 
-    const dashboardData: DashboardData = {
+    const dashboardData: publicDashboard = {
       financial,
       menuSummary,
     };
