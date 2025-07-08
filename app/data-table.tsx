@@ -363,12 +363,12 @@ export function DataTable({
                 `/api/order/payment?id=${row.original.id}&payment=${payment}`,
               );
               console.log(response);
+              await mutate(`/api/order?date=${formattedDate}`);
+              await mutate(`/api/dashboard?date=${formattedDate}`);
             } catch (error) {
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
             } finally {
-              await mutate(`/api/order?date=${formattedDate}`);
-              await mutate(`/api/dashboard?date=${formattedDate}`);
               setIsSubmittingPayment(false);
             }
           };
@@ -378,13 +378,12 @@ export function DataTable({
               const response = await axios.delete(
                 `/api/order?id=${row.original.id}`,
               );
+              await mutate(`/api/order?date=${formattedDate}`);
+              await mutate(`/api/dashboard?date=${formattedDate}`);
               console.log(response);
             } catch (error) {
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
-            } finally {
-              await mutate(`/api/order?date=${formattedDate}`);
-              await mutate(`/api/dashboard?date=${formattedDate}`);
             }
           };
 

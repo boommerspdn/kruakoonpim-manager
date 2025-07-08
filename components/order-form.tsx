@@ -80,10 +80,10 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
             `/api/order?date=${formattedDate}`,
             values,
           );
+          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
           console.log(response);
           await mutate(`/api/order?date=${formattedDate}`);
           await mutate(`/api/dashboard?date=${formattedDate}`);
-          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
         }
         if (mode === "EDIT") {
           const formatOrderItems = initialData.orderItems.map((orderItem) => ({
@@ -117,10 +117,10 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
             `/api/order?id=${values.id}`,
             patchData,
           );
+          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
           console.log(response);
           await mutate(`/api/order?date=${formattedDate}`);
           await mutate(`/api/dashboard?date=${formattedDate}`);
-          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
         }
       }
     } catch (error) {

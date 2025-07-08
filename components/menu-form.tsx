@@ -88,13 +88,13 @@ const MenuForm = ({ initialData }: MenuForm) => {
             `/api/menu?date=${formattedDate}`,
             PatchData,
           );
+          console.log(response);
 
           await mutate(`/api/dashboard?date=${formattedDate}`);
           await mutate(`/api/menu?date=${formattedDate}`);
           await mutate(`/api/order?date=${formattedDate}`);
 
           document.getElementById("closeDialog")?.click();
-          console.log(response);
         } else {
           const postData: PostMenu = values.menu.map((item) => ({
             name: item.name || "",
@@ -122,13 +122,13 @@ const MenuForm = ({ initialData }: MenuForm) => {
     setDeleteLoading(true);
     try {
       await axios.delete(`/api/menu?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutate(`/api/menu?date=${formattedDate}`);
+      await mutate(`/api/order?date=${formattedDate}`);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
     } finally {
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
       setDeleteLoading(false);
     }
   };
