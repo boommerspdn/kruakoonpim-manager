@@ -117,7 +117,6 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
             `/api/order?id=${values.id}`,
             patchData,
           );
-          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
           console.log(response);
           await mutate(`/api/order?date=${formattedDate}`);
           await mutate(`/api/dashboard?date=${formattedDate}`);
@@ -126,6 +125,8 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
+    } finally {
+      toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
     }
   }
 
