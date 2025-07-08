@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
         : 0;
 
     const filterZero = orderItems.filter(
-      (orderItem) => orderItem.amount !== undefined,
+      (orderItem) => orderItem.amount !== undefined && orderItem.amount !== 0,
     );
 
     const formattedOrder = filterZero.map((orderItem) => {
