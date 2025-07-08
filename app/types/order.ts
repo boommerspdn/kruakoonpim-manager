@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { publicMenuSchema } from "./menu";
 
 export const orderItemsSchema = z.array(
   z.object({
