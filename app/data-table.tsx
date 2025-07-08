@@ -211,24 +211,27 @@ export function DataTable({
   const [data, setData] = React.useState(() => initialData);
   React.useEffect(() => {
     setData(initialData);
-    form.reset({ order: initialData });
   }, [initialData]);
 
   const [selectedTab, setSelectedTab] = React.useState("all");
 
-  const filteredData = React.useMemo(() => {
-    if (selectedTab === "delivery")
-      return data.filter((row) => row.delivery === true);
-    if (selectedTab === "pending")
-      return data.filter((row) => row.status === "PENDING");
-    if (selectedTab === "completed")
-      return data.filter((row) => row.status === "COMPLETED");
-
-    return data;
-  }, [selectedTab, data]);
+  React.useEffect(() => {
+    if (selectedTab === "delivery") {
+      table.setColumnFilters([{ id: "delivery", value: true }]);
+    } else if (selectedTab === "pending") {
+      table.setColumnFilters([{ id: "status", value: "PENDING" }]);
+    } else if (selectedTab === "completed") {
+      table.setColumnFilters([{ id: "status", value: "COMPLETED" }]);
+    } else {
+      table.setColumnFilters([]); // Clear all
+    }
+  }, [selectedTab]);
 
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+      status: false,
+      delivery: false,
+    });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
@@ -249,17 +252,6 @@ export function DataTable({
   // const personSchema = dynamicPersonSchema;
 
   // And then, a schema for an array of these persons
-  const formSchema = z.object({
-    // This 'people' key will be the name of your array in the form data
-    order: z.array(publicOrderSchema),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { order: data },
-    mode: "onChange",
-  });
-
   // 2. Define a submit handler.
   const { date } = useDateStore();
   const formattedDate = date
@@ -490,8 +482,9 @@ export function DataTable({
 
                 <OrderForm initialData={initialData} mode="EDIT">
                   <RemoveDialog
-                    title="ลบออเดอร์ของ"
-                    description="หากลบ"
+                    title={`แน่ใจที่จะลบออเดอร์ของ ${row.original.customerName}?`}
+                    description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบออเดอร์ของ ${row.original.customerName} หากแน่ใจให้กดปุ่มยืนยันการลบ
+                      เมื่ลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
                     deleteFn={handleDelete}
                   >
                     <DropdownMenu>
@@ -522,6 +515,22 @@ export function DataTable({
           );
         },
       },
+      {
+        id: "status",
+        accessorKey: "status",
+        enableHiding: true,
+        enableSorting: false,
+        header: () => null,
+        cell: () => null,
+      },
+      {
+        id: "delivery",
+        accessorKey: "delivery",
+        enableHiding: true,
+        enableSorting: false,
+        header: () => null,
+        cell: () => null,
+      },
     ];
   }, [menu, date]); // Recreate columns only when `menu` prop changes
 
@@ -531,12 +540,12 @@ export function DataTable({
   );
 
   const table = useReactTable({
-    data: filteredData,
+    data,
     columns,
     state: {
       sorting,
-      columnVisibility,
       columnFilters,
+      columnVisibility,
     },
     getRowId: (row) => row.id,
     enableRowSelection: true,
@@ -647,68 +656,64 @@ export function DataTable({
         </div>
       </div>
 
-      <Form {...form}>
-        <form>
-          <div className="overflow-hidden rounded-lg border">
-            <DndContext
-              collisionDetection={closestCenter}
-              modifiers={[restrictToVerticalAxis]}
-              onDragEnd={handleDragEnd}
-              sensors={sensors}
-              id={sortableId}
-            >
-              <div className="max-h-[80vh] relative overflow-auto">
-                <Table className="text-base">
-                  <TableHeader className="bg-muted sticky top-0 z-10">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => {
-                          return (
-                            <TableHead
-                              key={header.id}
-                              colSpan={header.colSpan}
-                              style={{ width: `${header.getSize()}px` }}
-                              className="py-2 font-medium"
-                            >
-                              {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext(),
-                                  )}
-                            </TableHead>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                    {table.getRowModel().rows?.length ? (
-                      <SortableContext
-                        items={dataIds}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {table.getRowModel().rows.map((row) => (
-                          <DraggableRow key={row.original.id} row={row} />
-                        ))}
-                      </SortableContext>
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className="h-24 text-center"
+      <div className="overflow-hidden rounded-lg border">
+        <DndContext
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
+          id={sortableId}
+        >
+          <div className="max-h-[80vh] relative overflow-auto">
+            <Table className="text-base">
+              <TableHeader className="bg-muted sticky top-0 z-10">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead
+                          key={header.id}
+                          colSpan={header.colSpan}
+                          style={{ width: `${header.getSize()}px` }}
+                          className="py-2 font-medium"
                         >
-                          ไม่มีผลลัพธ์
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </DndContext>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                {table.getRowModel().rows?.length ? (
+                  <SortableContext
+                    items={dataIds}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {table.getRowModel().rows.map((row) => (
+                      <DraggableRow key={row.original.id} row={row} />
+                    ))}
+                  </SortableContext>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      ไม่มีผลลัพธ์
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
-        </form>
-      </Form>
+        </DndContext>
+      </div>
     </div>
   );
 }

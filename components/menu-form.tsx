@@ -162,6 +162,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       {...form.register(`menu.${index}.name`)}
                       className="w-full"
                       placeholder="ชื่อเมนู"
+                      autoFocus
                     />
                     <Input
                       {...form.register(`menu.${index}.amount`)}
@@ -215,8 +216,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
                   description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบเมนูวันที่ 
                       ${date?.toLocaleDateString(
                         "th-TH",
-                      )} หากแน่ใจให้กดปุ่มสีแดง
-                      เมื่อยกเลิกแล้วจะไม่สามารถนำกลับคืนมาได้`}
+                      )} หากแน่ใจให้กดปุ่มยืนยันการลบ
+                      เมื่ลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
                   deleteFn={handleDelete}
                 >
                   <AlertDialogTrigger asChild>

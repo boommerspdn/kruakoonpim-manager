@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -142,6 +143,9 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
               ? `แก้ไขออเดอร์ของ ${initialData.customerName}`
               : "เพิ่มออเดอร์"}
           </DialogTitle>
+          <DialogDescription>
+            ใส่ชื่อและจำนวนของแต่ละออเดอร์จากนั้นกดปุ่มบันทึกรายการ
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -219,33 +223,30 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
                 <FormField
                   control={form.control}
                   name="payment"
-                  render={({ field }) => {
-                    console.log("Payment value:", field.value);
-                    return (
-                      <FormItem>
-                        <FormLabel>วิธีจ่ายเงิน</FormLabel>
-                        <Select
-                          value={field.value || ""}
-                          onValueChange={field.onChange}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="วิธีจ่ายเงิน" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="CASH">เงินสด</SelectItem>
-                            <SelectItem value="ONLINE">โอน</SelectItem>
-                            <SelectItem value="UNKNOWN">
-                              ไม่ได้จ่ายหน้าร้าน
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>วิธีจ่ายเงิน</FormLabel>
+                      <Select
+                        value={field.value || ""}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="วิธีจ่ายเงิน" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="CASH">เงินสด</SelectItem>
+                          <SelectItem value="ONLINE">โอน</SelectItem>
+                          <SelectItem value="UNKNOWN">
+                            ไม่ได้จ่ายหน้าร้าน
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
               <div className="col-span-1">
