@@ -1,8 +1,4 @@
-import {
-  CreateOrder,
-  createOrderSchema,
-  PatchOrderItem,
-} from "@/app/types/order";
+import { CreateOrder, createOrderSchema } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,11 +9,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDateStore } from "@/hooks/use-date";
+import { easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
 import { Loader2, Save, Trash2 } from "lucide-react";
-import React, { useEffect } from "react";
+import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
@@ -41,7 +38,6 @@ import {
 } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
-import { easyDiff } from "@/lib/utils";
 
 type OrderFormProps = {
   children: React.ReactNode;

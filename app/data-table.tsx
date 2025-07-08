@@ -59,14 +59,17 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import OrderForm from "@/components/order-form";
+import { RemoveDialog } from "@/components/remove-dialog";
+import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Form } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
@@ -74,7 +77,6 @@ import {
 } from "@/components/ui/popover";
 import { useDateStore } from "@/hooks/use-date";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
 import {
@@ -84,11 +86,9 @@ import {
   MoreHorizontal,
   Pencil,
   PlusCircle,
-  Trash,
   Trash2,
   X,
 } from "lucide-react";
-import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { PublicMenu } from "./types/menu";
@@ -96,31 +96,8 @@ import {
   CreateOrder,
   OrderStatus,
   Payment,
-  PublicOrder,
   publicOrderSchema,
 } from "./types/order";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import OrderForm from "@/components/order-form";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { RemoveDialog } from "@/components/remove-dialog";
 
 // declare module "@tanstack/react-table" {
 //   interface TableMeta<TData extends RowData> {
@@ -334,7 +311,6 @@ export function DataTable({
         id: "actions",
         size: 260,
         cell: ({ row }) => {
-          const rowIndex = row.index; // Get the TanStack row index
           const [isSubmittingConfirm, setIsSubmittingConfirm] =
             React.useState(false);
           const [isSubmittingPayment, setIsSubmittingPayment] =
