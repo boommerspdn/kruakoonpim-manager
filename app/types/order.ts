@@ -88,14 +88,8 @@ export const patchOrderItemSchema = z.object({
 export type PatchOrderItem = z.infer<typeof patchOrderItemSchema>;
 
 export const rowSwapBodySchema = z.object({
-  active: z.object({
-    id: z.string(),
-    sortOrder: z.number(),
-  }),
-  over: z.object({
-    id: z.string(),
-    sortOrder: z.number(),
-  }),
+  active: z.string(),
+  over: z.string(),
 });
 
 export type RowSwapBody = z.infer<typeof rowSwapBodySchema>;

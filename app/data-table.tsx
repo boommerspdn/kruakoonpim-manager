@@ -507,8 +507,8 @@ export function DataTable({
       // console.log(active.id);
       // console.log(over.id);
       const body: RowSwapBody = {
-        active: { id: active.id as string, sortOrder: newIndex },
-        over: { id: over.id as string, sortOrder: oldIndex },
+        active: active.id as string,
+        over: over.id as string,
       };
 
       try {

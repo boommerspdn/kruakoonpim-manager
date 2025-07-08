@@ -11,13 +11,22 @@ export async function PUT(req: NextRequest) {
       throw new Error("Body is not provided");
     }
 
+    const getActiveOrder = await prisma.order.findFirst({
+      where: { id: active },
+      select: { sortOrder: true },
+    });
+    const getOverOrder = await prisma.order.findFirst({
+      where: { id: over },
+      select: { sortOrder: true },
+    });
+
     await prisma.order.update({
-      where: { id: active.id },
-      data: { sortOrder: active.sortOrder },
+      where: { id: active },
+      data: { sortOrder: getOverOrder?.sortOrder },
     });
     await prisma.order.update({
-      where: { id: over.id },
-      data: { sortOrder: over.sortOrder },
+      where: { id: over },
+      data: { sortOrder: getActiveOrder?.sortOrder },
     });
 
     return NextResponse.json("Indexs updated successfully");
