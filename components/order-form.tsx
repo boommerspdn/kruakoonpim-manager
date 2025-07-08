@@ -13,7 +13,7 @@ import { easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
-import { Loader2, Save, Trash2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
