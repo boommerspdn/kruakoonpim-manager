@@ -97,38 +97,8 @@ import {
   OrderStatus,
   Payment,
   publicOrderSchema,
+  RowSwapBody,
 } from "./types/order";
-
-// declare module "@tanstack/react-table" {
-//   interface TableMeta<TData extends RowData> {
-//     addNewRow: () => void;
-//     tableMode: "edit" | "default";
-//     fields: any; // You can type this more strictly if needed
-//   }
-// }
-
-// const schema = publicOrderSchema;
-
-// export const dynamicMenuValueSchema = z.coerce.number();
-
-// export const createPersonSchemaWithDynamicMenu = (menu: PublicMenu[]) => {
-//   const baseProperties = {
-//     id: z.string().optional(),
-//     name: z.string().min(1, "ชื่อลูกค้าต้องมามากกว่า 1 ตัวอักษร"),
-//     note: z.string().optional(),
-//     delivery: z.boolean().optional(),
-//     payment: z.enum(["PENDING", "CASH", "ONLINE", "UNKNOWN"]),
-//     status: z.string().optional(),
-//   };
-
-//   const dynamicProperties: Record<string, z.ZodTypeAny> = {};
-
-//   menu.forEach((menuItem) => {
-//     dynamicProperties[menuItem.id] = dynamicMenuValueSchema;
-//   });
-
-//   return z.object({ ...baseProperties, ...dynamicProperties });
-// };
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({
@@ -220,16 +190,7 @@ export function DataTable({
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {}),
   );
-  /// React Hook Form
-  // const dynamicPersonSchema = React.useMemo(
-  //   () => createPersonSchemaWithDynamicMenu(menu),
-  //   [menu], // Re-generate schema if 'menu' prop changes
-  // );
 
-  // const personSchema = dynamicPersonSchema;
-
-  // And then, a schema for an array of these persons
-  // 2. Define a submit handler.
   const { date } = useDateStore();
   const formattedDate = date
     ? format(date, "yyyy-MM-dd")
@@ -534,14 +495,28 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
+      const oldIndex = dataIds.indexOf(active.id);
+      const newIndex = dataIds.indexOf(over.id);
       setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
         return arrayMove(data, oldIndex, newIndex);
       });
+
+      // console.log(active.id);
+      // console.log(over.id);
+      const body: RowSwapBody = {
+        active: { id: active.id as string, sortOrder: newIndex },
+        over: { id: over.id as string, sortOrder: oldIndex },
+      };
+
+      try {
+        const response = await axios.put("/api/order/swap-row", body);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 

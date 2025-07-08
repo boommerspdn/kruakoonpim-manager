@@ -1,36 +1,23 @@
+import { RowSwapBody } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
   try {
-    const body: {
-      oldId: string;
-      newId: string;
-    } = await req.json();
-    const { oldId, newId } = body;
+    const body: RowSwapBody = await req.json();
+    const { active, over } = body;
 
-    if (!oldId || !newId) {
+    if (!active || !over) {
       throw new Error("Body is not provided");
     }
 
-    const oldIndexSort = await prisma.order.findFirst({
-      where: {
-        id: oldId,
-      },
-    });
-    const newIndexSort = await prisma.order.findFirst({
-      where: {
-        id: newId,
-      },
-    });
-
     await prisma.order.update({
-      where: { id: oldId },
-      data: { sortOrder: newIndexSort?.sortOrder },
+      where: { id: active.id },
+      data: { sortOrder: active.sortOrder },
     });
     await prisma.order.update({
-      where: { id: newId },
-      data: { sortOrder: oldIndexSort?.sortOrder },
+      where: { id: over.id },
+      data: { sortOrder: over.sortOrder },
     });
 
     return NextResponse.json("Indexs updated successfully");
