@@ -100,25 +100,6 @@ import {
   RowSwapBody,
 } from "./types/order";
 
-function DragHandle({ id }: { id: string }) {
-  const { attributes, listeners } = useSortable({
-    id,
-  });
-
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
-    </Button>
-  );
-}
-
 function DraggableRow({
   row,
 }: {
@@ -161,6 +142,25 @@ export function DataTable({
   }, [initialData]);
 
   const [selectedTab, setSelectedTab] = React.useState("all");
+  function DragHandle({ id }: { id: string }) {
+    const { attributes, listeners } = useSortable({
+      id,
+    });
+
+    return (
+      <Button
+        {...attributes}
+        {...listeners}
+        variant="ghost"
+        size="icon"
+        className="text-muted-foreground size-7 hover:bg-transparent"
+        disabled={selectedTab !== "all"}
+      >
+        <IconGripVertical className="text-muted-foreground size-3" />
+        <span className="sr-only">Drag to reorder</span>
+      </Button>
+    );
+  }
 
   React.useEffect(() => {
     if (selectedTab === "delivery") {
@@ -511,7 +511,6 @@ export function DataTable({
 
       try {
         const response = await axios.put("/api/order/swap-row", body);
-        await mutate(`/api/order?date=${formattedDate}`);
         console.log(response);
       } catch (error) {
         console.log(error);
