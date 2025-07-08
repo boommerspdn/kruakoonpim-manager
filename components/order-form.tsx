@@ -82,8 +82,6 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
 
           form.reset(defaultValues);
           toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
-          await mutate(`/api/order?date=${formattedDate}`);
-          await mutate(`/api/dashboard?date=${formattedDate}`);
         }
         if (mode === "EDIT") {
           const formatOrderItems = initialData.orderItems.map((orderItem) => ({
@@ -113,19 +111,16 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
             orderItems: findDifference,
           };
 
-          const response = await axios.patch(
-            `/api/order?id=${values.id}`,
-            patchData,
-          );
-          console.log(response);
-
-          await mutate(`/api/order?date=${formattedDate}`);
-          await mutate(`/api/dashboard?date=${formattedDate}`);
+          await axios.patch(`/api/order?id=${values.id}`, patchData);
+          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
         }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
+    } finally {
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   }
 
