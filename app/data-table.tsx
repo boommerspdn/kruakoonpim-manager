@@ -285,7 +285,7 @@ export function DataTable({
             delivery: row.original.delivery,
             note: row.original.note,
             status: row.original.status,
-            payment: row.original.payment,
+            payment: row.original.payment ?? undefined,
             orderItems: menu.map((menuItem) => {
               const findOrder = row.original.orderItems.find(
                 (orderItem) => orderItem.menuId === menuItem.id,

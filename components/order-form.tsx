@@ -223,7 +223,7 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
                     <FormItem>
                       <FormLabel>วิธีจ่ายเงิน</FormLabel>
                       <Select
-                        value={field.value || ""}
+                        value={field.value === null ? "" : field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
