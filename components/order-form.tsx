@@ -125,8 +125,6 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
-    } finally {
-      toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
     }
   }
 
@@ -292,10 +290,7 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
             </div>
 
             <DialogFooter className="pt-4">
-              <div className="flex justify-between w-full">
-                <Button type="button" variant={"secondary"}>
-                  <Trash2 className="text-destructive" /> ลบรายการ
-                </Button>
+              <div className="flex justify-end">
                 <Button
                   type="submit"
                   disabled={
