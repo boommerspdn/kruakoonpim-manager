@@ -37,6 +37,7 @@ import {
   PatchMenu,
 } from "@/app/types/menu";
 import { easyDiff } from "@/lib/utils";
+import { RemoveDialog } from "./remove-dialog";
 
 type MenuForm = {
   initialData?: PublicMenu[];
@@ -166,6 +167,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       {...form.register(`menu.${index}.amount`)}
                       className="w-28"
                       type="number"
+                      min={0}
                       placeholder="จำนวน"
                     />
                     <div className="relative">
@@ -173,6 +175,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
                         {...form.register(`menu.${index}.price`)}
                         className="w-28"
                         type="number"
+                        min={0}
                         placeholder="ราคา"
                       />
                       <Badge className="absolute top-1/2 right-[8px] transform  -translate-y-1/2 pointer-events-none">
@@ -206,39 +209,32 @@ const MenuForm = ({ initialData }: MenuForm) => {
           </Button>
           <div className="flex gap-2">
             {initialData && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    type="button"
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Trash />
-                    )}
-                    ลบเมนู
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>แน่ใจที่จะลบเมนู?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      หากกดยืนยันจะเป็นการยืนยันที่จะลบเมนูวันที่{" "}
-                      {date?.toLocaleDateString("th-TH")} หากแน่ใจให้กดปุ่มสีแดง
-                      เมื่อยกเลิกแล้วจะไม่สามารถนำกลับคืนมาได้
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete()}>
-                      <Trash />
+              <>
+                <RemoveDialog
+                  title="แน่ใจที่จะลบเมนู?"
+                  description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบเมนูวันที่ 
+                      ${date?.toLocaleDateString(
+                        "th-TH",
+                      )} หากแน่ใจให้กดปุ่มสีแดง
+                      เมื่อยกเลิกแล้วจะไม่สามารถนำกลับคืนมาได้`}
+                  deleteFn={handleDelete}
+                >
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      type="button"
+                      disabled={deleteLoading}
+                    >
+                      {deleteLoading ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <Trash />
+                      )}
                       ลบเมนู
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                    </Button>
+                  </AlertDialogTrigger>
+                </RemoveDialog>
+              </>
             )}
             <Button
               type="submit"

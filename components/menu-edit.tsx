@@ -13,7 +13,6 @@ import { useDateStore } from "@/hooks/use-date";
 import { Calendar, Pencil } from "lucide-react";
 import MenuForm from "./menu-form";
 import { Badge } from "./ui/badge";
-import { useTableModeStore } from "@/hooks/use-table-mode";
 import { PublicMenu } from "@/app/types/menu";
 
 type MenuEditProps = {
@@ -22,13 +21,12 @@ type MenuEditProps = {
 
 export default function MenuEdit({ menu }: MenuEditProps) {
   const { date } = useDateStore();
-  const { tableMode } = useTableModeStore();
 
   return (
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button className="flex px-2" disabled={tableMode === "edit"}>
+          <Button className="flex px-2">
             <Pencil />
             แก้ไขเมนู
           </Button>

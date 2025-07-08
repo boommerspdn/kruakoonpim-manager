@@ -1,17 +1,7 @@
+import { CreateOrder, PatchOrderItem } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
-
-export type OrderBody = {
-  id: string;
-  customerName: string;
-  sortOrder: number;
-  note: string;
-  delivery: boolean;
-  paid: "PENDING" | "CASH" | "ONLINE" | "UNKNOWN";
-  orderItems: { menuId: string; amount: number }[];
-  status?: "COMPLETED" | "PENDING";
-};
 
 export async function GET(req: NextRequest) {
   try {
@@ -55,12 +45,18 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   try {
-    const body: OrderBody = await req.json();
-    const { id, customerName, delivery, note, paid, status } = body;
+    const body: PatchOrderItem = await req.json();
+    const { id, customerName, delivery, note, payment, status, orderItems } =
+      body;
 
     if (!id) throw new Error("ID was not included in the params");
+
+    const toCreate = orderItems?.toCreate.map((orderItem) => ({
+      menuId: orderItem.menuId,
+      amount: orderItem.amount,
+    }));
 
     await prisma.order.update({
       where: {
@@ -70,8 +66,28 @@ export async function PUT(req: NextRequest) {
         customerName,
         delivery,
         note,
-        payment: paid,
+        payment,
         status,
+        orderItems: {
+          createMany: {
+            data: toCreate || [],
+          },
+        },
+      },
+    });
+
+    for (const updateItem of orderItems.toUpdate) {
+      await prisma.orderItem.update({
+        where: { id: updateItem.id },
+        data: {
+          amount: updateItem.changes.amount,
+        },
+      });
+    }
+
+    await prisma.orderItem.deleteMany({
+      where: {
+        id: { in: orderItems.toDeleteIds },
       },
     });
 
@@ -83,7 +99,9 @@ export async function PUT(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body: OrderBody[] = await req.json();
+    const body: CreateOrder = await req.json();
+    const { customerName, delivery, note, payment, status, orderItems } = body;
+
     const searchParams = req.nextUrl.searchParams;
     const date = searchParams.get("date");
 
@@ -92,85 +110,49 @@ export async function POST(req: NextRequest) {
 
     const { start, end } = getDayRange(new Date(date));
 
-    const existingItems = await prisma.order.findMany({
-      where: {
-        date: {
-          gte: start,
-          lte: end,
+    const lastSortOrder =
+      (await prisma.order.aggregate({
+        _max: { sortOrder: true },
+        where: {
+          date: {
+            gte: start,
+            lte: end,
+          },
         },
-      },
-      select: { id: true },
+      })) || 0;
+
+    const maxSortOrder =
+      lastSortOrder._max.sortOrder !== null
+        ? lastSortOrder._max.sortOrder + 1
+        : 0;
+
+    const filterZero = orderItems.filter(
+      (orderItem) => orderItem.amount !== undefined,
+    );
+
+    const formattedOrder = filterZero.map((orderItem) => {
+      return {
+        menuId: orderItem.menuId,
+        amount: orderItem.amount || 0,
+      };
     });
 
-    const existingIds = existingItems.map((item) => item.id);
-    const newIds = body.map((item) => item.id).filter(Boolean) as string[];
-
-    // 2. Calculate which IDs to delete
-    const toDelete = existingIds.filter((id) => !newIds.includes(id));
-
-    for (const order of body) {
-      const upsertedOrder = await prisma.order.upsert({
-        where: {
-          id: order.id || "00000000-0000-0000-0000-000000000000",
-        },
-        create: {
-          customerName: order.customerName,
-          date: new Date(date),
-          sortOrder: order.sortOrder,
-          note: order.note,
-          delivery: order.delivery,
-          payment: order.paid,
-          orderItems: {
-            create: order.orderItems
-              .filter((item) => item.amount !== 0)
-              .map((item) => ({
-                menuId: item.menuId,
-                amount: item.amount,
-              })),
+    await prisma.order.create({
+      data: {
+        customerName,
+        delivery: delivery || false,
+        note,
+        payment,
+        status,
+        date: new Date(date),
+        sortOrder: maxSortOrder,
+        orderItems: {
+          createMany: {
+            data: formattedOrder,
           },
         },
-        update: {
-          customerName: order.customerName,
-          date: new Date(date),
-          sortOrder: order.sortOrder,
-          note: order.note,
-          delivery: order.delivery,
-          payment: order.paid,
-        },
-      });
-
-      // Upsert orderItems manually (after order upserted)
-      for (const item of order.orderItems) {
-        if (item.amount === 0) continue;
-
-        await prisma.orderItem.upsert({
-          where: {
-            orderId_menuId: {
-              orderId: upsertedOrder.id,
-              menuId: item.menuId,
-            },
-          },
-          update: {
-            amount: item.amount,
-          },
-          create: {
-            orderId: upsertedOrder.id,
-            menuId: item.menuId,
-            amount: item.amount,
-          },
-        });
-      }
-    }
-
-    // 4. Run everything in a transaction
-    await prisma.$transaction([
-      // Delete old items
-      prisma.order.deleteMany({
-        where: {
-          id: { in: toDelete },
-        },
-      }),
-    ]);
+      },
+    });
 
     return NextResponse.json("Order created successfully");
   } catch (error) {
@@ -178,23 +160,24 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   try {
-    const body = await req.json();
+    const searchParams = req.nextUrl.searchParams;
+    const id = searchParams.get("id");
 
-    const { ids } = body;
-
-    if (!Array.isArray(ids)) {
-      return new NextResponse("Id(s) must be an array", { status: 400 });
+    if (!id) {
+      return new NextResponse("Id was not included in the params", {
+        status: 400,
+      });
     }
 
-    await prisma.order.deleteMany({
+    await prisma.order.delete({
       where: {
-        id: { in: ids },
+        id: id,
       },
     });
 
-    return NextResponse.json(`Deleted rows indexed of ${ids}`);
+    return NextResponse.json(`Deleted rows indexed of ${id}`);
   } catch (error) {
     console.log(error);
     return new NextResponse("Internal error", { status: 500 });

@@ -11,13 +11,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useDateStore } from "@/hooks/use-date";
-import { useTableModeStore } from "@/hooks/use-table-mode";
 import { useState } from "react";
 
 export function DatePickerForm() {
   const [open, setOpen] = useState(false);
   const { date, setDate } = useDateStore();
-  const { tableMode } = useTableModeStore();
 
   return (
     <div className="flex gap-3 col-start-2">
@@ -27,7 +25,6 @@ export function DatePickerForm() {
             variant="outline"
             id="date"
             className="w-56 justify-between font-normal"
-            disabled={tableMode === "edit"}
           >
             {date
               ? date.toLocaleDateString("th-TH", {

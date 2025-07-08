@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { IconCancel, IconGripVertical, IconTruck } from "@tabler/icons-react";
+import { IconGripVertical, IconTruck } from "@tabler/icons-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -35,13 +35,11 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-import { v4 as uuidv4 } from "uuid";
 
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -63,34 +61,30 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Badge } from "@/components/ui/badge";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Form } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
 import { useDateStore } from "@/hooks/use-date";
-import { useTableModeStore } from "@/hooks/use-table-mode";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RowData } from "@tanstack/react-table";
 import axios from "axios";
 import { format } from "date-fns";
 import {
   Check,
-  CircleMinus,
   Info,
   Loader2,
+  MoreHorizontal,
+  Pencil,
   PlusCircle,
-  SaveAll,
-  TableConfigIcon,
+  Trash,
   Trash2,
   X,
 } from "lucide-react";
@@ -99,11 +93,34 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { PublicMenu } from "./types/menu";
 import {
+  CreateOrder,
   OrderStatus,
   Payment,
   PublicOrder,
   publicOrderSchema,
 } from "./types/order";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import OrderForm from "@/components/order-form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { RemoveDialog } from "@/components/remove-dialog";
 
 // declare module "@tanstack/react-table" {
 //   interface TableMeta<TData extends RowData> {
@@ -112,14 +129,6 @@ import {
 //     fields: any; // You can type this more strictly if needed
 //   }
 // }
-
-declare module "@tanstack/table-core" {
-  interface TableMeta<TData extends RowData> {
-    addNewRow: () => void;
-    tableMode: "edit" | "default";
-    _?: TData;
-  }
-}
 
 // const schema = publicOrderSchema;
 
@@ -144,7 +153,7 @@ declare module "@tanstack/table-core" {
 //   return z.object({ ...baseProperties, ...dynamicProperties });
 // };
 
-function DragHandle({ id, mode }: { id: string; mode?: "edit" | "default" }) {
+function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({
     id,
   });
@@ -156,7 +165,6 @@ function DragHandle({ id, mode }: { id: string; mode?: "edit" | "default" }) {
       variant="ghost"
       size="icon"
       className="text-muted-foreground size-7 hover:bg-transparent"
-      disabled={mode === "edit"}
     >
       <IconGripVertical className="text-muted-foreground size-3" />
       <span className="sr-only">Drag to reorder</span>
@@ -203,6 +211,7 @@ export function DataTable({
   const [data, setData] = React.useState(() => initialData);
   React.useEffect(() => {
     setData(initialData);
+    form.reset({ order: initialData });
   }, [initialData]);
 
   const [selectedTab, setSelectedTab] = React.useState("all");
@@ -218,10 +227,6 @@ export function DataTable({
     return data;
   }, [selectedTab, data]);
 
-  const { tableMode, setTableMode } = useTableModeStore();
-  React.useEffect(() => {
-    if (tableMode === "edit") setSelectedTab("all");
-  }, [tableMode]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -255,20 +260,6 @@ export function DataTable({
     mode: "onChange",
   });
 
-  React.useEffect(() => {
-    if (tableMode === "default") {
-      const filtered = data.filter((item) => item._status !== "created");
-
-      setData(filtered);
-      form.reset({ order: filtered });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tableMode]);
-
-  const { append, remove } = useFieldArray<z.infer<typeof formSchema>>({
-    control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
-    name: "order", // unique name for your Field Array
-  });
   // 2. Define a submit handler.
   const { date } = useDateStore();
   const formattedDate = date
@@ -276,40 +267,6 @@ export function DataTable({
     : format(new Date(), "yyyy-MM-dd");
 
   const { mutate } = useSWRConfig();
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    // const submittedData: OrderBody[] = values.order.map((item: any, index) => ({
-    //   id: item.id,
-    //   customerName: item.name,
-    //   note: item.note || "",
-    //   sortOrder: index,
-    //   delivery: item.delivery || false,
-    //   paid: item.payment || false,
-    //   orderItems: menu.map((orderItem) => ({
-    //     menuId: orderItem.id,
-    //     amount: item[orderItem.id],
-    //   })),
-    // }));
-    console.log(values);
-    try {
-      if (form.formState.isDirty) {
-        // const response = await axios.post(
-        //   `/api/order?date=${formattedDate}`,
-        //   submittedData,
-        // );
-        // console.log(response);
-      }
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
-    } finally {
-      await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
-      setTableMode("default");
-    }
-  }
-  /// React Hook Form
 
   const columns = React.useMemo<
     ColumnDef<z.infer<typeof publicOrderSchema>>[]
@@ -324,11 +281,6 @@ export function DataTable({
           </div>
         ),
         cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-          const rowIndex = row.index; // Get the TanStack row index
-
           const status = row.original.status;
 
           const orderItemIndex = row.original.orderItems.findIndex(
@@ -339,26 +291,7 @@ export function DataTable({
               ? row.original.orderItems[orderItemIndex]
               : undefined;
 
-          return currentTableMode === "edit" ? (
-            <FormField
-              control={form.control}
-              name={`order.${rowIndex}.orderItems`}
-              render={() => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      className="h-8"
-                      {...form.register(
-                        `order.${rowIndex}.orderItems.${orderItemIndex}.amount`,
-                      )}
-                      placeholder={menuItem.name}
-                      type="number"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          ) : (
+          return (
             <div
               className={cn(
                 `w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`,
@@ -378,43 +311,17 @@ export function DataTable({
         size: 0,
         header: () => null,
         cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-
-          return <DragHandle id={row.original.id} mode={currentTableMode} />;
+          return <DragHandle id={row.original.id} />;
         },
       },
       {
-        accessorKey: "name",
+        accessorKey: "customerName",
         header: "ชื่อ",
         size: 110,
         cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
-          const rowIndex = row.index; // Get the TanStack row index
-
           const status = row.original.status;
 
-          return currentTableMode === "edit" ? (
-            <FormField
-              control={form.control}
-              name={`order.${rowIndex}.customerName`}
-              render={() => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      className="h-8"
-                      {...form.register(`order.${rowIndex}.customerName`)}
-                      placeholder="ชื่อลูกค้า"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ) : (
+          return (
             <div
               className={cn(
                 "flex gap-2 items-center",
@@ -435,9 +342,6 @@ export function DataTable({
         id: "actions",
         size: 260,
         cell: ({ row }) => {
-          const currentTableMode = (
-            table.options.meta as { tableMode: "edit" | "default" }
-          ).tableMode;
           const rowIndex = row.index; // Get the TanStack row index
           const [isSubmittingConfirm, setIsSubmittingConfirm] =
             React.useState(false);
@@ -446,19 +350,40 @@ export function DataTable({
 
           const status = row.original.status;
 
+          const initialData: CreateOrder = {
+            id: row.original.id,
+            customerName: row.original.customerName,
+            delivery: row.original.delivery,
+            note: row.original.note,
+            status: row.original.status,
+            payment: row.original.payment,
+            orderItems: menu.map((menuItem) => {
+              const findOrder = row.original.orderItems.find(
+                (orderItem) => orderItem.menuId === menuItem.id,
+              );
+
+              return {
+                id: findOrder?.id,
+                menuId: menuItem.id,
+                menuName: menuItem.name,
+                amount: findOrder?.amount || undefined,
+              };
+            }),
+          };
+
           const handleConfirm = async (status: OrderStatus) => {
             try {
               setIsSubmittingConfirm(true);
               const response = await axios.put(
                 `/api/order/confirm?id=${row.original.id}&status=${status}`,
               );
+              await mutate(`/api/order?date=${formattedDate}`);
+              await mutate(`/api/dashboard?date=${formattedDate}`);
               console.log(response);
             } catch (error) {
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
             } finally {
-              await mutate(`/api/order?date=${formattedDate}`);
-              await mutate(`/api/dashboard?date=${formattedDate}`);
               setIsSubmittingConfirm(false);
             }
           };
@@ -480,181 +405,119 @@ export function DataTable({
             }
           };
 
+          const handleDelete = async () => {
+            try {
+              const response = await axios.delete(
+                `/api/order?id=${row.original.id}`,
+              );
+              console.log(response);
+            } catch (error) {
+              toast.error("เกิดข้อผิดพลาด");
+              console.log(error);
+            } finally {
+              await mutate(`/api/order?date=${formattedDate}`);
+              await mutate(`/api/dashboard?date=${formattedDate}`);
+            }
+          };
+
           return (
             <div className="w-full max-w-full overflow-x-hidden">
-              {currentTableMode === "edit" ? (
-                <div className="flex justify-between items-center gap-2">
-                  <div className="flex gap-4">
+              <div className="grid grid-cols-8 gap-3 pe-2">
+                <Button
+                  size={"sm"}
+                  disabled={isSubmittingConfirm}
+                  onClick={() => {
+                    handleConfirm(
+                      status === "COMPLETED" ? "PENDING" : "COMPLETED",
+                    );
+                  }}
+                  type="button"
+                  variant={status === "COMPLETED" ? "secondary" : "default"}
+                >
+                  {status === "COMPLETED" ? (
+                    <X />
+                  ) : isSubmittingConfirm ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Check />
+                  )}
+                </Button>
+                <div className="col-span-4">
+                  <Label
+                    htmlFor={`${row.original.id}-payment`}
+                    className="sr-only"
+                  >
+                    วิธีจ่ายเงิน
+                  </Label>
+                  <Select
+                    value={row.original.payment || undefined}
+                    onValueChange={(value) => handlePayment(value)}
+                    defaultValue={row.original.payment || undefined}
+                    disabled={isSubmittingPayment}
+                  >
+                    <SelectTrigger
+                      className="w-full **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
+                      size="sm"
+                      id={`${row.original.id}-payment`}
+                    >
+                      <SelectValue placeholder="วิธีจ่ายเงิน" />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      <SelectItem value="CASH">เงินสด</SelectItem>
+                      <SelectItem value="ONLINE">โอน</SelectItem>
+                      <SelectItem value="UNKNOWN">
+                        ไม่ได้จ่ายหน้าร้าน
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-2 items-center col-span-2">
+                  {row.original.note && (
                     <Popover>
-                      <PopoverTrigger asChild>
-                        <Button size={"icon"}>
-                          <Info />
-                        </Button>
+                      <PopoverTrigger>
+                        <Info size={20} className="text-destructive" />
                       </PopoverTrigger>
                       <PopoverContent align="end">
-                        <FormField
-                          control={form.control}
-                          name={`order.${rowIndex}.note`}
-                          render={() => (
-                            <FormItem>
-                              <FormControl>
-                                <Textarea
-                                  className="resize-none"
-                                  {...form.register(`order.${rowIndex}.note`)}
-                                  placeholder="โน๊ต"
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
+                        {row.original.note}
                       </PopoverContent>
                     </Popover>
-                    {/* delivery */}
-                    <FormField
-                      control={form.control}
-                      name={`order.${rowIndex}.delivery`}
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center gap-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            ส่ง
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    {/* paid button */}
-                    <FormField
-                      control={form.control}
-                      name={`order.${rowIndex}.payment`}
-                      render={({ field }) => (
-                        <FormItem className="w-[140px]">
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={
-                              field.value !== "PENDING"
-                                ? row.original.payment
-                                : undefined
-                            }
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full" size="sm">
-                                <SelectValue placeholder="วิธีจ่ายเงิน" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent align="end">
-                              <SelectItem value="CASH">เงินสด</SelectItem>
-                              <SelectItem value="ONLINE">โอน</SelectItem>
-                              <SelectItem value="UNKNOWN">
-                                ไม่ได้จ่ายหน้าร้าน
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <CircleMinus
-                    className="text-primary cursor-pointer ms-auto me-4"
-                    size={30}
-                    onClick={() => {
-                      remove(rowIndex);
-                      setData((prev) =>
-                        prev.filter((_, index) => index !== rowIndex),
-                      );
-                    }}
-                  />
+                  )}
+                  {row.original.delivery && (
+                    <IconTruck className="text-primary" />
+                  )}
                 </div>
-              ) : (
-                <div className="grid grid-cols-8 gap-3 pe-2">
-                  <Button
-                    size={"sm"}
-                    disabled={isSubmittingConfirm}
-                    onClick={() => {
-                      handleConfirm(
-                        status === "COMPLETED" ? "PENDING" : "COMPLETED",
-                      );
-                    }}
-                    type="button"
-                    variant={status === "COMPLETED" ? "secondary" : "default"}
+
+                <OrderForm initialData={initialData} mode="EDIT">
+                  <RemoveDialog
+                    title="ลบออเดอร์ของ"
+                    description="หากลบ"
+                    deleteFn={handleDelete}
                   >
-                    {status === "COMPLETED" ? (
-                      <X />
-                    ) : isSubmittingConfirm ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Check />
-                    )}
-                  </Button>
-                  <div className="col-span-4">
-                    <Label
-                      htmlFor={`${row.original.id}-payment`}
-                      className="sr-only"
-                    >
-                      วิธีจ่ายเงิน
-                    </Label>
-                    <Select
-                      onValueChange={(value) => handlePayment(value)}
-                      defaultValue={
-                        row.original.payment !== "PENDING"
-                          ? row.original.payment
-                          : undefined
-                      }
-                      disabled={isSubmittingPayment}
-                    >
-                      <SelectTrigger
-                        className="w-full **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-                        size="sm"
-                        id={`${row.original.id}-payment`}
-                      >
-                        <SelectValue placeholder="วิธีจ่ายเงิน" />
-                      </SelectTrigger>
-                      <SelectContent align="end">
-                        <SelectItem value="CASH">เงินสด</SelectItem>
-                        <SelectItem value="ONLINE">โอน</SelectItem>
-                        <SelectItem value="UNKNOWN">
-                          ไม่ได้จ่ายหน้าร้าน
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DialogTrigger asChild>
+                          <DropdownMenuItem>
+                            <Pencil /> แก้ไข
+                          </DropdownMenuItem>
+                        </DialogTrigger>
 
-                  <div className="flex gap-2 items-center col-span-2">
-                    {row.original.note && (
-                      <Popover>
-                        <PopoverTrigger>
-                          <Info size={20} className="text-destructive" />
-                        </PopoverTrigger>
-                        <PopoverContent align="end">
-                          {row.original.note}
-                        </PopoverContent>
-                      </Popover>
-                    )}
-                    {row.original.delivery && (
-                      <IconTruck className="text-primary" />
-                    )}
-                  </div>
-                  {/* <OrderActions
-                    id={row.original.id}
-                    name={row.original.customerName}
-                    orders={menu.map((menuItem) => ({
-                      id: menuItem.id,
-                      name: menuItem.name,
-                      amount: row.original[menuItem.id],
-                    }))}
-                    note={row.original.note}
-                    delivery={row.original.delivery}
-                    status={row.original.status}
-                    payment={row.original.payment}
-                  /> */}
-                </div>
-              )}
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem className="text-destructive">
+                            <Trash2 className="text-destructive" /> ลบ
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </RemoveDialog>
+                </OrderForm>
+              </div>
             </div>
           );
         },
@@ -685,52 +548,7 @@ export function DataTable({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    meta: {
-      addNewRow: () => {
-        const newId = uuidv4();
-        const newMenus = menu.map((menu) => ({
-          id: newId,
-          menuId: menu.id,
-        }));
-
-        const newRow: PublicOrder = {
-          id: newId,
-          customerName: "",
-          delivery: false,
-          note: "",
-          orderItems: newMenus,
-          _status: "created",
-        };
-
-        append(newRow);
-
-        setData((prevData) => [...prevData, newRow]);
-      },
-      tableMode: tableMode,
-    },
   });
-
-  //   async function handleDragEnd(event: DragEndEvent) {
-  //     const { active, over } = event;
-  // if (active && over && active.id !== over.id) {
-  //       setData((data) => {
-  //         const oldIndex = dataIds.indexOf(active.id)
-  //         const newIndex = dataIds.indexOf(over.id)
-  //         return arrayMove(data, oldIndex, newIndex)
-  //       })
-  //     }
-
-  //       try {
-  //         const response = await axios.put("/api/order/swap-row", {
-  //           oldId: active.id,
-  //           newId: over.id,
-  //         });
-  //         console.log(response);
-  //       } catch (error) {
-  //         console.error("Error while swapping rows:", error);
-  //       }
-  //     }
-  //   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -743,54 +561,94 @@ export function DataTable({
     }
   }
 
+  const allCount = data.length;
+
+  const deliveryCount = React.useMemo(() => {
+    return data.filter((row) => row.delivery === true).length;
+  }, [data]);
+
+  const pendingCount = React.useMemo(() => {
+    return data.filter((row) => row.status === "PENDING").length;
+  }, [data]);
+
+  const completedCount = React.useMemo(() => {
+    return data.filter((row) => row.status === "COMPLETED").length;
+  }, [data]);
+
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4 pb-4">
       <div className="flex justify-between">
         <div className="w-[600px] space-x-2 flex">
           <Input
             placeholder="ค้นหาชื่อ"
             type="search"
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("customerName")?.getFilterValue() as string) ??
+              ""
+            }
             onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
+              table
+                .getColumn("customerName")
+                ?.setFilterValue(event.target.value)
             }
             className="max-w-md "
           />
           <Button
             variant={"secondary"}
-            onClick={() => table.getColumn("name")?.setFilterValue("")}
+            onClick={() => table.getColumn("customerName")?.setFilterValue("")}
           >
             <Trash2 className="text-primary" /> ล้าง
           </Button>
         </div>
-        <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-          <TabsList>
-            <TabsTrigger value="all">
-              ทั้งหมด <Badge>{data.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="delivery" disabled={tableMode === "edit"}>
-              คนส่ง
-              <Badge>
-                {data.filter((row) => row.delivery === true).length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="pending" disabled={tableMode === "edit"}>
-              คนที่ยังไม่มาเอา
-              <Badge>
-                {data.filter((row) => row.status === "PENDING").length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="completed" disabled={tableMode === "edit"}>
-              คนที่มาเอาไปแล้ว
-              <Badge>
-                {data.filter((row) => row.status === "COMPLETED").length}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex gap-2">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+            <TabsList>
+              <TabsTrigger value="all">
+                ทั้งหมด <Badge>{allCount}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="delivery">
+                คนส่ง
+                <Badge>{deliveryCount}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="pending">
+                คนที่ยังไม่มาเอา
+                <Badge>{pendingCount}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="completed">
+                คนที่มาเอาไปแล้ว
+                <Badge>{completedCount}</Badge>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <OrderForm
+            mode="CREATE"
+            initialData={{
+              id: undefined,
+              customerName: "",
+              date: date,
+              orderItems: menu.map((menuItem) => ({
+                menuId: menuItem.id,
+                menuName: menuItem.name,
+                amount: undefined,
+              })),
+              note: "",
+              status: "PENDING",
+              delivery: false,
+              payment: undefined,
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle />
+                เพิ่มออเดอร์
+              </Button>
+            </DialogTrigger>
+          </OrderForm>
+        </div>
       </div>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form>
           <div className="overflow-hidden rounded-lg border">
             <DndContext
               collisionDetection={closestCenter}
@@ -799,7 +657,7 @@ export function DataTable({
               sensors={sensors}
               id={sortableId}
             >
-              <div className="max-h-[70vh] relative overflow-auto">
+              <div className="max-h-[80vh] relative overflow-auto">
                 <Table className="text-base">
                   <TableHeader className="bg-muted sticky top-0 z-10">
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -848,63 +706,6 @@ export function DataTable({
                 </Table>
               </div>
             </DndContext>
-          </div>
-          <div
-            className={cn(
-              "flex justify-end pt-4",
-              tableMode === "edit" && "justify-between",
-            )}
-          >
-            {tableMode === "edit" && (
-              <Button
-                type="button"
-                className="w-fit place-self-end"
-                variant={"secondary"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  table.options.meta?.addNewRow();
-                }}
-                disabled={form.formState.isSubmitting}
-              >
-                <PlusCircle /> เพิ่มบรรทัด
-              </Button>
-            )}
-
-            {tableMode === "default" ? (
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setTableMode(tableMode === "default" ? "edit" : "default");
-                }}
-              >
-                <TableConfigIcon />
-                แก้ไขตารางออเดอร์
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                <Button
-                  variant={"outline"}
-                  onClick={() => setTableMode("default")}
-                >
-                  <IconCancel />
-                  ยกเลิกแก้ไขตารางออเดอร์
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    form.formState.isSubmitting || !form.formState.isDirty
-                  }
-                >
-                  {form.formState.isSubmitting ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <SaveAll />
-                  )}
-                  บันทึกตารางออเดอร์
-                </Button>
-              </div>
-            )}
           </div>
         </form>
       </Form>

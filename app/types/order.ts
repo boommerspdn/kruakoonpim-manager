@@ -1,19 +1,17 @@
 import { z } from "zod";
+import { publicMenuSchema } from "./menu";
 
 export const orderItemsSchema = z.array(
   z.object({
     id: z.string(),
     menuId: z.string(),
-    amount: z.coerce.number().optional(),
-    price: z.coerce.number().optional(),
+    amount: z.coerce.number().nullish().optional(),
   }),
 );
 
 export type OrderItems = z.infer<typeof orderItemsSchema>;
 
-export const paymentSchema = z
-  .enum(["CASH", "ONLINE", "UNKNOWN", "PENDING"])
-  .optional();
+export const paymentSchema = z.enum(["CASH", "ONLINE", "UNKNOWN"]).optional();
 
 export type Payment = z.infer<typeof paymentSchema>;
 
@@ -25,16 +23,67 @@ export const publicOrderSchema = z.object({
   id: z.string(),
   customerName: z.string(),
   date: z.date().optional(),
-  delivery: z.boolean().optional(),
+  delivery: z.boolean(),
   note: z.string(),
-  payment: paymentSchema.optional(),
+  payment: paymentSchema,
   orderItems: orderItemsSchema,
   totalPrice: z.number().optional(),
   sortOrder: z.number().optional(),
-  status: orderStatusSchema.optional(),
+  status: orderStatusSchema,
   updatedAt: z.date().optional(),
   createdAt: z.date().optional(),
-  _status: z.enum(["created"]).optional(),
 });
 
 export type PublicOrder = z.infer<typeof publicOrderSchema>;
+
+export const createOrderSchema = z.object({
+  id: z.string().optional(),
+  customerName: z
+    .string()
+    .min(1, { message: "ชื่อลูกค้าต้องมีมากกว่า 1 ตัวอักษร" }),
+  date: z.date().optional(),
+  delivery: z.boolean().optional(),
+  note: z.string().optional(),
+  payment: paymentSchema,
+  status: orderStatusSchema,
+  orderItems: z.array(
+    z.object({
+      id: z.string().optional(),
+      menuId: z.string(),
+      menuName: z.string(),
+      amount: z.coerce.number().optional(),
+    }),
+  ),
+});
+
+export type CreateOrder = z.infer<typeof createOrderSchema>;
+
+export const orderItemObjectSchema = z.object({
+  menuId: z.string(),
+  menuName: z.string(),
+  amount: z.coerce.number(),
+});
+
+export type OrderItemObject = z.infer<typeof orderItemObjectSchema>;
+
+export const patchOrderItemSchema = z.object({
+  id: z.string(),
+  customerName: z.string(),
+  date: z.date(),
+  delivery: z.boolean(),
+  note: z.string(),
+  payment: paymentSchema.optional(),
+  status: orderStatusSchema.optional(),
+  orderItems: z.object({
+    toCreate: z.array(orderItemObjectSchema),
+    toUpdate: z.array(
+      z.object({
+        id: z.string(),
+        changes: orderItemObjectSchema.partial(),
+      }),
+    ),
+    toDeleteIds: z.array(z.string()),
+  }),
+});
+
+export type PatchOrderItem = z.infer<typeof patchOrderItemSchema>;
