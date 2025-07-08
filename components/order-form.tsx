@@ -78,10 +78,8 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
     try {
       if (form.formState.isDirty) {
         if (mode === "CREATE") {
-          const response = await axios.post(
-            `/api/order?date=${formattedDate}`,
-            values,
-          );
+          await axios.post(`/api/order?date=${formattedDate}`, values);
+
           form.reset(defaultValues);
           toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
           await mutate(`/api/order?date=${formattedDate}`);
