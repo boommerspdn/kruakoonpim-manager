@@ -34,7 +34,6 @@ export function LoginForm({
     try {
       await axios.post("/api/login", { email, password });
       router.push("/");
-      setIsLoading(false);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "เกิดข้อผิดพลาด");
       setIsLoading(false);
