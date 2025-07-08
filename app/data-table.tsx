@@ -504,8 +504,6 @@ export function DataTable({
         return arrayMove(data, oldIndex, newIndex);
       });
 
-      // console.log(active.id);
-      // console.log(over.id);
       const body: RowSwapBody = {
         active: active.id as string,
         over: over.id as string,
@@ -513,6 +511,7 @@ export function DataTable({
 
       try {
         const response = await axios.put("/api/order/swap-row", body);
+        await mutate(`/api/order?date=${formattedDate}`);
         console.log(response);
       } catch (error) {
         console.log(error);
