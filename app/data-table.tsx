@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { IconGripVertical, IconTruck } from "@tabler/icons-react";
+import { IconGripVertical } from "@tabler/icons-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -41,14 +41,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -60,40 +52,18 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import OrderForm from "@/components/order-form";
-import { RemoveDialog } from "@/components/remove-dialog";
-import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import TableAction from "@/components/table-actions";
 import { Badge } from "@/components/ui/badge";
 import { DialogTrigger } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useDateStore } from "@/hooks/use-date";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { format } from "date-fns";
-import {
-  Check,
-  Info,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  PlusCircle,
-  Trash2,
-  X,
-} from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { PublicMenu } from "./types/menu";
 import {
-  CreateOrder,
   OrderStatus,
   Payment,
   publicOrderSchema,
@@ -272,184 +242,222 @@ export function DataTable({
         id: "actions",
         size: 300,
         cell: ({ row }) => {
-          const [isSubmittingConfirm, setIsSubmittingConfirm] =
-            React.useState(false);
-          const [isSubmittingPayment, setIsSubmittingPayment] =
-            React.useState(false);
-
-          const status = row.original.status;
-
-          const initialData: CreateOrder = {
-            id: row.original.id,
-            customerName: row.original.customerName,
-            delivery: row.original.delivery,
-            note: row.original.note,
-            status: row.original.status,
-            payment: row.original.payment ?? undefined,
-            orderItems: menu.map((menuItem) => {
-              const findOrder = row.original.orderItems.find(
-                (orderItem) => orderItem.menuId === menuItem.id,
-              );
-
-              return {
-                id: findOrder?.id,
-                menuId: menuItem.id,
-                menuName: menuItem.name,
-                amount: findOrder?.amount || undefined,
-              };
-            }),
-          };
-
-          const handleConfirm = async (status: OrderStatus) => {
-            try {
-              setIsSubmittingConfirm(true);
-              const response = await axios.put(
-                `/api/order/confirm?id=${row.original.id}&status=${status}`,
-              );
-              await mutate(`/api/order?date=${formattedDate}`);
-              setIsSubmittingConfirm(false);
-
-              await mutate(`/api/dashboard?date=${formattedDate}`);
-              console.log(response);
-            } catch (error) {
-              toast.error("เกิดข้อผิดพลาด");
-              console.log(error);
-            }
-          };
-
-          const handlePayment = async (payment: Payment | string) => {
-            try {
-              setIsSubmittingPayment(true);
-              const response = await axios.put(
-                `/api/order/payment?id=${row.original.id}&payment=${payment}`,
-              );
-              console.log(response);
-              await mutate(`/api/order?date=${formattedDate}`);
-              setIsSubmittingPayment(false);
-              await mutate(`/api/dashboard?date=${formattedDate}`);
-            } catch (error) {
-              toast.error("เกิดข้อผิดพลาด");
-              console.log(error);
-            }
-          };
-
-          const handleDelete = async () => {
-            try {
-              const response = await axios.delete(
-                `/api/order?id=${row.original.id}`,
-              );
-              await mutate(`/api/order?date=${formattedDate}`);
-              await mutate(`/api/dashboard?date=${formattedDate}`);
-              console.log(response);
-            } catch (error) {
-              toast.error("เกิดข้อผิดพลาด");
-              console.log(error);
-            }
-          };
-
           return (
-            <div className="w-full max-w-full overflow-x-hidden">
-              <div className="grid grid-cols-8 gap-3 pe-2">
-                <Button
-                  size={"default"}
-                  disabled={isSubmittingConfirm}
-                  onClick={() => {
-                    handleConfirm(
-                      status === "COMPLETED" ? "PENDING" : "COMPLETED",
-                    );
-                  }}
-                  type="button"
-                  variant={status === "COMPLETED" ? "secondary" : "default"}
-                >
-                  {status === "COMPLETED" ? (
-                    <X />
-                  ) : isSubmittingConfirm ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Check />
-                  )}
-                </Button>
-                <div className="col-span-4">
-                  <Label
-                    htmlFor={`${row.original.id}-payment`}
-                    className="sr-only"
-                  >
-                    วิธีจ่ายเงิน
-                  </Label>
-                  <Select
-                    value={row.original.payment || undefined}
-                    onValueChange={(value) => handlePayment(value)}
-                    defaultValue={row.original.payment || undefined}
-                    disabled={isSubmittingPayment}
-                  >
-                    <SelectTrigger
-                      className="w-full **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-                      size="default"
-                      id={`${row.original.id}-payment`}
-                    >
-                      <SelectValue placeholder="วิธีจ่ายเงิน" />
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      <SelectItem value="CASH">เงินสด</SelectItem>
-                      <SelectItem value="ONLINE">โอน</SelectItem>
-                      <SelectItem value="UNKNOWN">
-                        ไม่ได้จ่ายหน้าร้าน
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex gap-2 items-center col-span-2">
-                  {row.original.note && (
-                    <Popover>
-                      <PopoverTrigger>
-                        <Info size={20} className="text-destructive" />
-                      </PopoverTrigger>
-                      <PopoverContent align="end">
-                        {row.original.note}
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                  {row.original.delivery && (
-                    <IconTruck className="text-primary" />
-                  )}
-                </div>
-
-                <OrderForm initialData={initialData} mode="EDIT">
-                  <RemoveDialog
-                    title={`แน่ใจที่จะลบออเดอร์ของ ${row.original.customerName}?`}
-                    description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบออเดอร์ของ ${row.original.customerName} หากแน่ใจให้กดปุ่มยืนยันการลบ
-                      เมื่ลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
-                    deleteFn={handleDelete}
-                  >
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DialogTrigger asChild>
-                          <DropdownMenuItem>
-                            <Pencil /> แก้ไข
-                          </DropdownMenuItem>
-                        </DialogTrigger>
-
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="text-destructive" /> ลบ
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </RemoveDialog>
-                </OrderForm>
-              </div>
-            </div>
+            <TableAction
+              key={row.original.id}
+              rowData={row.original}
+              handleConfirm={handleConfirm}
+              handlePayment={handlePayment}
+            />
           );
         },
       },
+      // {
+      //   id: "actions",
+      //   size: 300,
+      //   cell: ({ row }) => {
+      //     const [isSubmittingConfirm, setIsSubmittingConfirm] =
+      //       React.useState(false);
+      //     const [isSubmittingPayment, setIsSubmittingPayment] =
+      //       React.useState(false);
+
+      //     const status = row.original.status;
+
+      //     const initialData: CreateOrder = {
+      //       id: row.original.id,
+      //       customerName: row.original.customerName,
+      //       delivery: row.original.delivery,
+      //       note: row.original.note,
+      //       status: row.original.status,
+      //       payment: row.original.payment ?? undefined,
+      //       orderItems: menu.map((menuItem) => {
+      //         const findOrder = row.original.orderItems.find(
+      //           (orderItem) => orderItem.menuId === menuItem.id,
+      //         );
+
+      //         return {
+      //           id: findOrder?.id,
+      //           menuId: menuItem.id,
+      //           menuName: menuItem.name,
+      //           amount: findOrder?.amount || undefined,
+      //         };
+      //       }),
+      //     };
+
+      //     const handleConfirm = async (status: OrderStatus) => {
+      //       try {
+      //         setIsSubmittingConfirm(true);
+      //         const response = await axios.put(
+      //           `/api/order/confirm?id=${row.original.id}&status=${status}`,
+      //         );
+      //         setData((current) =>
+      //           current.map((item) =>
+      //             item.id === row.original.id
+      //               ? {
+      //                   ...item,
+      //                   status:
+      //                     item.status === "COMPLETED" ? "PENDING" : "COMPLETED",
+      //                 }
+      //               : item,
+      //           ),
+      //         );
+      //         setIsSubmittingConfirm(false);
+
+      //         await mutate(`/api/order?date=${formattedDate}`);
+      //         await mutate(`/api/dashboard?date=${formattedDate}`);
+      //         console.log(response);
+      //       } catch (error) {
+      //         toast.error("เกิดข้อผิดพลาด");
+      //         console.log(error);
+      //       }
+      //     };
+
+      //     const handlePayment = async (payment: Payment) => {
+      //       try {
+      //         setIsSubmittingPayment(true);
+      //         const response = await axios.put(
+      //           `/api/order/payment?id=${row.original.id}&payment=${payment}`,
+      //         );
+      //         console.log(response);
+      //         setData((current) =>
+      //           current.map((item) =>
+      //             item.id === row.original.id
+      //               ? {
+      //                   ...item,
+      //                   payment: payment,
+      //                 }
+      //               : item,
+      //           ),
+      //         );
+      //         setIsSubmittingPayment(false);
+      //         await mutate(`/api/order?date=${formattedDate}`);
+      //         await mutate(`/api/dashboard?date=${formattedDate}`);
+      //       } catch (error) {
+      //         toast.error("เกิดข้อผิดพลาด");
+      //         console.log(error);
+      //       }
+      //     };
+
+      //     const handleDelete = async () => {
+      //       try {
+      //         const response = await axios.delete(
+      //           `/api/order?id=${row.original.id}`,
+      //         );
+      //         setData((current) =>
+      //           current.filter((item) => item.id !== row.original.id),
+      //         );
+      //         await mutate(`/api/order?date=${formattedDate}`);
+      //         await mutate(`/api/dashboard?date=${formattedDate}`);
+      //         console.log(response);
+      //       } catch (error) {
+      //         toast.error("เกิดข้อผิดพลาด");
+      //         console.log(error);
+      //       }
+      //     };
+
+      //     return (
+      //       <div className="w-full max-w-full overflow-x-hidden">
+      //         <div className="grid grid-cols-8 gap-3 pe-2">
+      //           <Button
+      //             size={"default"}
+      //             disabled={isSubmittingConfirm}
+      //             onClick={() => {
+      //               handleConfirm(
+      //                 status === "COMPLETED" ? "PENDING" : "COMPLETED",
+      //               );
+      //             }}
+      //             type="button"
+      //             variant={status === "COMPLETED" ? "secondary" : "default"}
+      //           >
+      //             {status === "COMPLETED" ? (
+      //               <X />
+      //             ) : isSubmittingConfirm ? (
+      //               <Loader2 className="animate-spin" />
+      //             ) : (
+      //               <Check />
+      //             )}
+      //           </Button>
+      //           <div className="col-span-4">
+      //             <Label
+      //               htmlFor={`${row.original.id}-payment`}
+      //               className="sr-only"
+      //             >
+      //               วิธีจ่ายเงิน
+      //             </Label>
+      //             <Select
+      //               value={row.original.payment || undefined}
+      //               onValueChange={(value) => handlePayment(value as Payment)}
+      //               defaultValue={row.original.payment || undefined}
+      //               disabled={isSubmittingPayment}
+      //             >
+      //               <SelectTrigger
+      //                 className="w-full **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
+      //                 size="default"
+      //                 id={`${row.original.id}-payment`}
+      //               >
+      //                 <SelectValue placeholder="วิธีจ่ายเงิน" />
+      //               </SelectTrigger>
+      //               <SelectContent align="end">
+      //                 <SelectItem value="CASH">เงินสด</SelectItem>
+      //                 <SelectItem value="ONLINE">โอน</SelectItem>
+      //                 <SelectItem value="UNKNOWN">
+      //                   ไม่ได้จ่ายหน้าร้าน
+      //                 </SelectItem>
+      //               </SelectContent>
+      //             </Select>
+      //           </div>
+
+      //           <div className="flex gap-2 items-center col-span-2">
+      //             {row.original.note && (
+      //               <Popover>
+      //                 <PopoverTrigger>
+      //                   <Info size={20} className="text-destructive" />
+      //                 </PopoverTrigger>
+      //                 <PopoverContent align="end">
+      //                   {row.original.note}
+      //                 </PopoverContent>
+      //               </Popover>
+      //             )}
+      //             {row.original.delivery && (
+      //               <IconTruck className="text-primary" />
+      //             )}
+      //           </div>
+
+      //           <OrderForm initialData={initialData} mode="EDIT">
+      //             <RemoveDialog
+      //               title={`แน่ใจที่จะลบออเดอร์ของ ${row.original.customerName}?`}
+      //               description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบออเดอร์ของ ${row.original.customerName} หากแน่ใจให้กดปุ่มยืนยันการลบ
+      //                 เมื่ลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
+      //               deleteFn={handleDelete}
+      //             >
+      //               <DropdownMenu>
+      //                 <DropdownMenuTrigger asChild>
+      //                   <Button variant="ghost" className="h-8 w-8 p-0">
+      //                     <span className="sr-only">Open menu</span>
+      //                     <MoreHorizontal />
+      //                   </Button>
+      //                 </DropdownMenuTrigger>
+      //                 <DropdownMenuContent align="end">
+      //                   <DialogTrigger asChild>
+      //                     <DropdownMenuItem>
+      //                       <Pencil /> แก้ไข
+      //                     </DropdownMenuItem>
+      //                   </DialogTrigger>
+
+      //                   <AlertDialogTrigger asChild>
+      //                     <DropdownMenuItem className="text-destructive">
+      //                       <Trash2 className="text-destructive" /> ลบ
+      //                     </DropdownMenuItem>
+      //                   </AlertDialogTrigger>
+      //                 </DropdownMenuContent>
+      //               </DropdownMenu>
+      //             </RemoveDialog>
+      //           </OrderForm>
+      //         </div>
+      //       </div>
+      //     );
+      //   },
+      // },
       {
         id: "status",
         accessorKey: "status",
@@ -516,6 +524,58 @@ export function DataTable({
       }
     }
   }
+
+  const handleConfirm = async (id: string, status: OrderStatus) => {
+    try {
+      setData((current) =>
+        current.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status: item.status === "COMPLETED" ? "PENDING" : "COMPLETED",
+              }
+            : item,
+        ),
+      );
+
+      const response = await axios.put(
+        `/api/order/confirm?id=${id}&status=${status}`,
+      );
+
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
+      console.log(response);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด");
+      console.log(error);
+    }
+  };
+
+  const handlePayment = async (id: string, payment: Payment) => {
+    try {
+      setData((current) =>
+        current.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                payment: payment,
+              }
+            : item,
+        ),
+      );
+
+      const response = await axios.put(
+        `/api/order/payment?id=${id}&payment=${payment}`,
+      );
+      console.log(response);
+
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด");
+      console.log(error);
+    }
+  };
 
   const allCount = data.length;
 
