@@ -270,7 +270,7 @@ export function DataTable({
       ...customMenuColumns,
       {
         id: "actions",
-        size: 260,
+        size: 300,
         cell: ({ row }) => {
           const [isSubmittingConfirm, setIsSubmittingConfirm] =
             React.useState(false);
@@ -307,13 +307,13 @@ export function DataTable({
                 `/api/order/confirm?id=${row.original.id}&status=${status}`,
               );
               await mutate(`/api/order?date=${formattedDate}`);
+              setIsSubmittingConfirm(false);
+
               await mutate(`/api/dashboard?date=${formattedDate}`);
               console.log(response);
             } catch (error) {
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
-            } finally {
-              setIsSubmittingConfirm(false);
             }
           };
 
@@ -325,12 +325,11 @@ export function DataTable({
               );
               console.log(response);
               await mutate(`/api/order?date=${formattedDate}`);
+              setIsSubmittingPayment(false);
               await mutate(`/api/dashboard?date=${formattedDate}`);
             } catch (error) {
               toast.error("เกิดข้อผิดพลาด");
               console.log(error);
-            } finally {
-              setIsSubmittingPayment(false);
             }
           };
 
@@ -352,7 +351,7 @@ export function DataTable({
             <div className="w-full max-w-full overflow-x-hidden">
               <div className="grid grid-cols-8 gap-3 pe-2">
                 <Button
-                  size={"sm"}
+                  size={"default"}
                   disabled={isSubmittingConfirm}
                   onClick={() => {
                     handleConfirm(
@@ -385,7 +384,7 @@ export function DataTable({
                   >
                     <SelectTrigger
                       className="w-full **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-                      size="sm"
+                      size="default"
                       id={`${row.original.id}-payment`}
                     >
                       <SelectValue placeholder="วิธีจ่ายเงิน" />
@@ -548,14 +547,12 @@ export function DataTable({
                 .getColumn("customerName")
                 ?.setFilterValue(event.target.value)
             }
+            onFocus={() => {
+              setSelectedTab("all");
+              table.getColumn("customerName")?.setFilterValue("");
+            }}
             className="max-w-md "
           />
-          <Button
-            variant={"secondary"}
-            onClick={() => table.getColumn("customerName")?.setFilterValue("")}
-          >
-            <Trash2 className="text-primary" /> ล้าง
-          </Button>
         </div>
         <div className="flex gap-2">
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
@@ -612,7 +609,7 @@ export function DataTable({
           sensors={sensors}
           id={sortableId}
         >
-          <div className="max-h-[80vh] relative overflow-auto">
+          <div className="h-[80vh] relative overflow-auto">
             <Table className="text-base">
               <TableHeader className="bg-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -637,7 +634,7 @@ export function DataTable({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+              <TableBody className="**:data-[slot=table-cell]:first:w-8 border-b">
                 {table.getRowModel().rows?.length ? (
                   <SortableContext
                     items={dataIds}
