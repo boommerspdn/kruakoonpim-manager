@@ -544,7 +544,7 @@ export function DataTable({
         `/api/order/confirm?id=${id}&status=${status}`,
       );
 
-      await mutate(`/api/order?date=${formattedDate}`);
+      // await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
       console.log(response);
     } catch (error) {
@@ -571,7 +571,7 @@ export function DataTable({
       );
       console.log(response);
 
-      await mutate(`/api/order?date=${formattedDate}`);
+      // await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
