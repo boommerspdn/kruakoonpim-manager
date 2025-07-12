@@ -160,6 +160,15 @@ export function DataTable({
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {}),
   );
+  const [searchValue, setSearchValue] = React.useState("");
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      table.getColumn("customerName")?.setFilterValue(searchValue);
+    }, 300); // delay in ms
+
+    return () => clearTimeout(timeout); // cancel previous
+  }, [searchValue]);
 
   const { date } = useDateStore();
   const formattedDate = date
@@ -615,18 +624,11 @@ export function DataTable({
           <Input
             placeholder="ค้นหาชื่อ"
             type="search"
-            value={
-              (table.getColumn("customerName")?.getFilterValue() as string) ??
-              ""
-            }
-            onChange={(event) =>
-              table
-                .getColumn("customerName")
-                ?.setFilterValue(event.target.value)
-            }
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
             onFocus={() => {
               setSelectedTab("all");
-              table.getColumn("customerName")?.setFilterValue("");
+              setSearchValue("");
             }}
             className="max-w-md "
           />
