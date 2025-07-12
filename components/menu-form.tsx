@@ -88,6 +88,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
             `/api/menu?date=${formattedDate}`,
             PatchData,
           );
+          toast.success("แก้ไขเมนูเสร็จสิ้น");
           console.log(response);
 
           await mutate(`/api/dashboard?date=${formattedDate}`);
@@ -106,6 +107,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
             `/api/menu?date=${formattedDate}`,
             postData,
           );
+          toast.success("สร้างเมนูเสร็จสิ้น");
           await mutate(`/api/dashboard?date=${formattedDate}`);
           await mutate(`/api/menu?date=${formattedDate}`);
           await mutate(`/api/order?date=${formattedDate}`);

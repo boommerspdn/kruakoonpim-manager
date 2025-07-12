@@ -1,6 +1,11 @@
-import { OrderStatus, Payment, PublicOrder } from "@/app/types/order";
+import {
+  CreateOrder,
+  OrderStatus,
+  Payment,
+  PublicOrder,
+} from "@/app/types/order";
 import { IconTruck } from "@tabler/icons-react";
-import { Check, Info, X } from "lucide-react";
+import { Check, Info, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -11,18 +16,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import OrderForm from "./order-form";
+import { RemoveDialog } from "./remove-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { DialogTrigger } from "./ui/dialog";
+import { AlertDialogTrigger } from "./ui/alert-dialog";
+import { PublicMenu } from "@/app/types/menu";
 
 type TableActionProps = {
   rowData: PublicOrder;
+  menu: PublicMenu[];
   handleConfirm: (id: string, status: OrderStatus) => void;
   handlePayment: (id: string, payment: Payment) => void;
+  handleDelete: (id: string) => void;
 };
 
 const TableAction = ({
   rowData,
+  menu,
   handleConfirm,
   handlePayment,
+  handleDelete,
 }: TableActionProps) => {
+  const initialData: CreateOrder = {
+    id: rowData.id,
+    customerName: rowData.customerName,
+    delivery: rowData.delivery,
+    note: rowData.note,
+    status: rowData.status,
+    payment: rowData.payment ?? undefined,
+    orderItems: menu.map((menuItem) => {
+      const findOrder = rowData.orderItems.find(
+        (orderItem) => orderItem.menuId === menuItem.id,
+      );
+
+      return {
+        id: findOrder?.id,
+        menuId: menuItem.id,
+        menuName: menuItem.name,
+        amount: findOrder?.amount || undefined,
+      };
+    }),
+  };
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <div className="grid grid-cols-8 gap-3 pe-2">
@@ -77,36 +118,36 @@ const TableAction = ({
           {rowData.delivery && <IconTruck className="text-primary" />}
         </div>
 
-        {/* <OrderForm initialData={initialData} mode="EDIT">
+        <OrderForm initialData={initialData} mode="EDIT">
           <RemoveDialog
             title={`แน่ใจที่จะลบออเดอร์ของ ${rowData.customerName}?`}
             description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบออเดอร์ของ ${rowData.customerName} หากแน่ใจให้กดปุ่มยืนยันการลบ
                       เมื่ลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
-            deleteFn={handleDelete}
-          > */}
-        {/* <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DialogTrigger asChild>
-              <DropdownMenuItem>
-                <Pencil /> แก้ไข
-              </DropdownMenuItem>
-            </DialogTrigger>
+            deleteFn={() => handleDelete(rowData.id)}
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DialogTrigger asChild>
+                  <DropdownMenuItem>
+                    <Pencil /> แก้ไข
+                  </DropdownMenuItem>
+                </DialogTrigger>
 
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem className="text-destructive">
-                <Trash2 className="text-destructive" /> ลบ
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-          </DropdownMenuContent>
-        </DropdownMenu> */}
-        {/* </RemoveDialog>
-        </OrderForm> */}
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className="text-destructive">
+                    <Trash2 className="text-destructive" /> ลบ
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </RemoveDialog>
+        </OrderForm>
       </div>
     </div>
   );

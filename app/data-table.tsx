@@ -246,8 +246,10 @@ export function DataTable({
             <TableAction
               key={row.original.id}
               rowData={row.original}
+              menu={menu}
               handleConfirm={handleConfirm}
               handlePayment={handlePayment}
+              handleDelete={handleDelete}
             />
           );
         },
@@ -571,6 +573,21 @@ export function DataTable({
 
       await mutate(`/api/order?date=${formattedDate}`);
       await mutate(`/api/dashboard?date=${formattedDate}`);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด");
+      console.log(error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      setData((current) => current.filter((item) => item.id !== id));
+      const response = await axios.delete(`/api/order?id=${id}`);
+
+      await mutate(`/api/order?date=${formattedDate}`);
+      await mutate(`/api/dashboard?date=${formattedDate}`);
+      toast.success("ลบออเดอร์เสร็จสิ้น");
+      console.log(response);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
