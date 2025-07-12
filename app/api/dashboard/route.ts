@@ -127,6 +127,10 @@ export async function GET(req: NextRequest) {
             menuId: menu.id,
             order: {
               status: "PENDING",
+              date: {
+                gte: start,
+                lte: end,
+              },
             },
           },
         });
@@ -137,6 +141,12 @@ export async function GET(req: NextRequest) {
           },
           where: {
             menuId: menu.id,
+            order: {
+              date: {
+                gte: start,
+                lte: end,
+              },
+            },
           },
         });
 
@@ -146,6 +156,10 @@ export async function GET(req: NextRequest) {
             menuId: menu.id,
             order: {
               status: "COMPLETED",
+              date: {
+                gte: start,
+                lte: end,
+              },
             },
           },
         });
