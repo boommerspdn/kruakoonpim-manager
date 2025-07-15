@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${anuphan.variable} font-anuphan antialiased size-full`}
+        className={`${anuphan.variable} font-anuphan antialiased h-[100dvh] overflow-y-auto`}
       >
         {children}
         <Toaster position="top-center" />

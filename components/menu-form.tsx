@@ -91,10 +91,6 @@ const MenuForm = ({ initialData }: MenuForm) => {
           toast.success("แก้ไขเมนูเสร็จสิ้น");
           console.log(response);
 
-          await mutate(`/api/dashboard?date=${formattedDate}`);
-          await mutate(`/api/menu?date=${formattedDate}`);
-          await mutate(`/api/order?date=${formattedDate}`);
-
           document.getElementById("closeDialog")?.click();
         } else {
           const postData: PostMenu = values.menu.map((item) => ({
@@ -108,15 +104,17 @@ const MenuForm = ({ initialData }: MenuForm) => {
             postData,
           );
           toast.success("สร้างเมนูเสร็จสิ้น");
-          await mutate(`/api/dashboard?date=${formattedDate}`);
-          await mutate(`/api/menu?date=${formattedDate}`);
-          await mutate(`/api/order?date=${formattedDate}`);
+
           console.log(response);
         }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
+    } finally {
+      await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutate(`/api/menu?date=${formattedDate}`);
+      await mutate(`/api/order?date=${formattedDate}`);
     }
   }
 
