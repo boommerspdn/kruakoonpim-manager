@@ -73,7 +73,7 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
 
   React.useEffect(() => {
     form.reset(defaultValues);
-  }, [date]);
+  }, [date, initialData]);
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
