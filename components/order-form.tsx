@@ -60,7 +60,7 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
     defaultValues,
   });
 
-  const { fields } = useFieldArray<z.infer<typeof formSchema>>({
+  const { fields, replace } = useFieldArray<z.infer<typeof formSchema>>({
     control: form.control,
     name: "orderItems",
   });
@@ -68,12 +68,14 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
   React.useEffect(() => {
     if (mode === "EDIT") {
       form.reset(defaultValues);
+    } else {
+      replace(defaultValues.orderItems);
     }
   }, [defaultValues]);
 
   React.useEffect(() => {
     form.reset(defaultValues);
-  }, [date, initialData]);
+  }, [date]);
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
