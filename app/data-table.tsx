@@ -463,6 +463,7 @@ export function DataTable({
               delivery: false,
               payment: undefined,
             }}
+            menu={menu}
           >
             <DialogTrigger asChild>
               <Button>

@@ -38,32 +38,31 @@ import {
 } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
+import { PublicMenu } from "@/app/types/menu";
 
 type OrderFormProps = {
   children: React.ReactNode;
   initialData: CreateOrder;
   mode: "EDIT" | "CREATE";
+  menu?: PublicMenu[];
 };
 
 const formSchema = createOrderSchema;
 
-const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
+const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   const { date } = useDateStore();
   const formattedDate = date
     ? format(date, "yyyy-MM-dd")
     : format(new Date(), "yyyy-MM-dd");
   const { mutate } = useSWRConfig();
 
-  const defaultValues = React.useMemo<CreateOrder>(
-    () => initialData,
-    [initialData.id],
-  );
+  const defaultValues = initialData;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
-  const { fields, replace } = useFieldArray<z.infer<typeof formSchema>>({
+  const { fields } = useFieldArray<z.infer<typeof formSchema>>({
     control: form.control,
     name: "orderItems",
   });
@@ -75,19 +74,12 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
   }, [defaultValues]);
 
   React.useEffect(() => {
-    if (mode === "CREATE") {
-      replace(
-        initialData.orderItems.map((item) => ({
-          ...item,
-          amount: item.amount ?? undefined, // preserve amount if already set
-        })),
-      );
-    }
-  }, [initialData.orderItems]);
+    form.reset(defaultValues);
+  }, [date]);
 
   React.useEffect(() => {
     form.reset(defaultValues);
-  }, [date]);
+  }, [menu]);
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
