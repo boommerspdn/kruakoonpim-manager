@@ -54,7 +54,10 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
     : format(new Date(), "yyyy-MM-dd");
   const { mutate } = useSWRConfig();
 
-  const defaultValues: CreateOrder = initialData;
+  const defaultValues = React.useMemo<CreateOrder>(
+    () => initialData,
+    [initialData.id],
+  );
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -68,10 +71,19 @@ const OrderForm = ({ children, initialData, mode }: OrderFormProps) => {
   React.useEffect(() => {
     if (mode === "EDIT") {
       form.reset(defaultValues);
-    } else {
-      replace(defaultValues.orderItems);
     }
   }, [defaultValues]);
+
+  React.useEffect(() => {
+    if (mode === "CREATE") {
+      replace(
+        initialData.orderItems.map((item) => ({
+          ...item,
+          amount: item.amount ?? undefined, // preserve amount if already set
+        })),
+      );
+    }
+  }, [initialData.orderItems]);
 
   React.useEffect(() => {
     form.reset(defaultValues);
