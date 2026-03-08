@@ -8,20 +8,46 @@ import { format } from "date-fns";
 import { Customer } from "@/app/types/customer";
 import NameCombobox from "@/components/name-combobox";
 import { Button } from "@/components/ui/button";
-import { findBestCustomerMatch } from "@/lib/fuzzy-match";
+import { findBestCustomerMatch, MatchResult } from "@/lib/fuzzy-match";
 import { toast } from "react-hot-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useDateStore } from "@/hooks/use-date";
+import { OrderStatus, Payment } from "@/app/types/order";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+interface PreviewOrderItem {
+  menuId: string | number;
+  amount: number;
+}
+
+export interface PreviewOrder {
+  customerName: string;
+  inputName: string;
+  finalCustomerId: string | null;
+  statusColor: string;
+  delivery: boolean;
+  note: string;
+  orderItems: PreviewOrderItem[];
+  matchResult?: MatchResult;
+  status: OrderStatus;
+  payment?: Payment;
+}
+
+export interface PreviewMenu {
+  id: string | number;
+  name: string;
+  price: number;
+  amount: number;
+}
 
 export default function PreviewPage() {
   const router = useRouter();
   const { date } = useDateStore();
-  const [orders, setOrders] = useState<any[]>([]);
-  const [menus, setMenus] = useState<any[]>([]);
+  const [orders, setOrders] = useState<PreviewOrder[]>([]);
+  const [menus, setMenus] = useState<PreviewMenu[]>([]);
   const [isProcessing, setIsProcessing] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -48,11 +74,12 @@ export default function PreviewPage() {
     try {
       const rawResult = JSON.parse(savedData);
       const rawOrders = rawResult.data?.orders || rawResult.orders || [];
-      const rawMenus = rawResult.data?.menus || rawResult.data?.menu || [];
+      const rawMenus: PreviewMenu[] =
+        rawResult.data?.menus || rawResult.data?.menu || [];
 
       setMenus(rawMenus);
 
-      const enriched = rawOrders.map((order: any) => {
+      const enriched: PreviewOrder[] = rawOrders.map((order: PreviewOrder) => {
         const aiName = order.customerName || "";
         const match = findBestCustomerMatch(aiName, customers);
 
@@ -72,6 +99,8 @@ export default function PreviewPage() {
           statusColor,
           finalCustomerId: finalId,
           inputName,
+          delivery: !!order.delivery,
+          status: "PENDING",
         };
       });
 
@@ -96,7 +125,7 @@ export default function PreviewPage() {
   }, [customers]);
 
   const handleMenuChange = useCallback(
-    (index: number, field: string, value: string | number) => {
+    (index: number, field: keyof PreviewMenu, value: string | number) => {
       setMenus((prev) => {
         const updated = [...prev];
         updated[index] = { ...updated[index], [field]: value };
@@ -192,9 +221,11 @@ export default function PreviewPage() {
       });
 
       sessionStorage.removeItem("geminiPreviewData");
-      router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ", {
+      router.push("/");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+      toast.error(errorMessage, {
         id: toastId,
       });
     } finally {
@@ -332,7 +363,6 @@ export default function PreviewPage() {
                   <td className="p-4 align-top">
                     <NameCombobox
                       order={order}
-                      customers={customers}
                       customerNamesList={customerNamesList}
                       onUpdate={(newName) => handleNameChange(idx, newName)}
                     />
@@ -340,7 +370,7 @@ export default function PreviewPage() {
 
                   <td className="p-4 align-top">
                     <ul className="list-disc list-inside space-y-1">
-                      {order.orderItems?.map((item: any, i: number) => {
+                      {order.orderItems?.map((item, i) => {
                         const menuName =
                           menuMap.get(item.menuId.toString()) ||
                           `เมนู ID: ${item.menuId}`;

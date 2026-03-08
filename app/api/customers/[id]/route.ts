@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } },
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -16,24 +16,21 @@ export async function DELETE(
     }
 
     await prisma.customer.delete({
-      where: { id: id },
+      where: { id },
     });
 
     return NextResponse.json(
       { success: true, message: "Customer deleted successfully" },
       { status: 200 },
     );
-  } catch (error: any) {
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        { success: false, error: "Customer not found" },
-        { status: 404 },
-      );
-    }
-
+  } catch (error) {
     console.error("DELETE Customer Error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to delete customer" },
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to delete customer",
+      },
       { status: 500 },
     );
   }
@@ -41,10 +38,10 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await req.json();
 
     const { name, aliases } = body;
@@ -62,8 +59,13 @@ export async function PATCH(
       { status: 200 },
     );
   } catch (error) {
+    console.error("PATCH Customer Error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to update" },
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to update customer",
+      },
       { status: 500 },
     );
   }

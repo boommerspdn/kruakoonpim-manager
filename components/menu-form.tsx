@@ -19,7 +19,7 @@ import { useDateStore } from "@/hooks/use-date";
 import { easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { format } from "date-fns"; // or your preferred formatter
+import { format } from "date-fns";
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -44,7 +44,6 @@ const MenuForm = ({ initialData }: MenuForm) => {
     ? format(date, "yyyy-MM-dd")
     : format(new Date(), "yyyy-MM-dd");
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,11 +54,10 @@ const MenuForm = ({ initialData }: MenuForm) => {
   });
 
   const { fields, append, remove } = useFieldArray<z.infer<typeof formSchema>>({
-    control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
-    name: "menu", // unique name for your Field Array
+    control: form.control,
+    name: "menu",
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (form.formState.isDirty) {

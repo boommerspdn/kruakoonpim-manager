@@ -190,10 +190,9 @@ const customerNames = [
 async function main() {
   console.log(`Start seeding ${customerNames.length} customers...`);
 
-  // แปลง Array ชื่อให้เป็น Format ที่ createMany ต้องการ
   const customerData = customerNames.map((name) => ({
     name: name,
-    aliases: [], // เริ่มต้นเป็น Array ว่าง
+    aliases: [],
   }));
 
   const result = await prisma.customer.createMany({

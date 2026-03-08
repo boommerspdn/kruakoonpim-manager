@@ -47,8 +47,11 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
       router.push("/preview");
-    } catch (err: any) {
-      setError(err.message || "เกิดข้อผิดพลาด");
+    } catch (err) {
+      setError(
+        (err instanceof Error ? err.message : "Unknown error") ||
+          "เกิดข้อผิดพลาด",
+      );
     } finally {
       setLoading(false);
     }

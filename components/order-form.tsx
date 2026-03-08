@@ -1,5 +1,6 @@
-import { CreateOrder, createOrderSchema } from "@/app/types/order";
+import { Customer } from "@/app/types/customer";
 import { PublicMenu } from "@/app/types/menu";
+import { CreateOrder, createOrderSchema } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,9 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDateStore } from "@/hooks/use-date";
-import { easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { format } from "date-fns";
 import { Loader2, Save } from "lucide-react";
 import React from "react";
@@ -53,6 +52,27 @@ type OrderFormProps = {
   menu?: PublicMenu[];
 };
 
+interface OrderItem {
+  menuId: string;
+  amount: number;
+  menu: {
+    name: string;
+    price: number;
+  };
+}
+
+interface Order {
+  id: string;
+  customerName: string;
+  delivery?: boolean;
+  note?: string;
+  payment?: string;
+  status: string;
+  date: string;
+  totalPrice: number;
+  orderItems: OrderItem[];
+}
+
 const formSchema = createOrderSchema;
 
 const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
@@ -89,7 +109,9 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     form.reset(defaultValues);
   }, [menu, form, defaultValues]);
 
-  const calculateOptimisticTotal = (orderItems: any[]) => {
+  const calculateOptimisticTotal = (
+    orderItems: z.infer<typeof formSchema>["orderItems"],
+  ) => {
     return orderItems.reduce((sum, item) => {
       const menuPrice = menu?.find((m) => m.id === item.menuId)?.price || 0;
       return sum + Number(item.amount || 0) * menuPrice;
@@ -104,8 +126,8 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
           values.orderItems,
         );
 
-        const optimisticOrderData = {
-          id: mode === "EDIT" ? values.id : `temp-${Date.now()}`,
+        const optimisticOrderData: Order = {
+          id: mode === "EDIT" ? (values.id as string) : `temp-${Date.now()}`,
           customerName: values.customerName,
           delivery: values.delivery,
           note: values.note,
@@ -125,9 +147,9 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
             .filter((item) => item.amount > 0),
         };
 
-        mutate(
+        mutate<Order[]>(
           orderKey,
-          (currentOrders: any[] = []) => {
+          (currentOrders = []) => {
             if (mode === "CREATE") {
               return [...currentOrders, optimisticOrderData];
             } else {
@@ -138,51 +160,15 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
           },
           false,
         );
-
-        if (mode === "CREATE") {
-          await axios.post(`/api/order?date=${formattedDate}`, values);
-          form.reset(defaultValues);
-          toast.success("เพิ่มออเดอร์สำเร็จ");
-        }
-
-        if (mode === "EDIT") {
-          const formatOrderItems = initialData.orderItems.map((orderItem) => ({
-            ...orderItem,
-            id: orderItem.id || "",
-          }));
-          const removeInitialZero = formatOrderItems.filter(
-            (orderItem) => !!orderItem.amount,
-          );
-          const formatValues = values.orderItems.map((orderItem) => ({
-            ...orderItem,
-            id: orderItem.id || "",
-          }));
-          const removeZeroValues = formatValues.filter(
-            (orderItem) => !!orderItem.amount,
-          );
-
-          const findDifference = easyDiff(removeInitialZero, removeZeroValues);
-
-          const patchData = {
-            id: values.id,
-            customerName: values.customerName,
-            delivery: values.delivery,
-            note: values.note,
-            payment: values.payment,
-            status: values.status,
-            orderItems: findDifference,
-          };
-
-          await axios.patch(`/api/order?id=${values.id}`, patchData);
-          toast.success("แก้ไขออเดอร์สำเร็จ");
-        }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
+      console.error(error);
     } finally {
-      await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
+      await Promise.all([
+        mutate(`/api/order?date=${formattedDate}`),
+        mutate(`/api/dashboard?date=${formattedDate}`),
+      ]);
     }
   }
 
@@ -209,7 +195,6 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                 <FormItem>
                   <FormLabel>ชื่อลูกค้า</FormLabel>
                   <FormControl>
-                    {/* 👇 เพิ่ม list="customer-list" เพื่อลิงก์กับ datalist ด้านล่าง */}
                     <Input
                       list="customer-list"
                       placeholder="กรอกชื่อลูกค้า"
@@ -218,9 +203,8 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                     />
                   </FormControl>
 
-                  {/* 👇 Datalist สำหรับทำ Autocomplete จากฐานข้อมูลลูกค้า */}
                   <datalist id="customer-list">
-                    {customers.map((c: any) => (
+                    {customers.map((c: Customer) => (
                       <option key={c.id} value={c.name} />
                     ))}
                   </datalist>

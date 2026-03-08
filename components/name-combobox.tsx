@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { PreviewOrder } from "@/app/(protected)/preview/page";
+import { memo, useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import {
   Combobox,
@@ -11,17 +12,15 @@ import {
 
 const NameCombobox = memo(function OrderCustomerCell({
   order,
-  customers,
   customerNamesList,
   onUpdate,
 }: {
-  order: any;
-  customers: any[];
+  order: PreviewOrder;
   customerNamesList: string[];
   onUpdate: (newName: string) => void;
 }) {
   const [localValue, setLocalValue] = useState(
-    order.matchResult.isExactMatch === true ? order.inputName : "",
+    order.matchResult?.isExactMatch === true ? order.inputName : "",
   );
 
   useEffect(() => {
@@ -56,6 +55,7 @@ const NameCombobox = memo(function OrderCustomerCell({
         items={customerNamesList}
         value={localValue}
         onValueChange={(val) => {
+          if (!val) return;
           setLocalValue(val);
         }}
       >

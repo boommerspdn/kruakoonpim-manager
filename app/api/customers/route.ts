@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -22,7 +23,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: { name: string; aliases?: string[] } = await req.json();
     const { name, aliases = [] } = body;
 
     if (!name || typeof name !== "string") {
@@ -43,8 +44,11 @@ export async function POST(req: Request) {
       { success: true, data: newCustomer },
       { status: 201 },
     );
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
       return NextResponse.json(
         { success: false, error: "มีชื่อลูกค้านี้ในระบบแล้ว" },
         { status: 409 },
