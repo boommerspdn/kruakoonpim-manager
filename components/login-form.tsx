@@ -34,6 +34,7 @@ export function LoginForm({
       await axios.post("/api/login", { passcode: currentPasscode });
       router.push("/");
     } catch (error: unknown) {
+      console.log(error);
       setError("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
       setPasscode(""); // รีเซ็ตเมื่อรหัสผิด
       setIsLoading(false);
