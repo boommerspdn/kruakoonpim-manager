@@ -180,12 +180,13 @@ export function DataTable({
   const columns = React.useMemo<
     ColumnDef<z.infer<typeof publicOrderSchema>>[]
   >(() => {
-    const customColumnSize = 110;
     const customMenuColumns: ColumnDef<z.infer<typeof publicOrderSchema>>[] =
       menu.map((menuItem) => ({
         accessorKey: menuItem.id,
         header: () => (
-          <div className={`w-auto text-center whitespace-pre-line`}>
+          <div
+            className={`w-[140px] xl:w-[90px] text-center whitespace-pre-line`}
+          >
             {menuItem.name}
           </div>
         ),
@@ -203,7 +204,7 @@ export function DataTable({
           return (
             <div
               className={cn(
-                `w-[${customColumnSize}px] text-center flex items-center gap-2 justify-center`,
+                `w-[140px] xl:w-[90px] text-center flex items-center gap-2 justify-center`,
                 status === "COMPLETED" ? "text-destructive line-through" : "",
               )}
             >
@@ -211,7 +212,6 @@ export function DataTable({
             </div>
           );
         },
-        size: customColumnSize, //starting column size
       }));
 
     return [
@@ -226,14 +226,13 @@ export function DataTable({
       {
         accessorKey: "customerName",
         header: "ชื่อ",
-        size: 110,
         cell: ({ row }) => {
           const status = row.original.status;
 
           return (
             <div
               className={cn(
-                "flex gap-2 items-center",
+                "flex gap-2 items-center w-[200px] xl:w-[130px]",
                 status === "COMPLETED" ? "line-through text-destructive" : "",
               )}
             >
@@ -249,17 +248,18 @@ export function DataTable({
       ...customMenuColumns,
       {
         id: "actions",
-        size: 300,
         cell: ({ row }) => {
           return (
-            <TableAction
-              key={row.original.id}
-              rowData={row.original}
-              menu={menu}
-              handleConfirm={handleConfirm}
-              handlePayment={handlePayment}
-              handleDelete={handleDelete}
-            />
+            <div className="w-[250px]">
+              <TableAction
+                key={row.original.id}
+                rowData={row.original}
+                menu={menu}
+                handleConfirm={handleConfirm}
+                handlePayment={handlePayment}
+                handleDelete={handleDelete}
+              />
+            </div>
           );
         },
       },
@@ -413,23 +413,22 @@ export function DataTable({
 
   return (
     <div className="space-y-4 pb-4">
-      <div className="flex justify-between">
-        <div className="w-[600px] space-x-2 flex">
-          <Input
-            placeholder="ค้นหาชื่อ"
-            type="search"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            onFocus={() => {
-              setSelectedTab("all");
-              setSearchValue("");
-            }}
-            className="max-w-md "
-          />
-        </div>
-        <div className="flex gap-2">
+      <div className="flex flex-col xl:flex-row xl:justify-between gap-2">
+        <Input
+          placeholder="ค้นหาชื่อ"
+          type="search"
+          value={searchValue}
+          onChange={(event) => setSearchValue(event.target.value)}
+          onFocus={() => {
+            setSelectedTab("all");
+            setSearchValue("");
+          }}
+          className="max-w-md lg:max-w-lg "
+        />
+
+        <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-            <TabsList>
+            <TabsList className="w-full">
               <TabsTrigger value="all">
                 ทั้งหมด <Badge>{allCount}</Badge>
               </TabsTrigger>

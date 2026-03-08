@@ -49,7 +49,7 @@ const DashboardContent = () => {
           <>
             <FinancialSection data={dashboardData?.financial} />
             <SectionCards data={dashboardData?.menuSummary} />
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <p className="text-muted-foreground w-full">
                 *ถ้าตักเสร็จแล้วอย่าลืมแก้ยอดทั้งหมดให้เท่าจำนวนที่ตักได้ด้วย
               </p>

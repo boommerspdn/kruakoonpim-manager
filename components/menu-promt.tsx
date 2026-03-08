@@ -25,7 +25,7 @@ const MenuPrompt = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-12 h-full">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 xl:gap-12 h-full">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <h1 className="text-4xl font-medium">เพิ่มเมนูวันที่</h1>
@@ -40,13 +40,15 @@ const MenuPrompt = () => {
         <MenuForm />
       </div>
       <div className="h-full flex flex-col">
-        <div className="grid grid-cols-2 place-items-center">
-          <div className="flex flex-col items-end">
-            <span className="text-4xl text-nowrap">แม่คิดเมนูไม่ออกเลย</span>
-            <span className="text-muted-foreground text-end">
+        <div className="grid xl:grid-cols-2 gap-8 place-items-center">
+          <div className="flex flex-col items-center xl:items-end">
+            <span className="text-3xl xl:text-4xl text-center xl:text-end text-nowrap">
+              แม่คิดเมนูไม่ออกเลย
+            </span>
+            <span className="text-muted-foreground text-center xl:text-end">
               ลองกดสุ่มดูเลย กดได้เรื่อยๆเลยจ้า :DD
             </span>
-            <div className="flex flex-col items-end space-y-2">
+            <div className="flex flex-col items-center xl:items-end space-y-2">
               <Button className="w-fit mt-4" onClick={() => getRandomItems()}>
                 สุ่มรายการอาหาร
               </Button>
@@ -70,7 +72,6 @@ const MenuPrompt = () => {
               fill
               className="object-contain"
               priority
-              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
         </div>
