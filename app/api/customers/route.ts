@@ -45,19 +45,13 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return NextResponse.json(
-        { success: false, error: "มีชื่อลูกค้านี้ในระบบแล้ว" },
-        { status: 409 },
-      );
-    }
-
     console.error("POST Customer Error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to create customer" },
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to create customer",
+      },
       { status: 500 },
     );
   }
