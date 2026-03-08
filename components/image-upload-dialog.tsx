@@ -40,8 +40,8 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
         method: "POST",
         body: formData,
       });
-      if (!geminiRes.ok) throw new Error("Gemini API Error");
       const rawResult = await geminiRes.json();
+      if (!rawResult.ok) throw new Error(rawResult.message);
 
       sessionStorage.setItem("geminiPreviewData", JSON.stringify(rawResult));
 
