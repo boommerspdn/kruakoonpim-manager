@@ -1,4 +1,4 @@
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
 import "./globals.css";

@@ -387,8 +387,9 @@ export default function CustomerManager() {
           <AlertDialogHeader>
             <AlertDialogTitle>ยืนยันการลบข้อมูล?</AlertDialogTitle>
             <AlertDialogDescription>
-              คุณกำลังจะลบรายชื่อ <strong>"{customerToDelete?.name}"</strong>{" "}
-              ออกจากระบบ การกระทำนี้ไม่สามารถย้อนกลับได้
+              คุณกำลังจะลบรายชื่อ{" "}
+              <strong>{`"${customerToDelete?.name}"`}</strong> ออกจากระบบ
+              การกระทำนี้ไม่สามารถย้อนกลับได้
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

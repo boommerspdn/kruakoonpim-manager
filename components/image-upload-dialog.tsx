@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,11 +6,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import React from "react";
+import { toast } from "react-hot-toast";
 import { Input } from "./ui/input";
-import { findBestCustomerMatch } from "@/lib/fuzzy-match";
 
 interface ImageUploadDialogProps {
   open: boolean;
