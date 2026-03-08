@@ -1,13 +1,8 @@
-import {
-  createPartFromUri,
-  createUserContent,
-  GoogleGenAI,
-} from "@google/genai";
-import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import { customerNames } from "@/lib/customerNames";
-import { responseSchema } from "@/lib/gemini-response-type";
 import { ApiResponse, GeminiResponse } from "@/app/types/gemini";
+import { responseSchema } from "@/lib/gemini-response-type";
+import { formatOrderPrefix } from "@/lib/utils";
+import { createUserContent, GoogleGenAI } from "@google/genai";
+import { NextRequest, NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({});
 
@@ -84,6 +79,12 @@ export async function POST(req: NextRequest) {
       throw new Error("AI returned an empty response");
     }
     const result = JSON.parse(response.text) as GeminiResponse;
+    if (result.orders && Array.isArray(result.orders)) {
+      result.orders = result.orders.map((order) => ({
+        ...order,
+        customerName: formatOrderPrefix(order.customerName),
+      }));
+    }
     return NextResponse.json<ApiResponse>(
       { success: true, data: result },
       { status: 200 },

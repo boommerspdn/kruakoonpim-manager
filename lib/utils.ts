@@ -213,3 +213,13 @@ export function easyDiff<T extends Identifiable>(
 
   return { toCreate, toUpdate, toDeleteIds };
 }
+
+export const formatOrderPrefix = (name: string) => {
+  if (!name) return "";
+
+  return name
+    .trim()
+    .replace(/^([PNK])[\s\.'"]*(\S)/i, (match, prefix, firstChar) => {
+      return `${prefix.toUpperCase()}'${firstChar}`;
+    });
+};

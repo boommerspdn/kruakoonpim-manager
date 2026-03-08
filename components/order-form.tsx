@@ -40,7 +40,6 @@ import {
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 
-// Fetcher สำหรับดึงรายชื่อลูกค้ามาทำ Autocomplete
 const fetcher = async (url: string) => {
   const res = await fetch(url);
   const json = await res.json();

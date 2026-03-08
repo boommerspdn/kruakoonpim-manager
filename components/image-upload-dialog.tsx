@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import React from "react";
 import { Input } from "./ui/input";
+import { findBestCustomerMatch } from "@/lib/fuzzy-match";
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -24,25 +26,28 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  // Submit images to Gemini API
+  const router = useRouter();
+
   const handleSubmit = async () => {
     if (images.length === 0) return;
     setLoading(true);
     setError(null);
+
     try {
       const formData = new FormData();
-      images.forEach((img, idx) => {
-        formData.append("images", img);
-      });
-      // Replace this URL with your Gemini API endpoint
-      const response = await fetch("/api/gemini-upload", {
+      images.forEach((img) => formData.append("images", img));
+
+      const geminiRes = await fetch("/api/gemini-upload", {
         method: "POST",
         body: formData,
       });
-      if (!response.ok) throw new Error(response.statusText);
-      const result = await response.json();
-      console.log(result);
-      toast.success("อัพโหลดสำเร็จ");
+      if (!geminiRes.ok) throw new Error("Gemini API Error");
+      const rawResult = await geminiRes.json();
+
+      sessionStorage.setItem("geminiPreviewData", JSON.stringify(rawResult));
+
+      toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
+      router.push("/preview");
     } catch (err: any) {
       setError(err.message || "เกิดข้อผิดพลาด");
     } finally {
@@ -60,7 +65,6 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
     setPreviewUrls(urls);
   };
 
-  // Clean up object URLs
   React.useEffect(() => {
     return () => {
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
