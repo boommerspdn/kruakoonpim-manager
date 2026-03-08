@@ -9,10 +9,12 @@ import menuApi from "../public/kruakoonpim_menu_API.json";
 
 import Image from "next/image";
 import { useState } from "react";
+import ImageUploadDialog from "./image-upload-dialog";
 import MenuForm from "./menu-form";
 
 const MenuPrompt = () => {
   const [randomItems, setRandomItems] = useState<{ name: string }[]>([]);
+  const [openDialog, setOpenDialog] = useState(false);
   const { date } = useDateStore();
 
   const getRandomItems = () => {
@@ -44,9 +46,22 @@ const MenuPrompt = () => {
             <span className="text-muted-foreground text-end">
               ลองกดสุ่มดูเลย กดได้เรื่อยๆเลยจ้า :DD
             </span>
-            <Button className="w-fit mt-4" onClick={() => getRandomItems()}>
-              สุ่มรายการอาหาร
-            </Button>
+            <div className="flex flex-col items-end space-y-2">
+              <Button className="w-fit mt-4" onClick={() => getRandomItems()}>
+                สุ่มรายการอาหาร
+              </Button>
+              <Button
+                variant="outline"
+                className="w-fit"
+                onClick={() => setOpenDialog(true)}
+              >
+                เพิ่มรายการด้วยรูปภาพ
+              </Button>
+              <ImageUploadDialog
+                open={openDialog}
+                onOpenChange={setOpenDialog}
+              />
+            </div>
           </div>
           <div className="w-full h-[300px] relative">
             <Image
