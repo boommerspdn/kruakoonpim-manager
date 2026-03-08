@@ -60,7 +60,7 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { format } from "date-fns";
 import { PlusCircle } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useSWRConfig } from "swr";
 import { PublicMenu } from "./types/menu";
 import {

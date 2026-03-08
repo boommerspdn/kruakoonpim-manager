@@ -1,4 +1,5 @@
 import { CreateOrder, createOrderSchema } from "@/app/types/order";
+import { PublicMenu } from "@/app/types/menu";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,8 +17,8 @@ import { format } from "date-fns";
 import { Loader2, Save } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { useSWRConfig } from "swr";
+import { toast } from "react-hot-toast";
+import useSWR, { useSWRConfig } from "swr";
 import { z } from "zod";
 import { Checkbox } from "./ui/checkbox";
 import {
@@ -38,7 +39,13 @@ import {
 } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
-import { PublicMenu } from "@/app/types/menu";
+
+// Fetcher สำหรับดึงรายชื่อลูกค้ามาทำ Autocomplete
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  const json = await res.json();
+  return json.data;
+};
 
 type OrderFormProps = {
   children: React.ReactNode;
@@ -56,6 +63,8 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     : format(new Date(), "yyyy-MM-dd");
   const { mutate } = useSWRConfig();
 
+  const { data: customers = [] } = useSWR("/api/customers", fetcher);
+
   const defaultValues = initialData;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,28 +80,72 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     if (mode === "EDIT") {
       form.reset(defaultValues);
     }
-  }, [defaultValues]);
+  }, [defaultValues, form, mode]);
 
   React.useEffect(() => {
     form.reset(defaultValues);
-  }, [date]);
+  }, [date, form, defaultValues]);
 
   React.useEffect(() => {
     form.reset(defaultValues);
-  }, [menu]);
+  }, [menu, form, defaultValues]);
 
-  // 2. Define a submit handler.
+  const calculateOptimisticTotal = (orderItems: any[]) => {
+    return orderItems.reduce((sum, item) => {
+      const menuPrice = menu?.find((m) => m.id === item.menuId)?.price || 0;
+      return sum + Number(item.amount || 0) * menuPrice;
+    }, 0);
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     try {
       if (form.formState.isDirty) {
+        const orderKey = `/api/order?date=${formattedDate}`;
+        const optimisticTotalPrice = calculateOptimisticTotal(
+          values.orderItems,
+        );
+
+        const optimisticOrderData = {
+          id: mode === "EDIT" ? values.id : `temp-${Date.now()}`,
+          customerName: values.customerName,
+          delivery: values.delivery,
+          note: values.note,
+          payment: values.payment,
+          status: values.status,
+          date: formattedDate,
+          totalPrice: optimisticTotalPrice,
+          orderItems: values.orderItems
+            .map((item) => ({
+              menuId: item.menuId,
+              amount: Number(item.amount || 0),
+              menu: {
+                name: item.menuName,
+                price: menu?.find((m) => m.id === item.menuId)?.price || 0,
+              },
+            }))
+            .filter((item) => item.amount > 0),
+        };
+
+        mutate(
+          orderKey,
+          (currentOrders: any[] = []) => {
+            if (mode === "CREATE") {
+              return [...currentOrders, optimisticOrderData];
+            } else {
+              return currentOrders.map((o) =>
+                o.id === values.id ? { ...o, ...optimisticOrderData } : o,
+              );
+            }
+          },
+          false,
+        );
+
         if (mode === "CREATE") {
           await axios.post(`/api/order?date=${formattedDate}`, values);
-
           form.reset(defaultValues);
-          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
+          toast.success("เพิ่มออเดอร์สำเร็จ");
         }
+
         if (mode === "EDIT") {
           const formatOrderItems = initialData.orderItems.map((orderItem) => ({
             ...orderItem,
@@ -122,7 +175,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
           };
 
           await axios.patch(`/api/order?id=${values.id}`, patchData);
-          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
+          toast.success("แก้ไขออเดอร์สำเร็จ");
         }
       }
     } catch (error) {
@@ -157,8 +210,22 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                 <FormItem>
                   <FormLabel>ชื่อลูกค้า</FormLabel>
                   <FormControl>
-                    <Input placeholder="กรอกชื่อลูกค้า" {...field} />
+                    {/* 👇 เพิ่ม list="customer-list" เพื่อลิงก์กับ datalist ด้านล่าง */}
+                    <Input
+                      list="customer-list"
+                      placeholder="กรอกชื่อลูกค้า"
+                      {...field}
+                      value={field.value || ""}
+                    />
                   </FormControl>
+
+                  {/* 👇 Datalist สำหรับทำ Autocomplete จากฐานข้อมูลลูกค้า */}
+                  <datalist id="customer-list">
+                    {customers.map((c: any) => (
+                      <option key={c.id} value={c.name} />
+                    ))}
+                  </datalist>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -213,6 +280,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                       placeholder="หมายเหตุ"
                       className="resize-none h-[100px]"
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />

@@ -25,7 +25,11 @@ export async function GET(req: NextRequest) {
       },
       select: {
         id: true,
-        customerName: true,
+        customer: {
+          select: {
+            name: true,
+          },
+        },
         date: true,
         note: true,
         payment: true,
@@ -53,11 +57,13 @@ export async function GET(req: NextRequest) {
         (item) => item.amount * item.menu.price,
       );
 
-      // Sum up item totals
       const totalPrice = itemTotals.reduce((sum, val) => sum + val, 0);
 
+      const { customer, ...restOfOrder } = order;
+
       return {
-        ...order,
+        ...restOfOrder,
+        customerName: customer?.name || "ไม่ระบุชื่อลูกค้า",
         totalPrice,
       };
     });

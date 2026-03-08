@@ -23,7 +23,7 @@ import { format } from "date-fns"; // or your preferred formatter
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useSWRConfig } from "swr";
 import z from "zod";
 import { RemoveDialog } from "./remove-dialog";

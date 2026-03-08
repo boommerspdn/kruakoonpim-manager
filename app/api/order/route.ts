@@ -19,21 +19,33 @@ export async function GET(req: NextRequest) {
           lte: end,
         },
       },
-      include: { orderItems: { include: { menu: true } } },
+      include: {
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+        orderItems: {
+          include: {
+            menu: true,
+          },
+        },
+      },
       orderBy: { sortOrder: "asc" },
     });
 
     const ordersWithTotal = orders.map((order) => {
-      // Calculate each item total
       const itemTotals = order.orderItems.map(
         (item) => item.amount * item.menu.price,
       );
 
-      // Sum up item totals
       const totalPrice = itemTotals.reduce((sum, val) => sum + val, 0);
 
+      const { customer, ...restOfOrder } = order;
+
       return {
-        ...order,
+        ...restOfOrder,
+        customerName: customer?.name || "ไม่มีชื่อ",
         totalPrice,
       };
     });
@@ -63,7 +75,16 @@ export async function PATCH(req: NextRequest) {
         id,
       },
       data: {
-        customerName,
+        customer: customerName
+          ? {
+              connectOrCreate: {
+                where: { name: customerName },
+                create: { name: customerName },
+              },
+            }
+          : customerName === null
+            ? { disconnect: true }
+            : undefined,
         delivery,
         note,
         payment,
@@ -139,7 +160,14 @@ export async function POST(req: NextRequest) {
 
     await prisma.order.create({
       data: {
-        customerName,
+        customer: customerName
+          ? {
+              connectOrCreate: {
+                where: { name: customerName },
+                create: { name: customerName },
+              },
+            }
+          : undefined,
         delivery: delivery || false,
         note,
         payment,
