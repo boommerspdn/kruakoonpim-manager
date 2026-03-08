@@ -1,11 +1,10 @@
+import { PaymentStatus } from "@/app/types/dashboard";
 import {
   IconCash,
   IconCreditCardOff,
   IconCreditCardPay,
 } from "@tabler/icons-react";
 import { PiggyBank } from "lucide-react";
-import { Separator } from "./ui/separator";
-import { PaymentStatus } from "@/app/types/dashboard";
 
 type FinancialSectionProps = {
   data: PaymentStatus | undefined;
@@ -15,12 +14,10 @@ const FinancialItem = ({
   children,
   title,
   value,
-  hideSeparator,
 }: {
   children?: React.ReactNode;
   title: string;
   value: string;
-  hideSeparator?: boolean;
 }) => {
   return (
     <div className="grid grid-cols-6 gap-4 items-center content-center">
@@ -47,11 +44,7 @@ const FinancialSection = ({ data }: FinancialSectionProps) => {
       <FinancialItem title="โอน" value={`฿${data?.online}`}>
         <IconCreditCardPay className="w-full h-auto text-primary" />
       </FinancialItem>
-      <FinancialItem
-        title="ไม่ได้จ่ายหน้าร้าน"
-        value={`฿${data?.unknown}`}
-        hideSeparator={true}
-      >
+      <FinancialItem title="ไม่ได้จ่ายหน้าร้าน" value={`฿${data?.unknown}`}>
         <IconCreditCardOff className="w-full h-auto text-primary" />
       </FinancialItem>
     </div>
