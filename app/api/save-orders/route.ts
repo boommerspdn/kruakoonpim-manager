@@ -1,4 +1,5 @@
 import { Prisma } from "@/app/generated/prisma";
+import { CreateOrder } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -47,54 +48,60 @@ export async function POST(req: NextRequest) {
         });
 
         await Promise.all(
-          orders.map(async (order: any) => {
-            let currentCustomerId = order.finalCustomerId;
+          orders.map(
+            async (
+              order: CreateOrder & {
+                finalCustomerId: string;
+                inputName: string;
+                sortOrder: number;
+              },
+            ) => {
+              let currentCustomerId = order.finalCustomerId;
 
-            if (!currentCustomerId) {
-              const newCustomer = await tx.customer.create({
-                data: {
-                  name: order.inputName.trim(),
-                  aliases: [order.customerName.trim()],
-                },
-              });
-              currentCustomerId = newCustomer.id;
-            } else {
-              if (order.customerName !== order.inputName) {
-                const findScalar = await tx.customer.findFirst({
-                  where: {
-                    id: currentCustomerId,
-                    aliases: { has: order.customerName.trim() },
+              if (!currentCustomerId) {
+                const newCustomer = await tx.customer.create({
+                  data: {
+                    name: order.inputName.trim(),
+                    aliases: [order.customerName.trim()],
                   },
-                  select: { id: true },
                 });
-
-                if (!findScalar) {
-                  await tx.customer.update({
-                    where: { id: currentCustomerId },
-                    data: { aliases: { push: order.customerName.trim() } },
+                currentCustomerId = newCustomer.id;
+              } else {
+                if (order.customerName !== order.inputName) {
+                  const findScalar = await tx.customer.findFirst({
+                    where: {
+                      id: currentCustomerId,
+                      aliases: { has: order.customerName.trim() },
+                    },
+                    select: { id: true },
                   });
+
+                  if (!findScalar) {
+                    await tx.customer.update({
+                      where: { id: currentCustomerId },
+                      data: { aliases: { push: order.customerName.trim() } },
+                    });
+                  }
                 }
               }
-            }
 
-            await tx.order.create({
-              data: {
-                customerId: currentCustomerId,
-                note: order.note || null,
-                delivery: order.delivery,
-                date: new Date(date),
-                sortOrder: order.sortOrder || 0,
-                orderItems: {
-                  create: order.orderItems.map(
-                    (item: { menuId: string; amount: number }) => ({
+              await tx.order.create({
+                data: {
+                  customerId: currentCustomerId,
+                  note: order.note || null,
+                  delivery: order.delivery || false,
+                  date: new Date(date),
+                  sortOrder: order.sortOrder || 0,
+                  orderItems: {
+                    create: order.orderItems.map((item) => ({
                       menuId: menuIdMap.get(item.menuId.toString()) || "",
                       amount: item.amount || 0,
-                    }),
-                  ),
+                    })),
+                  },
                 },
-              },
-            });
-          }),
+              });
+            },
+          ),
         );
       },
       {
