@@ -4,24 +4,12 @@ import { CreateOrder } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
-
-type ExtraInput = {
-  finalCustomerId: string;
-  inputName: string;
-  sortOrder: number;
-};
-
-type Order = CreateOrder & ExtraInput;
 
 export async function POST(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const body = await req.json();
-
-    const menus: CreateMenu[] = body.menus;
-    const orders: Order[] = body.orders;
-
+    const { menus, orders } = body;
     const date = searchParams.get("date");
 
     if (!date) throw new Error("Date was not included in the params");
@@ -29,71 +17,92 @@ export async function POST(req: NextRequest) {
 
     await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
-        await Promise.all([
-          tx.menu.deleteMany({ where: { date: { gte: start, lte: end } } }),
-          tx.order.deleteMany({ where: { date: { gte: start, lte: end } } }),
-        ]);
+        const menuIdMap = new Map<string, string>();
 
-        const menusWithNewIds = menus.map((m: CreateMenu) => ({
-          ...m,
-          generatedId: uuidv4(),
-        }));
+        const todayMenu = await tx.menu.findFirst({
+          where: { date: { gte: start, lte: end } },
+        });
 
-        const menuIdMap = new Map(
-          menusWithNewIds.map((m) => [
-            m.id?.toString() || uuidv4(),
-            m.generatedId,
-          ]),
+        if (todayMenu) {
+          await Promise.all([
+            tx.menu.deleteMany({ where: { date: { gte: start, lte: end } } }),
+            tx.order.deleteMany({ where: { date: { gte: start, lte: end } } }),
+          ]);
+        }
+
+        const createdMenus = await Promise.all(
+          menus.map((m: CreateMenu, index: number) =>
+            tx.menu.create({
+              data: {
+                name: m.name,
+                price: m.price || 0,
+                date: new Date(date),
+                amount: m.amount || 0,
+                sortOrder: index || 0,
+              },
+            }),
+          ),
         );
 
-        await tx.menu.createMany({
-          data: menusWithNewIds.map((menu) => ({
-            id: menu.generatedId,
-            name: menu.name,
-            amount: menu.amount || 0,
-            price: menu.price || 0,
-            sortOrder: menu.sortOrder || 0,
-            date: new Date(date),
-          })),
+        createdMenus.forEach((newMenu, index) => {
+          menuIdMap.set(menus[index].id.toString(), newMenu.id.toString());
         });
 
         await Promise.all(
-          orders.map(async (order) => {
-            await tx.order.create({
-              data: {
-                delivery: order.delivery || false,
-                note: order.note,
-                payment: order.payment,
-                status: order.status,
-                sortOrder: order.sortOrder,
-                date: new Date(date),
-                customer: order.inputName
-                  ? {
-                      connectOrCreate: {
-                        where: { name: order.inputName },
-                        create: { name: order.inputName },
-                      },
-                    }
-                  : undefined,
-                orderItems: {
-                  createMany: {
-                    data: order.orderItems.map((item) => {
-                      const finalMenuId = menuIdMap.get(item.menuId);
-                      if (!finalMenuId)
-                        throw new Error(
-                          `Menu ID ${item.menuId} not found in map`,
-                        );
+          orders.map(
+            async (
+              order: CreateOrder & {
+                finalCustomerId: string;
+                inputName: string;
+                sortOrder: number;
+              },
+            ) => {
+              let currentCustomerId = order.finalCustomerId;
 
-                      return {
-                        menuId: finalMenuId,
-                        amount: item.amount || 0,
-                      };
-                    }),
+              if (!currentCustomerId) {
+                const newCustomer = await tx.customer.create({
+                  data: {
+                    name: order.inputName.trim(),
+                    aliases: [order.customerName.trim()],
+                  },
+                });
+                currentCustomerId = newCustomer.id;
+              } else {
+                if (order.customerName !== order.inputName) {
+                  const findScalar = await tx.customer.findFirst({
+                    where: {
+                      id: currentCustomerId,
+                      aliases: { has: order.customerName.trim() },
+                    },
+                    select: { id: true },
+                  });
+
+                  if (!findScalar) {
+                    await tx.customer.update({
+                      where: { id: currentCustomerId },
+                      data: { aliases: { push: order.customerName.trim() } },
+                    });
+                  }
+                }
+              }
+
+              await tx.order.create({
+                data: {
+                  customerId: currentCustomerId,
+                  note: order.note || null,
+                  delivery: order.delivery || false,
+                  date: new Date(date),
+                  sortOrder: order.sortOrder || 0,
+                  orderItems: {
+                    create: order.orderItems.map((item) => ({
+                      menuId: menuIdMap.get(item.menuId.toString()) || "",
+                      amount: item.amount || 0,
+                    })),
                   },
                 },
-              },
-            });
-          }),
+              });
+            },
+          ),
         );
       },
       {
@@ -103,7 +112,10 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json(
-      { success: true, message: "เพิ่มเมนู/ออเดอร์สำเร็จ" },
+      {
+        success: true,
+        message: "เพิ่มเมนู/ออเดอร์สำเร็จ",
+      },
       { status: 200 },
     );
   } catch (error) {

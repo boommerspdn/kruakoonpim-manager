@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "react-hot-toast";
 import { Input } from "./ui/input";
+import imageCompression from "browser-image-compression";
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -34,6 +35,26 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
     try {
       const formData = new FormData();
+
+      const compressionOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 2048,
+        useWebWorker: true,
+        fileType: "image/webp",
+        initialQuality: 0.8,
+      };
+
+      const compressedImagesPromises = images.map(async (img) => {
+        if (img.type.startsWith("image/")) {
+          return await imageCompression(img, compressionOptions);
+        }
+        return img;
+      });
+
+      const compressedImages = await Promise.all(compressedImagesPromises);
+
+      compressedImages.forEach((img) => formData.append("images", img));
+
       const geminiRes = await fetch("/api/gemini-upload", {
         method: "POST",
         body: formData,
