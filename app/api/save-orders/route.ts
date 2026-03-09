@@ -1,82 +1,132 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
+import { getDayRange } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
+    const searchParams = req.nextUrl.searchParams;
     const body = await req.json();
     const { menus, orders } = body;
-    const searchParams = req.nextUrl.searchParams;
     const date = searchParams.get("date");
 
     if (!date) throw new Error("Date was not included in the params");
+    const { start, end } = getDayRange(new Date(date));
 
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const menuIdMap = new Map<string, string>();
 
-      for (const [index, m] of menus.entries()) {
-        let dbMenu = await tx.menu.findFirst({
-          where: { name: m.name },
+      const todayMenu = await tx.menu.findFirst({
+        where: {
+          date: {
+            gte: start,
+            lte: end,
+          },
+        },
+      });
+
+      if (todayMenu) {
+        await tx.menu.deleteMany({
+          where: {
+            date: {
+              gte: start,
+              lte: end,
+            },
+          },
         });
 
-        if (!dbMenu) {
-          dbMenu = await tx.menu.create({
-            data: {
-              name: m.name,
-              price: m.price || 0,
-              date: new Date(date),
-              amount: m.amount || 0,
-              sortOrder: index || 0,
+        await tx.order.deleteMany({
+          where: {
+            date: {
+              gte: start,
+              lte: end,
             },
-          });
-        }
-        menuIdMap.set(m.id.toString(), dbMenu.id);
+          },
+        });
       }
 
-      for (const [index, order] of orders.entries()) {
+      for (const [index, m] of menus.entries()) {
+        const createMenu = await tx.menu.create({
+          data: {
+            name: m.name,
+            price: m.price || 0,
+            date: new Date(date),
+            amount: m.amount || 0,
+            sortOrder: index || 0,
+          },
+        });
+        menuIdMap.set(m.id.toString(), createMenu.id.toString());
+      }
+
+      for (const order of orders) {
         let customerId = order.finalCustomerId;
 
         if (!customerId) {
-          const newCustomer = await tx.customer.create({
+          await tx.customer.create({
             data: {
               name: order.inputName.trim(),
               aliases: [order.customerName.trim()],
             },
           });
-          customerId = newCustomer.id;
+        } else {
+          if (order.customerName !== order.inputName) {
+            const findScalar = await tx.customer.findFirst({
+              where: {
+                id: customerId,
+                aliases: {
+                  has: order.customerName.trim(),
+                },
+              },
+              select: {
+                id: true,
+                name: true,
+              },
+            });
+
+            if (!findScalar) {
+              await tx.customer.update({
+                where: { id: customerId },
+                data: {
+                  aliases: { push: order.customerName.trim() },
+                },
+              });
+            }
+          }
         }
 
         await tx.order.create({
           data: {
             customerId: customerId,
             note: order.note || null,
-            delivery: !!order.delivery,
+            delivery: order.delivery,
             date: new Date(date),
-            sortOrder: index || 0,
+            sortOrder: order.sortOrder || 0,
             orderItems: {
               create: order.orderItems.map(
                 (item: { menuId: string; amount: number }) => ({
                   menuId: menuIdMap.get(item.menuId.toString()),
-                  amount: item.amount || 1,
+                  amount: item.amount || 0,
                 }),
               ),
             },
           },
         });
       }
-
-      return true;
     });
 
-    return NextResponse.json({ success: true, message: "Saved successfully" });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "เพิ่มเมนู/ออเดอร์สำเร็จ",
+      },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Save Orders Error:", error);
     return NextResponse.json(
       {
         success: false,
-        message:
-          "เกิดข้อผิดพลาดที่ Database: " +
-          (error instanceof Error ? error.message : "Unknown error"),
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     );
