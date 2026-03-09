@@ -1,4 +1,5 @@
 import { Prisma } from "@/app/generated/prisma";
+import { CreateMenu } from "@/app/types/menu";
 import { CreateOrder } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
         }
 
         const createdMenus = await Promise.all(
-          menus.map((m: any, index: number) =>
+          menus.map((m: CreateMenu, index: number) =>
             tx.menu.create({
               data: {
                 name: m.name,

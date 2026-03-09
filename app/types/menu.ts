@@ -8,6 +8,8 @@ export const inputMenuSchema = z.object({
   sortOrder: z.coerce.number().optional(),
 });
 
+export type CreateMenu = z.infer<typeof inputMenuSchema>;
+
 export const formMenuSchema = z.object({
   menu: z.array(inputMenuSchema),
 });
