@@ -195,7 +195,6 @@ export default function CustomerManager() {
           </p>
         </div>
 
-        {/* --- Dialog เพิ่มลูกค้า --- */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -253,12 +252,8 @@ export default function CustomerManager() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[300px]">
-                ชื่อลูกค้าหลัก (Correct Name)
-              </TableHead>
-              <TableHead className="border-e-0">
-                คำที่ AI มักอ่านผิด (Aliases)
-              </TableHead>
+              <TableHead className="w-[250px]">ชื่อลูกค้าหลัก</TableHead>
+              <TableHead className="border-e-0">คำที่ AI มักอ่านผิด</TableHead>
               <TableHead className="w-[80px] border-e-0 text-center">
                 จัดการ
               </TableHead>

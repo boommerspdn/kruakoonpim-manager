@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useState } from "react";
 import ImageUploadDialog from "./image-upload-dialog";
 import MenuForm from "./menu-form";
+import { Separator } from "./ui/separator";
 
 const MenuPrompt = () => {
   const [randomItems, setRandomItems] = useState<{ name: string }[]>([]);
@@ -25,7 +26,7 @@ const MenuPrompt = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 xl:gap-12 h-full">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12 h-full">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <h1 className="text-4xl font-medium">เพิ่มเมนูวันที่</h1>
@@ -39,6 +40,7 @@ const MenuPrompt = () => {
         </p>
         <MenuForm />
       </div>
+      <Separator className="xl:hidden" />
       <div className="h-full flex flex-col">
         <div className="grid xl:grid-cols-2 gap-8 place-items-center">
           <div className="flex flex-col items-center xl:items-end">

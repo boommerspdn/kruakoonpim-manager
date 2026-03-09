@@ -8,8 +8,8 @@ import { Home, UserPlus } from "lucide-react";
 
 export function SiteHeader() {
   return (
-    <header className="grid grid-cols-3 place-items-center w-full border-b gap-1 px-4 lg:gap-2 lg:px-6 h-16 py-3">
-      <div className="place-self-start space-x-2">
+    <header className="flex justify-between w-full border-b gap-1 px-4 lg:gap-2 lg:px-6 h-16 py-3">
+      <div className="flex gap-1 items-center col-span-1 place-self-center">
         <Link href={"/"}>
           <Button variant={"outline"} size={"icon"}>
             <Home />
@@ -21,8 +21,12 @@ export function SiteHeader() {
           </Button>
         </Link>
       </div>
-      <DatePickerForm />
-      <LogoutButton />
+      <div>
+        <DatePickerForm />
+      </div>
+      <div>
+        <LogoutButton />
+      </div>
     </header>
   );
 }

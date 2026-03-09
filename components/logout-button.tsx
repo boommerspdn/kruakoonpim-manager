@@ -15,12 +15,7 @@ export function LogoutButton() {
   };
 
   return (
-    <Button
-      onClick={logout}
-      className="place-self-end"
-      variant={"outline"}
-      size={"icon"}
-    >
+    <Button onClick={logout} variant={"outline"} size={"icon"}>
       <IconLogout />
     </Button>
   );
