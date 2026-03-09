@@ -114,7 +114,10 @@ export async function POST(req: NextRequest) {
           });
         }
       },
-      { timeout: 60000 },
+      {
+        maxWait: 60000,
+        timeout: 60000,
+      },
     );
 
     return NextResponse.json(
