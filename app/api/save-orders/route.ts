@@ -1,5 +1,5 @@
 import { Prisma } from "@/app/generated/prisma";
-import { SaveOrdersRequest, SaveOrder, CustomerLookup, MenuMapping, ProcessedOrderData } from "@/app/types/save-orders";
+import { CustomerLookup, ProcessedOrderData, SaveOrder, SaveOrdersRequest } from "@/app/types/save-orders";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
     if (!date) throw new Error("Date was not included in the params");
     const { start, end } = getDayRange(new Date(date));
 
-    // Step 1: Check if today's menu exists and delete if needed (outside transaction)
     const todayMenu = await prisma.menu.findFirst({
       where: { date: { gte: start, lte: end } },
     });
@@ -26,16 +25,12 @@ export async function POST(req: NextRequest) {
       ]);
     }
 
-    // Step 2: Process customer data outside transaction
     const customerData = await processCustomerData(orders);
 
-    // Step 3: Create menus and get mapping
     const menuIdMap = await createMenusAndGetMapping(menus, new Date(date));
 
-    // Step 4: Process orders with pre-computed data
     const processedOrders = prepareOrderData(orders, customerData, menuIdMap);
 
-    // Step 5: Execute database operations in a single transaction
     await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         // Create customers that don't exist
@@ -43,7 +38,7 @@ export async function POST(req: NextRequest) {
         const createdCustomerIds = new Map<string, string>();
         
         if (newCustomers.length > 0) {
-          const created = await tx.customer.createMany({
+          await tx.customer.createMany({
             data: newCustomers.map(c => ({
               name: c.name,
               aliases: c.aliases,
