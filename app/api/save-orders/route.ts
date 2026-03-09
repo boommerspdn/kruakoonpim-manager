@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma";
+import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       }
 
       for (const order of orders) {
-        let customerId = order.finalCustomerId;
+        const customerId = order.finalCustomerId;
 
         if (!customerId) {
           await tx.customer.create({

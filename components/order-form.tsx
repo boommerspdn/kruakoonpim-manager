@@ -38,6 +38,15 @@ import {
 } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "./ui/combobox";
+import axios from "axios";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -82,7 +91,8 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     : format(new Date(), "yyyy-MM-dd");
   const { mutate } = useSWRConfig();
 
-  const { data: customers = [] } = useSWR("/api/customers", fetcher);
+  const { data: customers } = useSWR<Customer[]>("/api/customers", fetcher);
+  const customerNameList = customers?.map((c) => c.name) || [];
 
   const defaultValues = initialData;
   const form = useForm<z.infer<typeof formSchema>>({
@@ -121,11 +131,12 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (form.formState.isDirty) {
+        await axios.post(`/api/order?date=${formattedDate}`, values);
+
         const orderKey = `/api/order?date=${formattedDate}`;
         const optimisticTotalPrice = calculateOptimisticTotal(
           values.orderItems,
         );
-
         const optimisticOrderData: Order = {
           id: mode === "EDIT" ? (values.id as string) : `temp-${Date.now()}`,
           customerName: values.customerName,
@@ -146,7 +157,6 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
             }))
             .filter((item) => item.amount > 0),
         };
-
         mutate<Order[]>(
           orderKey,
           (currentOrders = []) => {
@@ -173,7 +183,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   }
 
   return (
-    <Dialog>
+    <Dialog modal={true}>
       {children}
       <DialogContent>
         <DialogHeader>
@@ -195,20 +205,35 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                 <FormItem>
                   <FormLabel>ชื่อลูกค้า</FormLabel>
                   <FormControl>
-                    <Input
-                      list="customer-list"
-                      placeholder="กรอกชื่อลูกค้า"
-                      {...field}
-                      value={field.value || ""}
-                    />
+                    <div>
+                      <Combobox
+                        items={customerNameList}
+                        {...field}
+                        value={field.value || ""}
+                        onValueChange={(value) => {
+                          if (!value) return;
+                          field.onChange(value);
+                        }}
+                      >
+                        <ComboboxInput
+                          placeholder="พิมพ์หรือเลือกชื่อลูกค้า..."
+                          onChange={(e) => field.onChange(e.target.value)}
+                        />
+                        <ComboboxContent className={"pointer-events-auto"}>
+                          <ComboboxEmpty>
+                            ไม่พบชื่อนี้ (ระบบจะสร้างเป็นลูกค้าใหม่)
+                          </ComboboxEmpty>
+                          <ComboboxList>
+                            {(item: string) => (
+                              <ComboboxItem key={item} value={item}>
+                                {item}
+                              </ComboboxItem>
+                            )}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                    </div>
                   </FormControl>
-
-                  <datalist id="customer-list">
-                    {customers.map((c: Customer) => (
-                      <option key={c.id} value={c.name} />
-                    ))}
-                  </datalist>
-
                   <FormMessage />
                 </FormItem>
               )}
