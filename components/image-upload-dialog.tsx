@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "react-hot-toast";
 import { Input } from "./ui/input";
+import imageCompression from "browser-image-compression";
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -34,12 +35,31 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
     try {
       const formData = new FormData();
-      images.forEach((img) => formData.append("images", img));
+
+      const compressionOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 2048,
+        useWebWorker: true,
+        fileType: "image/webp",
+        initialQuality: 0.8,
+      };
+
+      const compressedImagesPromises = images.map(async (img) => {
+        if (img.type.startsWith("image/")) {
+          return await imageCompression(img, compressionOptions);
+        }
+        return img;
+      });
+
+      const compressedImages = await Promise.all(compressedImagesPromises);
+
+      compressedImages.forEach((img) => formData.append("images", img));
 
       const geminiRes = await fetch("/api/gemini-upload", {
         method: "POST",
         body: formData,
       });
+
       if (!geminiRes.ok) throw new Error("Gemini API Error");
       const rawResult = await geminiRes.json();
 
@@ -52,6 +72,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
         (err instanceof Error ? err.message : "Unknown error") ||
           "เกิดข้อผิดพลาด",
       );
+      toast.error("เกิดข้อผิดพลาดในการประมวลผล");
     } finally {
       setLoading(false);
     }
