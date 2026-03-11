@@ -184,9 +184,7 @@ export function DataTable({
       menu.map((menuItem) => ({
         accessorKey: menuItem.id,
         header: () => (
-          <div
-            className={`w-[140px] xl:w-[90px] text-center whitespace-pre-line`}
-          >
+          <div className={`text-center whitespace-pre-line line-clamp-2`}>
             {menuItem.name}
           </div>
         ),
@@ -204,7 +202,7 @@ export function DataTable({
           return (
             <div
               className={cn(
-                `w-[140px] xl:w-[90px] text-center flex items-center gap-2 justify-center`,
+                `text-center flex items-center gap-2 justify-center`,
                 status === "COMPLETED" ? "text-destructive line-through" : "",
               )}
             >

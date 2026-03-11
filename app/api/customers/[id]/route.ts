@@ -1,3 +1,4 @@
+import { CustomerFormValues } from "@/app/types/customer";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -42,15 +43,16 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    const body: CustomerFormValues = await req.json();
 
     const { name, aliases } = body;
 
     const updatedCustomer = await prisma.customer.update({
       where: { id },
       data: {
-        ...(name && { name }),
-        ...(aliases && { aliases }),
+        name: name || undefined,
+        aliases: aliases || undefined,
+        disableAliases: body.disableAliases || undefined,
       },
     });
 

@@ -1,6 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const anuphan = Anuphan({
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body
         className={`${anuphan.variable} font-anuphan antialiased h-[100dvh] overflow-y-auto`}
       >
+        <SiteHeader />
         {children}
         <Toaster position="top-center" />
       </body>

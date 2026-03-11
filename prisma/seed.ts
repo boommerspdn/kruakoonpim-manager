@@ -31,7 +31,7 @@ const customerNames = [
   "P'หมู",
   "P'แอ๋ว",
   "ป้าแป๋ว",
-  "K'TUI",
+  "K'Tui",
   "K'TUY",
   "พรทิพย์",
   "ร้านชายสี่",
@@ -54,7 +54,6 @@ const customerNames = [
   "แหม่มพลอย",
   "K'อ๊อด",
   "PWTD",
-  "K'เสาวนีย์",
   "AOI",
   "เก๋ (P'กัน)",
   "N'ฝน",
@@ -89,12 +88,12 @@ const customerNames = [
   "P'ปุ๊",
   "P'เชอร์รี่",
   "P'อ๋อย",
-  "K'ชนะพงศ์",
+  "ชนะพงศ์",
   "P'บุษ",
   "P'จันดี",
   "K'สมเกียรติ์",
   "P'เกียว",
-  "K'สมบูรณ์",
+  "สมบูรณ์",
   "N'แอน",
   "P'ชูชาติ",
   "หยง",
@@ -126,7 +125,7 @@ const customerNames = [
   "ย่าจ๊อบ",
   "K'Pek",
   "P'แป๊ด",
-  "K'สุวัตน์",
+  "K'สุวัฒน์",
   "K'รวงทอง",
   "ดากานดา",
   "P'หนุ่ย",
@@ -163,7 +162,7 @@ const customerNames = [
   "MINT",
   "K'อุบล",
   "K'อุ้ย",
-  "MASBAM",
+  "Masbam",
   "หยก EVA",
   "แอม EVA",
   "K'ศิริมา",
@@ -185,13 +184,22 @@ const customerNames = [
   "K'น้ำ",
   "ธิดารัตน์",
   "บุญเลิศ",
+  "ปราณี",
+  "แจงพลีท",
+  "~_~",
+  "P'น้อง",
+  "N'เฟิน",
+  "pat pien",
+  "P'ปู",
+  "ป้าดา",
+  "เสาวณีย์",
 ];
 
 async function main() {
   console.log(`Start seeding ${customerNames.length} customers...`);
 
   const customerData = customerNames.map((name) => ({
-    name: name,
+    name: name || "",
     aliases: [],
   }));
 

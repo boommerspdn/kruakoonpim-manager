@@ -37,12 +37,13 @@ export type PublicOrder = z.infer<typeof publicOrderSchema>;
 
 export const createOrderSchema = z.object({
   id: z.string().optional(),
+  customerId: z.string().optional(),
   customerName: z
     .string()
     .min(1, { message: "ชื่อลูกค้าต้องมีมากกว่า 1 ตัวอักษร" }),
   date: z.date().optional(),
   delivery: z.boolean().optional(),
-  note: z.string().optional(),
+  note: z.string().optional().nullable(),
   payment: paymentSchema,
   status: orderStatusSchema,
   orderItems: z.array(
@@ -67,6 +68,7 @@ export type OrderItemObject = z.infer<typeof orderItemObjectSchema>;
 
 export const patchOrderItemSchema = z.object({
   id: z.string(),
+  customerId: z.string(),
   customerName: z.string(),
   date: z.date(),
   delivery: z.boolean(),

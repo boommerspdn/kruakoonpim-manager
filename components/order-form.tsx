@@ -47,6 +47,7 @@ import {
   ComboboxList,
 } from "./ui/combobox";
 import axios from "axios";
+import { easyDiff } from "@/lib/utils";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -61,26 +62,27 @@ type OrderFormProps = {
   menu?: PublicMenu[];
 };
 
-interface OrderItem {
-  menuId: string;
-  amount: number;
-  menu: {
-    name: string;
-    price: number;
-  };
-}
+// interface OrderItem {
+//   menuId: string;
+//   amount: number;
+//   menu: {
+//     name: string;
+//     price: number;
+//   };
+// }
 
-interface Order {
-  id: string;
-  customerName: string;
-  delivery?: boolean;
-  note?: string;
-  payment?: string;
-  status: string;
-  date: string;
-  totalPrice: number;
-  orderItems: OrderItem[];
-}
+// interface Order {
+//   id: string;
+//   customerId: string;
+//   customerName: string;
+//   delivery?: boolean;
+//   note?: string;
+//   payment?: string;
+//   status: string;
+//   date: string;
+//   totalPrice: number;
+//   orderItems: OrderItem[];
+// }
 
 const formSchema = createOrderSchema;
 
@@ -92,7 +94,6 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   const { mutate } = useSWRConfig();
 
   const { data: customers } = useSWR<Customer[]>("/api/customers", fetcher);
-  const customerNameList = customers?.map((c) => c.name) || [];
 
   const defaultValues = initialData;
   const form = useForm<z.infer<typeof formSchema>>({
@@ -119,66 +120,78 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     form.reset(defaultValues);
   }, [menu, form, defaultValues]);
 
-  const calculateOptimisticTotal = (
-    orderItems: z.infer<typeof formSchema>["orderItems"],
-  ) => {
-    return orderItems.reduce((sum, item) => {
-      const menuPrice = menu?.find((m) => m.id === item.menuId)?.price || 0;
-      return sum + Number(item.amount || 0) * menuPrice;
-    }, 0);
-  };
+  // const calculateOptimisticTotal = (
+  //   orderItems: z.infer<typeof formSchema>["orderItems"],
+  // ) => {
+  //   return orderItems.reduce((sum, item) => {
+  //     const menuPrice = menu?.find((m) => m.id === item.menuId)?.price || 0;
+  //     return sum + Number(item.amount || 0) * menuPrice;
+  //   }, 0);
+  // };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (form.formState.isDirty) {
-        await axios.post(`/api/order?date=${formattedDate}`, values);
+        if (mode === "CREATE") {
+          await axios.post(`/api/order?date=${formattedDate}`, values);
 
-        const orderKey = `/api/order?date=${formattedDate}`;
-        const optimisticTotalPrice = calculateOptimisticTotal(
-          values.orderItems,
-        );
-        const optimisticOrderData: Order = {
-          id: mode === "EDIT" ? (values.id as string) : `temp-${Date.now()}`,
-          customerName: values.customerName,
-          delivery: values.delivery,
-          note: values.note,
-          payment: values.payment,
-          status: values.status,
-          date: formattedDate,
-          totalPrice: optimisticTotalPrice,
-          orderItems: values.orderItems
-            .map((item) => ({
-              menuId: item.menuId,
-              amount: Number(item.amount || 0),
-              menu: {
-                name: item.menuName,
-                price: menu?.find((m) => m.id === item.menuId)?.price || 0,
-              },
-            }))
-            .filter((item) => item.amount > 0),
-        };
-        mutate<Order[]>(
-          orderKey,
-          (currentOrders = []) => {
-            if (mode === "CREATE") {
-              return [...currentOrders, optimisticOrderData];
-            } else {
-              return currentOrders.map((o) =>
-                o.id === values.id ? { ...o, ...optimisticOrderData } : o,
-              );
-            }
-          },
-          false,
-        );
+          form.reset(defaultValues);
+
+          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
+        }
+
+        if (mode === "EDIT") {
+          const formatOrderItems = initialData.orderItems.map((orderItem) => ({
+            ...orderItem,
+
+            id: orderItem.id || "",
+          }));
+
+          const removeInitialZero = formatOrderItems.filter(
+            (orderItem) => !!orderItem.amount,
+          );
+
+          const formatValues = values.orderItems.map((orderItem) => ({
+            ...orderItem,
+
+            id: orderItem.id || "",
+          }));
+
+          const removeZeroValues = formatValues.filter(
+            (orderItem) => !!orderItem.amount,
+          );
+
+          const findDifference = easyDiff(removeInitialZero, removeZeroValues);
+
+          const patchData = {
+            id: values.id,
+
+            customerName: values.customerName,
+
+            delivery: values.delivery,
+
+            note: values.note,
+
+            payment: values.payment,
+
+            status: values.status,
+
+            orderItems: findDifference,
+          };
+
+          await axios.patch(`/api/order?id=${values.id}`, patchData);
+
+          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
+        }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
-      console.error(error);
+
+      console.log(error);
     } finally {
-      await Promise.all([
-        mutate(`/api/order?date=${formattedDate}`),
-        mutate(`/api/dashboard?date=${formattedDate}`),
-      ]);
+      await mutate(`/api/order?date=${formattedDate}`);
+
+      await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   }
 
@@ -207,7 +220,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                   <FormControl>
                     <div>
                       <Combobox
-                        items={customerNameList}
+                        items={customers?.map((c) => c.name)}
                         {...field}
                         value={field.value || ""}
                         onValueChange={(value) => {

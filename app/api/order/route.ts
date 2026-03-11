@@ -69,7 +69,6 @@ export async function PATCH(req: NextRequest) {
       menuId: orderItem.menuId,
       amount: orderItem.amount,
     }));
-
     await prisma.order.update({
       where: {
         id,

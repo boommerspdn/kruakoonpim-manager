@@ -30,6 +30,7 @@ export interface PreviewOrder {
   statusColor: string;
   delivery: boolean;
   note: string;
+  sortOrder: number;
   orderItems: PreviewOrderItem[];
   matchResult?: MatchResult;
   status: OrderStatus;

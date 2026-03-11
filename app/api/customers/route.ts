@@ -1,3 +1,4 @@
+import { CustomerFormValues } from "@/app/types/customer";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -22,8 +23,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body: { name: string; aliases?: string[] } = await req.json();
-    const { name, aliases = [] } = body;
+    const body: CustomerFormValues = await req.json();
+
+    const { name, aliases = [], disableAliases } = body;
 
     if (!name || typeof name !== "string") {
       return NextResponse.json(
@@ -36,6 +38,7 @@ export async function POST(req: Request) {
       data: {
         name: name.trim(),
         aliases: aliases,
+        disableAliases: disableAliases,
       },
     });
 
