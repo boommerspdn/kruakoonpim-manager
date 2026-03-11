@@ -223,8 +223,8 @@ export default function PreviewPage() {
 
       console.log(orders);
 
-      // sessionStorage.removeItem("geminiPreviewData");
-      // router.push("/");
+      sessionStorage.removeItem("geminiPreviewData");
+      router.push("/");
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการเชื่อมต่อ";
