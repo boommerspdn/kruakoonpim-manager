@@ -7,10 +7,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Input } from "./ui/input";
 import imageCompression from "browser-image-compression";
+import { StreamingContainer } from "./streaming-container";
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -21,11 +22,12 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   open,
   onOpenChange,
 }) => {
-  const [images, setImages] = React.useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = React.useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [chunks, setChunks] = useState("");
   const router = useRouter();
 
   const handleSubmit = async () => {
@@ -55,18 +57,27 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
       compressedImages.forEach((img) => formData.append("images", img));
 
-      const geminiRes = await fetch("/api/gemini-upload", {
+      const response = await fetch("/api/gemini-upload", {
         method: "POST",
         body: formData,
       });
-
-      if (!geminiRes.ok) throw new Error("Gemini API Error");
-      const rawResult = await geminiRes.json();
-
-      sessionStorage.setItem("geminiPreviewData", JSON.stringify(rawResult));
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let result = "";
+      while (true) {
+        const { done, value } = await reader!.read();
+        if (done) {
+          const orderJSON = JSON.parse(result);
+          localStorage.setItem("geminiPreviewData", JSON.stringify(orderJSON));
+          break;
+        }
+        const chunk = decoder.decode(value);
+        result += chunk;
+        setChunks(result);
+      }
 
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
-      router.push("/preview");
+      // router.push("/preview");
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Unknown error") ||
@@ -96,7 +107,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[500px]">
         <DialogHeader>
           <DialogTitle>อัปโหลดรูปภาพเมนู</DialogTitle>
         </DialogHeader>
@@ -158,8 +169,11 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
             </div>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="w-full">
           <div className="flex flex-col w-full gap-2">
+            <div className="w-full">
+              <StreamingContainer content={chunks} />
+            </div>
             {error && <span className="text-red-500 text-sm">{error}</span>}
             <Button
               onClick={handleSubmit}

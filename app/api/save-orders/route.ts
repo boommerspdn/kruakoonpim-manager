@@ -1,4 +1,4 @@
-import { PreviewMenu, PreviewOrder } from "@/app/(protected)/preview/page";
+import { PreviewMenu, PreviewOrder } from "@/app/(protected)/preview/_page";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
