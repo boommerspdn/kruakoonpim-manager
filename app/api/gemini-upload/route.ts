@@ -67,8 +67,8 @@ export async function POST(req: NextRequest) {
     1. ให้ใช้ "menuId" ให้ตรงกับ "id" ที่คุณสร้างไว้ในส่วนของ menus 
     2. ให้ใส่เฉพาะเมนูที่ลูกค้าสั่ง (จำนวนมากกว่า 0) เท่านั้น`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+    const response = await ai.models.generateContentStream({
+      model: "gemini-2.5-flash",
       contents: createUserContent([prompt, ...imageParts]),
       config: {
         temperature: 0,
@@ -77,20 +77,31 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (!response.text) {
-      throw new Error("AI returned an empty response");
-    }
-    const result = JSON.parse(response.text) as GeminiResponse;
-    if (result.orders && Array.isArray(result.orders)) {
-      result.orders = result.orders.map((order) => ({
-        ...order,
-        customerName: formatOrderPrefix(order.customerName),
-      }));
-    }
-    return NextResponse.json<ApiResponse>(
-      { success: true, data: result },
-      { status: 200 },
-    );
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of response) {
+            const content = chunk.text;
+            console.log(content);
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+
+    return new NextResponse(stream, {
+      headers: {
+        "content-type": "text/event-stream",
+        "cache-control": "no-cache",
+        connection: "keep-alive",
+      },
+    });
   } catch (error) {
     console.error(error); // Log the error for server-side debugging
 

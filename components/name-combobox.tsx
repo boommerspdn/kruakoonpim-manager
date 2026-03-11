@@ -1,4 +1,4 @@
-import { PreviewOrder } from "@/app/(protected)/preview/page";
+import { PreviewOrder } from "@/app/(protected)/preview/_page";
 import { memo, useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import {
