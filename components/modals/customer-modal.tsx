@@ -12,7 +12,6 @@ import { DialogClose, DialogFooter } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import Modal from "../ui/modal";
-import { Switch } from "../ui/switch";
 
 export const CustomerModal = () => {
   const customerModal = useCustomerModal();
@@ -21,9 +20,7 @@ export const CustomerModal = () => {
 
   const [name, setName] = useState(initialData?.name || "");
   const [aliases, setAliases] = useState(aliasesString);
-  const [disableAliases, setDisableAliases] = useState(
-    initialData?.disableAliases || false,
-  );
+
   const [isLoading, setIsLoading] = useState(false);
 
   const currentId = initialData?.id;
@@ -31,7 +28,6 @@ export const CustomerModal = () => {
   useEffect(() => {
     setName(initialData?.name || "");
     setAliases(aliasesString || "");
-    setDisableAliases(initialData?.disableAliases || false);
   }, [customerModal.data]);
 
   const onSubmit = async (data: CustomerFormValues) => {
@@ -81,16 +77,6 @@ export const CustomerModal = () => {
             // onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
           />
         </div>
-        <div className="flex gap-2">
-          <Switch
-            id={"edit-aliases"}
-            checked={disableAliases}
-            onCheckedChange={() => setDisableAliases(!disableAliases)}
-          />
-          <Label htmlFor="edit-aliases">
-            ปิดใช้งานการบันทึกคำที่ AI มักอ่านผิดอัตโนมัติ
-          </Label>
-        </div>
       </div>
       <DialogFooter>
         <DialogClose asChild>
@@ -104,7 +90,6 @@ export const CustomerModal = () => {
                 aliases !== ""
                   ? aliases?.split(",").map((item) => item.trim())
                   : [],
-              disableAliases,
             });
           }}
           disabled={isLoading}

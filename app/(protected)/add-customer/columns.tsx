@@ -21,7 +21,13 @@ export const columns: ColumnDef<PublicCustomer>[] = [
       const aliases = row.original.aliases;
 
       if (aliases.length > 0) {
-        return aliases.map((a) => <Badge key={a}>{a}</Badge>);
+        return (
+          <div className="flex flex-wrap gap-1">
+            {aliases.map((a, index) => (
+              <Badge key={index}>{a}</Badge>
+            ))}
+          </div>
+        );
       }
     },
   },

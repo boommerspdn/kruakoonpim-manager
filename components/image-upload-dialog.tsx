@@ -1,3 +1,5 @@
+import { StoreMenu } from "@/app/types/menu";
+import { StoreOrder } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -6,12 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import { Input } from "./ui/input";
+import { formatOrderPrefix } from "@/lib/utils";
 import imageCompression from "browser-image-compression";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 import { StreamingContainer } from "./streaming-container";
+import { Input } from "./ui/input";
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -39,11 +42,12 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       const formData = new FormData();
 
       const compressionOptions = {
-        maxSizeMB: 1,
+        maxSizeMB: 0.2,
         maxWidthOrHeight: 2048,
         useWebWorker: true,
         fileType: "image/webp",
-        initialQuality: 0.8,
+        initialQuality: 0.6,
+        alwaysKeepResolution: true,
       };
 
       const compressedImagesPromises = images.map(async (img) => {
@@ -56,19 +60,38 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       const compressedImages = await Promise.all(compressedImagesPromises);
 
       compressedImages.forEach((img) => formData.append("images", img));
+      console.log("[LOG]: Compression completed");
 
       const response = await fetch("/api/gemini-upload", {
         method: "POST",
         body: formData,
       });
+      console.log("[LOG]: Post completed");
+      setChunks("AI กำลังประมวลผลข้อมูลภาพ...");
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let result = "";
       while (true) {
         const { done, value } = await reader!.read();
         if (done) {
-          const orderJSON = JSON.parse(result);
-          localStorage.setItem("geminiPreviewData", JSON.stringify(orderJSON));
+          const orderJSON: {
+            menus: StoreMenu[];
+            orders: StoreOrder[];
+          } = JSON.parse(result);
+
+          const formattedData = {
+            ...orderJSON,
+            orders: orderJSON.orders.map((order: StoreOrder) => ({
+              ...order,
+              customerName: formatOrderPrefix(order.customerName),
+              inputName: formatOrderPrefix(order.customerName),
+            })),
+          };
+
+          sessionStorage.setItem(
+            "geminiPreviewData",
+            JSON.stringify(formattedData),
+          );
           break;
         }
         const chunk = decoder.decode(value);
@@ -77,7 +100,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       }
 
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
-      // router.push("/preview");
+      router.push("/preview");
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Unknown error") ||
@@ -107,7 +130,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[500px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>อัปโหลดรูปภาพเมนู</DialogTitle>
         </DialogHeader>

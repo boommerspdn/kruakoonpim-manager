@@ -1,3 +1,6 @@
+const CACHE_NAME = "kruakoonpim-cache-v1";
+const OFFLINE_URL = "/offline.html";
+
 self.addEventListener("push", function (event) {
   if (event.data) {
     const data = event.data.json();
@@ -16,7 +19,25 @@ self.addEventListener("push", function (event) {
 });
 
 self.addEventListener("notificationclick", function (event) {
-  console.log("Notification click received.");
   event.notification.close();
-  event.waitUntil(clients.openWindow("<https://your-website.com>"));
+  event.waitUntil(clients.openWindow("https://your-website.com"));
+});
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.add(new Request(OFFLINE_URL, { cache: "reload" }));
+    }),
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(OFFLINE_URL);
+      }),
+    );
+  }
 });

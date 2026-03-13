@@ -18,7 +18,6 @@ export default function CustomerManager() {
     fallbackData: [],
   });
 
-  // const { isOpen, toggleModal } = useCustomerDialogState();
   const onOpen = useCustomerModal((state) => state.onOpen);
   const setData = useCustomerModal((state) => state.setData);
 
@@ -33,7 +32,6 @@ export default function CustomerManager() {
         </div>
       </div>
       <CustomerModal />
-      {/* <CustomerForm isOpen={isOpen} toggleModal={toggleModal} /> */}
       <Button
         onClick={() => {
           onOpen();

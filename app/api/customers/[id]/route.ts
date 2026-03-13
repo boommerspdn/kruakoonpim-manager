@@ -52,7 +52,6 @@ export async function PATCH(
       data: {
         name: name || undefined,
         aliases: aliases || undefined,
-        disableAliases: body.disableAliases || undefined,
       },
     });
 

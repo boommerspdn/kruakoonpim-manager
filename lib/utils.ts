@@ -195,3 +195,16 @@ export const formatOrderPrefix = (name: string) => {
       return `${prefix.toUpperCase()}'${firstChar}`;
     });
 };
+
+export function getRawName(name: string): string {
+  if (!name) return "";
+
+  const prefixRegex = /^([pnkPNK]')(.+)$/;
+  const match = name.trim().match(prefixRegex);
+
+  if (match) {
+    return match[2].trim();
+  }
+
+  return name.trim();
+}

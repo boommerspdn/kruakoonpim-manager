@@ -1,4 +1,5 @@
-import { PreviewMenu, PreviewOrder } from "@/app/(protected)/preview/_page";
+import { StoreMenu } from "@/app/types/menu";
+import { StoreOrder } from "@/app/types/order";
 import prisma from "@/lib/prisma";
 import { getDayRange } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,8 +9,8 @@ export async function POST(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const body = await req.json();
-    const menus: PreviewMenu[] = body.menus;
-    const orders: PreviewOrder[] = body.orders;
+    const menus: StoreMenu[] = body.menus;
+    const orders: StoreOrder[] = body.orders;
     const date = searchParams.get("date");
 
     if (!date) throw new Error("Date was not included in the params");
@@ -38,47 +39,52 @@ export async function POST(req: NextRequest) {
     });
 
     for (const order of orders) {
-      const uuid = uuidv4();
-      if (!order.finalCustomerId) {
-        await prisma.customer.create({
+      const inputName = order.inputName.trim();
+      const aiDetectedName = order.customerName.trim();
+
+      const existingCustomer = await prisma.customer.findFirst({
+        where: {
+          name: {
+            equals: inputName,
+            mode: "insensitive",
+          },
+        },
+        select: { id: true, name: true, aliases: true },
+      });
+
+      let customer;
+
+      if (existingCustomer) {
+        const alreadyHasAlias =
+          existingCustomer.aliases.includes(aiDetectedName);
+        const isMainName = existingCustomer.name === aiDetectedName;
+
+        customer = await prisma.customer.update({
+          where: { id: existingCustomer.id },
           data: {
-            id: uuid,
-            name: order.inputName,
+            name: inputName,
             aliases:
-              order.customerName !== order.inputName
-                ? [order.customerName]
+              !alreadyHasAlias && !isMainName && aiDetectedName !== inputName
+                ? { push: aiDetectedName }
                 : undefined,
           },
         });
       } else {
-        const customer = await prisma.customer.findUnique({
-          where: { id: order.finalCustomerId },
+        customer = await prisma.customer.create({
+          data: {
+            id: uuidv4(),
+            name: inputName,
+            aliases: aiDetectedName !== inputName ? [aiDetectedName] : [],
+          },
         });
-
-        if (customer && !customer.disableAliases) {
-          const shouldPushAlias =
-            order.customerName !== order.inputName &&
-            !customer.aliases.includes(order.customerName);
-
-          await prisma.customer.update({
-            where: { id: order.finalCustomerId },
-            data: {
-              name: order.inputName,
-              aliases: shouldPushAlias
-                ? { push: order.customerName }
-                : undefined,
-            },
-          });
-        }
       }
 
       await prisma.order.create({
         data: {
-          customerId: order.finalCustomerId ? order.finalCustomerId : uuid,
+          customerId: customer.id,
           delivery: order.delivery,
           note: order.note,
           payment: order.payment,
-          status: order.status,
           date: new Date(date),
           sortOrder: order.sortOrder || 0,
           orderItems: {
@@ -94,136 +100,6 @@ export async function POST(req: NextRequest) {
         },
       });
     }
-
-    // const findNewCustomer = orders.filter((o) => !o.finalCustomerId);
-    // for (const order of findNewCustomer) {
-    //   await prisma.customer.create({
-    //     include: {
-    //       orders: { include: { orderItems: true } },
-    //     },
-    //     data: {
-    //       name: order.inputName.trim(),
-    //       aliases:
-    //         order.customerName !== order.inputName
-    //           ? [order.customerName.trim()]
-    //           : undefined,
-    //       orders: {
-    //         createMany: {
-    //           data: findNewCustomer.map((o) => {
-    //             return {
-    //               delivery: o.delivery,
-    //               note: o.note,
-    //               payment: o.payment,
-    //               status: o.status,
-    //               date: new Date(date),
-    //               sortOrder: o.sortOrder || 0,
-    //               orderItems: o.orderItems.map((item) => {
-    //                 const newId = menuIdMap.get(item.menuId.toString()) || "";
-    //                 return {
-    //                   menuId: newId,
-    //                   amount: item.amount || 0,
-    //                 };
-    //               }),
-    //             };
-    //           }),
-    //         },
-    //       },
-    //     },
-    //   });
-    // }
-
-    // await prisma.$transaction(
-    //   async (tx: Prisma.TransactionClient) => {
-    //     const todayMenu = await tx.menu.findFirst({
-    //       where: { date: { gte: start, lte: end } },
-    //     });
-
-    //     if (todayMenu) {
-    //       await Promise.all([
-    //         tx.menu.deleteMany({ where: { date: { gte: start, lte: end } } }),
-    //         tx.order.deleteMany({ where: { date: { gte: start, lte: end } } }),
-    //       ]);
-    //     }
-
-    //     const createdMenus = await Promise.all(
-    //       menus.map((m, index: number) =>
-    //         tx.menu.create({
-    //           data: {
-    //             name: m.name,
-    //             price: m.price || 0,
-    //             date: new Date(date),
-    //             amount: m.amount || 0,
-    //             sortOrder: index || 0,
-    //           },
-    //         }),
-    //       ),
-    //     );
-
-    //     createdMenus.forEach((newMenu, index) => {
-    //       menuIdMap.set(menus[index].id.toString(), newMenu.id.toString());
-    //     });
-
-    //     await Promise.all(
-    //       orders.map(async (order) => {
-    //         let currentCustomerId = order.finalCustomerId;
-
-    //         if (!currentCustomerId) {
-    //           const newCustomer = await tx.customer.create({
-    //             data: {
-    //               name: order.inputName.trim(),
-    //               aliases: [
-    //                 order.customerName !== order.inputName
-    //                   ? order.customerName.trim()
-    //                   : "",
-    //               ],
-    //             },
-    //           });
-    //           currentCustomerId = newCustomer.id;
-    //         } else {
-    //           if (order.customerName !== order.inputName) {
-    //             const cleanAlias = order.customerName.trim();
-    //             const findScalar = await tx.customer.findFirst({
-    //               where: {
-    //                 OR: [
-    //                   { name: cleanAlias },
-    //                   { aliases: { has: cleanAlias } },
-    //                 ],
-    //               },
-    //               select: { id: true },
-    //             });
-
-    //             if (!findScalar) {
-    //               await tx.customer.update({
-    //                 where: { id: currentCustomerId },
-    //                 data: { aliases: { push: order.customerName.trim() } },
-    //               });
-    //             }
-    //           }
-    //         }
-
-    //         await tx.order.create({
-    //           data: {
-    //             customerId: currentCustomerId,
-    //             note: order.note || null,
-    //             delivery: order.delivery || false,
-    //             date: new Date(date),
-    //             sortOrder: order.sortOrder || 0,
-    //             orderItems: {
-    //               create: order.orderItems.map((item) => ({
-    //                 menuId: menuIdMap.get(item.menuId.toString()) || "",
-    //                 amount: item.amount || 0,
-    //               })),
-    //             },
-    //           },
-    //         });
-    //       }),
-    //     );
-    //   },
-    //   {
-    //     maxWait: 60000,
-    //     timeout: 60000,
-    //   },
-    // );
 
     return NextResponse.json(
       {

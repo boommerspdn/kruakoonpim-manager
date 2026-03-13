@@ -10,6 +10,15 @@ export const inputMenuSchema = z.object({
 
 export type CreateMenu = z.infer<typeof inputMenuSchema>;
 
+export const storeMenuSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "จำเป็นต้องใส่ชื่อเมนู"),
+  amount: z.coerce.number().min(1),
+  price: z.coerce.number().min(1),
+  sortOrder: z.coerce.number().optional(),
+});
+export type StoreMenu = z.infer<typeof storeMenuSchema>;
+
 export const formMenuSchema = z.object({
   menu: z.array(inputMenuSchema),
 });
