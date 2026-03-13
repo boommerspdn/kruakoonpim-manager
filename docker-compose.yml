@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: 
@@ -11,18 +9,34 @@ services:
         - DATABASE_URL=${DATABASE_URL}
     container_name: kruakoonpim-manager
     ports:
-      - "3000:3000"
-    # The 'args' block that was here has been removed because it belongs inside 'build'
+    - "3000:3000"
+    restart: unless-stopped
     env_file:
       - .env
     environment:
-      # This overrides the .env value so the app talks to the Docker DB container
       - HOSTNAME=0.0.0.0
+      - PORT=3000
       - DATABASE_URL=***REMOVED***
     networks:
-      - app-network
+      - app-tier
+      - db-tier   # <--- Added back so Next.js can see the database
+  zrok:
+    image: openziti/zrok
+    container_name: zrok-tunnel
+    restart: unless-stopped
+    volumes:
+      - C:/Users/Boomm/.zrok:/home/ziggy/.zrok:ro
+    environment:
+      - ZROK_NAME=${ZROK_RESERVED_NAME}
+    entrypoint: zrok
+    # This now uses the variable, hiding the actual name from this file
+    command: share reserved ${ZROK_RESERVED_NAME}
+    networks:
+      - app-tier
 
 networks:
-  app-network:
+  app-tier:
+    driver: bridge
+  db-tier:        # <--- Re-linked your external database network
     external: true
     name: kruakoonpim-manager_db

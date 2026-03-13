@@ -2,6 +2,8 @@ import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import isEqual from "lodash/isEqual";
+import { StoreMenu } from "@/app/types/menu";
+import { StoreOrder } from "@/app/types/order";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -207,4 +209,34 @@ export function getRawName(name: string): string {
   }
 
   return name.trim();
+}
+
+type StoreMenuOrder = {
+  menus: StoreMenu[];
+  orders: StoreOrder[];
+};
+
+export function getMenuOrderSummary(data: StoreMenuOrder) {
+  const orderTallies: Record<string, number> = {};
+
+  data.orders.forEach((order) => {
+    order.orderItems.forEach((item) => {
+      if (item.amount > 0) {
+        orderTallies[item.menuId] =
+          (orderTallies[item.menuId] || 0) + item.amount;
+      }
+    });
+  });
+
+  const summary = data.menus.map((menu) => {
+    const totalOrdered = orderTallies[menu.id] || 0;
+
+    return {
+      menuId: menu.id,
+      name: menu.name,
+      totalOrdered: totalOrdered,
+    };
+  });
+
+  return summary;
 }
