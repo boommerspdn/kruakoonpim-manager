@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { Loader2, Delete } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Delete, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 export function LoginForm({
@@ -21,8 +20,6 @@ export function LoginForm({
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
   const PIN_LENGTH = 6; // เปลี่ยนเป็น 4 ได้ถ้าอยากได้รหัส 4 หลัก
 
   // แก้ไขรับ parameter passcode โดยตรงเพื่อความชัวร์ตอน auto-submit
@@ -32,7 +29,7 @@ export function LoginForm({
 
     try {
       await axios.post("/api/login", { passcode: currentPasscode });
-      router.push("/");
+      window.location.href = "/";
     } catch (error: unknown) {
       console.log(error);
       setError("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");

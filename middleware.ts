@@ -25,7 +25,6 @@ export async function middleware(req: NextRequest) {
 
   if (!session && !pathname.startsWith("/login")) {
     const loginUrl = new URL("/login", req.url);
-
     return NextResponse.redirect(loginUrl);
   }
 
