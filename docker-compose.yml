@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: .
+      args:
+        - GEMINI_API_KEY=${GEMINI_API_KEY}
+        - LOGIN_PASSCODE=${LOGIN_PASSCODE}
+        - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+        - DATABASE_URL=${DATABASE_URL}
+    container_name: kruakoonpim-manager
+    ports:
+      - "3000:3000"
+    # The 'args' block that was here has been removed because it belongs inside 'build'
+    env_file:
+      - .env
+    environment:
+      # This overrides the .env value so the app talks to the Docker DB container
+      - HOSTNAME=0.0.0.0
+      - DATABASE_URL=***REMOVED***
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+    name: kruakoonpim-manager_db

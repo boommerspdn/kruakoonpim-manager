@@ -24,9 +24,9 @@ export async function middleware(req: NextRequest) {
   }
 
   if (!session && !pathname.startsWith("/login")) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const loginUrl = new URL("/login", req.url);
+
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();

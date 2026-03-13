@@ -1,87 +1,79 @@
-# ============================================
-# Global Arguments
-# ============================================
-ARG NODE_VERSION=24.13.0-slim
+FROM node:18-alpine AS base
 
-# ============================================
-# Stage 1: Dependencies Installation Stage
-# ============================================
-FROM node:${NODE_VERSION} AS dependencies
-
-# Install OpenSSL for Prisma Engine compatibility on slim images
-RUN apt-get update -y && apt-get install -y openssl
-
+# Stage 1: Install dependencies
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Copy package files and Prisma schema
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 COPY prisma ./prisma/
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
-RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    if [ -f package-lock.json ]; then \
-    npm ci --no-audit --no-fund; \
-    elif [ -f yarn.lock ]; then \
-    corepack enable yarn && yarn install --frozen-lockfile --production=false; \
-    elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
-    else \
-    echo "No lockfile found." && exit 1; \
+# Install dependencies based on the preferred package manager
+RUN \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+    else echo "Lockfile not found." && exit 1; \
     fi
 
-RUN npx prisma generate
-
-# ============================================
-# Stage 2: Build Next.js application
-# ============================================
-FROM node:${NODE_VERSION} AS builder
-
+# Stage 2: Build the application
+FROM base AS builder
 WORKDIR /app
-
-# Redeclare ONLY the ARGs needed for Next.js to compile successfully.
-# (If your build step fetches data from the DB, keep DATABASE_URL here)
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-
-COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN if [ -f package-lock.json ]; then \
-    npm run build; \
-    elif [ -f yarn.lock ]; then \
-    corepack enable yarn && yarn build; \
-    elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm build; \
-    else \
-    echo "No lockfile found." && exit 1; \
+ARG GEMINI_API_KEY
+ARG LOGIN_PASSCODE
+ARG INTERNAL_API_KEY
+ARG DATABASE_URL
+
+ENV GEMINI_API_KEY=$GEMINI_API_KEY
+ENV LOGIN_PASSCODE=$LOGIN_PASSCODE
+ENV INTERNAL_API_KEY=$INTERNAL_API_KEY
+ENV DATABASE_URL=$DATABASE_URL
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build Next.js app
+RUN \
+    if [ -f yarn.lock ]; then yarn run build; \
+    elif [ -f package-lock.json ]; then npm run build; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+    else echo "Lockfile not found." && exit 1; \
     fi
 
-# ============================================
-# Stage 3: Run Next.js application
-# ============================================
-FROM node:${NODE_VERSION} AS runner
-
-# Install OpenSSL in the runner so Prisma can query the DB at runtime
-RUN apt-get update -y && apt-get install -y openssl
-
+# Stage 3: Production server
+FROM base AS runner
 WORKDIR /app
 
-# Set non-secret production environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-# Note: GEMINI_API_KEY, DATABASE_URL, etc. are INTENTIONALLY left out here.
-# Docker Compose will inject them securely at runtime via env_file!
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY --from=builder --chown=node:node /app/public ./public
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
+COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
 RUN mkdir .next
-RUN chown node:node .next
+RUN chown nextjs:nodejs .next
 
-COPY --from=builder --chown=node:node /app/.next/standalone ./
-COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-USER node
+# IMPORTANT: Copy the generated Prisma engine/client to the standalone node_modules
+# Standalone tracing often misses the Prisma binaries, this ensures they are present.
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+
+USER nextjs
+
 EXPOSE 3000
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
 
+# server.js is created by next build from the standalone output
 CMD ["node", "server.js"]
