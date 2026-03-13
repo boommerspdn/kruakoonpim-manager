@@ -20,19 +20,6 @@ services:
     networks:
       - app-tier
       - db-tier   # <--- Added back so Next.js can see the database
-  zrok:
-    image: openziti/zrok
-    container_name: zrok-tunnel
-    restart: unless-stopped
-    volumes:
-      - C:/Users/Boomm/.zrok:/home/ziggy/.zrok:ro
-    environment:
-      - ZROK_NAME=${ZROK_RESERVED_NAME}
-    entrypoint: zrok
-    # This now uses the variable, hiding the actual name from this file
-    command: share reserved ${ZROK_RESERVED_NAME}
-    networks:
-      - app-tier
 
 networks:
   app-tier:
