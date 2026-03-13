@@ -43,3 +43,5 @@ next-env.d.ts
 /app/generated/prisma
 docker-compose.yml
 Dockerfile
+zrok-out.log
+zrok-err.log
