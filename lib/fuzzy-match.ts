@@ -1,49 +1,67 @@
-import stringSimilarity from "string-similarity";
 import { Customer } from "@/app/types/customer";
+import { formatOrderPrefix, getRawName } from "./utils";
+import { StoreMenu } from "@/app/types/menu";
+import { StoreOrder } from "@/app/types/order";
 
-const normalizeName = (name: string) =>
-  name.replace(/[\s.']/g, "").toLowerCase();
-
-export type MatchResult = {
-  suggestedCustomer: Customer | null;
-  confidence: number;
-  isExactMatch: boolean;
+type StoreMenuOrder = {
+  menus: StoreMenu[];
+  orders: StoreOrder[];
 };
 
-export function findBestCustomerMatch(
-  aiName: string,
+export const matchAiNamesWithCustomers = (
   customers: Customer[],
-  threshold = 0.5,
-): MatchResult {
-  if (!aiName || !customers.length) {
-    return { suggestedCustomer: null, confidence: 0, isExactMatch: false };
-  }
+  aiDetectedNames: string[],
+): Map<string, string[]> => {
+  const matchMap = new Map<string, string[]>();
 
-  const cleanAiName = normalizeName(aiName);
-  const nameToCustomerMap = new Map<string, Customer>();
-  const allCleanNames: string[] = [];
+  for (const aiName of aiDetectedNames) {
+    const matchesForThisAiName: string[] = [];
+    const rawAiName = getRawName(aiName).toLowerCase();
 
-  for (const customer of customers) {
-    const names = [customer.name, ...customer.aliases];
+    for (const customer of customers) {
+      const isAliasMatch = customer.aliases.some(
+        (alias) => getRawName(alias).toLowerCase() === rawAiName,
+      );
 
-    for (const name of names) {
-      const cleanName = normalizeName(name);
-      allCleanNames.push(cleanName);
-      nameToCustomerMap.set(cleanName, customer);
+      const rawDbName = getRawName(customer.name).toLowerCase();
+      const isNameMatch = rawDbName === rawAiName;
+
+      if (isAliasMatch || isNameMatch) {
+        matchesForThisAiName.push(customer.name);
+      }
     }
+
+    matchMap.set(aiName, matchesForThisAiName);
   }
 
-  const { bestMatch } = stringSimilarity.findBestMatch(
-    cleanAiName,
-    allCleanNames,
-  );
+  return matchMap;
+};
 
-  return {
-    suggestedCustomer:
-      bestMatch.rating >= threshold
-        ? nameToCustomerMap.get(bestMatch.target) || null
-        : null,
-    confidence: bestMatch.rating,
-    isExactMatch: bestMatch.rating > 0.9,
+export const matchRawNames = (
+  customers: Customer[],
+  menusOrders: StoreMenuOrder,
+): StoreMenuOrder => {
+  const formattedData: StoreMenuOrder = {
+    ...menusOrders,
+    orders: menusOrders.orders.map((order) => {
+      const rawAiName = getRawName(order.customerName).toLowerCase();
+
+      const foundCustomer = customers.find((customer) => {
+        const rawDbName = getRawName(customer.name).toLowerCase();
+        const isNameMatch = rawDbName === rawAiName;
+
+        return isNameMatch;
+      });
+
+      const finalName = foundCustomer ? foundCustomer.name : order.customerName;
+
+      return {
+        ...order,
+        customerName: formatOrderPrefix(finalName),
+        inputName: formatOrderPrefix(finalName),
+      };
+    }),
   };
-}
+
+  return formattedData;
+};

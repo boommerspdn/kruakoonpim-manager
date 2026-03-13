@@ -15,12 +15,11 @@ datasource db {
 }
 
 model Customer {
-  id             String   @id @default(uuid())
-  name           String   @unique
-  aliases        String[] @default([])
-  disableAliases Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @unique
+  aliases   String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   orders Order[]
 }

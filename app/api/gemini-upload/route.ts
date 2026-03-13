@@ -1,7 +1,9 @@
-import { ApiResponse, GeminiResponse } from "@/app/types/gemini";
 import { responseSchema } from "@/lib/gemini-response-type";
-import { formatOrderPrefix } from "@/lib/utils";
-import { createUserContent, GoogleGenAI } from "@google/genai";
+import {
+  createPartFromUri,
+  createUserContent,
+  GoogleGenAI,
+} from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({});
@@ -25,19 +27,20 @@ export async function POST(req: NextRequest) {
       throw new Error("files size combined are too large");
     }
 
-    const imageParts = await Promise.all(
-      files.map(async (file) => {
-        const arrayBuffer = await file.arrayBuffer();
-        const base64Data = Buffer.from(arrayBuffer).toString("base64");
-
-        return {
-          inlineData: {
-            mimeType: file.type,
-            data: base64Data,
-          },
-        };
-      }),
+    const uploadPromises = files.map(async (file) => {
+      return ai.files.upload({
+        file: file,
+        config: {
+          displayName: file.name,
+          mimeType: file.type,
+        },
+      });
+    });
+    const uploadedFiles = await Promise.all(uploadPromises);
+    const fileParts = uploadedFiles.map((file) =>
+      createPartFromUri(file.uri as string, file.mimeType as string),
     );
+    console.log("[LOG]: Upload completed");
 
     const prompt = `คุณคือผู้เชี่ยวชาญด้าน OCR (Optical Character Recognition) หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON 
     กฎการอ่านและสกัดข้อมูล (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด):
@@ -67,9 +70,12 @@ export async function POST(req: NextRequest) {
     1. ให้ใช้ "menuId" ให้ตรงกับ "id" ที่คุณสร้างไว้ในส่วนของ menus 
     2. ให้ใส่เฉพาะเมนูที่ลูกค้าสั่ง (จำนวนมากกว่า 0) เท่านั้น`;
 
+    console.log(
+      `[Start] Request initiated at: ${new Date().toLocaleTimeString()}`,
+    );
     const response = await ai.models.generateContentStream({
-      model: "gemini-2.5-flash",
-      contents: createUserContent([prompt, ...imageParts]),
+      model: "gemini-3.1-pro-preview",
+      contents: createUserContent([prompt, ...fileParts]),
       config: {
         temperature: 0,
         responseMimeType: "application/json",
@@ -103,7 +109,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error(error); // Log the error for server-side debugging
+    console.error(error);
 
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 400 });

@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   try {
     const body: CustomerFormValues = await req.json();
 
-    const { name, aliases = [], disableAliases } = body;
+    const { name, aliases = [] } = body;
 
     if (!name || typeof name !== "string") {
       return NextResponse.json(
@@ -38,7 +38,6 @@ export async function POST(req: Request) {
       data: {
         name: name.trim(),
         aliases: aliases,
-        disableAliases: disableAliases,
       },
     });
 

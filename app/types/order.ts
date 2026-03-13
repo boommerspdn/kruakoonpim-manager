@@ -95,3 +95,16 @@ export const rowSwapBodySchema = z.object({
 });
 
 export type RowSwapBody = z.infer<typeof rowSwapBodySchema>;
+
+export const storeOrderSchema = z.object({
+  id: z.string(),
+  customerName: z.string(),
+  inputName: z.string().min(1, { message: "ชื่อต้องมีมากกว่า 1 ตัวอักษร" }),
+  delivery: z.boolean(),
+  note: z.string().optional().nullish(),
+  payment: paymentSchema,
+  orderItems: z.array(z.object({ menuId: z.string(), amount: z.number() })),
+  sortOrder: z.number().optional(),
+});
+
+export type StoreOrder = z.infer<typeof storeOrderSchema>;
