@@ -26,7 +26,9 @@ const FinancialItem = ({
       </div>
       <div className="flex flex-col text-start md:text-end col-span-4 xl:col-span-4 items-center md:items-start md:border-e">
         <span className="text-muted-foreground text-nowrap">{title}</span>
-        <span className="text-4xl font-medium">{value}</span>
+        <span className="text-2xl md:text-3xl lg:text-4xl font-medium">
+          {value}
+        </span>
       </div>
     </div>
   );
@@ -34,7 +36,7 @@ const FinancialItem = ({
 
 const FinancialSection = ({ data }: FinancialSectionProps) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 md:gap-4 border shadow-md rounded-2xl md:py-6 2xl:p-2 p-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 md:gap-2 border shadow-md rounded-2xl md:py-6 2xl:p-2 p-3">
       <FinancialItem title="ยอดขายวันนี้" value={`฿${data?.total}`}>
         <PiggyBank className="w-full h-auto text-primary" />
       </FinancialItem>

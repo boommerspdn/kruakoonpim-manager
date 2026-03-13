@@ -425,8 +425,12 @@ export function DataTable({
         />
 
         <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-            <TabsList className="w-full">
+          <Tabs
+            value={selectedTab}
+            onValueChange={setSelectedTab}
+            className="w-full"
+          >
+            <TabsList className="w-full justify-start h-auto p-1 overflow-x-auto overflow-y-hidden whitespace-nowrap custom-scrollbar">
               <TabsTrigger value="all">
                 ทั้งหมด <Badge>{allCount}</Badge>
               </TabsTrigger>

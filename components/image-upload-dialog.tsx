@@ -11,7 +11,7 @@ import {
 import { formatOrderPrefix } from "@/lib/utils";
 import imageCompression from "browser-image-compression";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { StreamingContainer } from "./streaming-container";
 import { Input } from "./ui/input";
@@ -38,6 +38,9 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
     setLoading(true);
     setError(null);
 
+    setChunks("");
+    setChunks((prev) => prev + "กำลังบีบอัดรูปภาพ... \n");
+
     try {
       const formData = new FormData();
 
@@ -62,15 +65,23 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       compressedImages.forEach((img) => formData.append("images", img));
       console.log("[LOG]: Compression completed");
 
+      setChunks((prev) => prev + "บีบอัดรูปภาพเสร็จสิ้น...\n");
+      setChunks((prev) => prev + "กำลังเริ่มตั้นอัพโหลดรูปภาพ...\n");
+
       const response = await fetch("/api/gemini-upload", {
         method: "POST",
         body: formData,
       });
       console.log("[LOG]: Post completed");
-      setChunks("AI กำลังประมวลผลข้อมูลภาพ...");
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let result = "";
+
+      setChunks(
+        (prev) =>
+          prev + "อัพโหลดรูปภาพเสร็จสิ้น! AI กำลังประมวลผลข้อมูลภาพ...\n",
+      );
+
       while (true) {
         const { done, value } = await reader!.read();
         if (done) {

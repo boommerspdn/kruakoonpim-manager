@@ -14,12 +14,13 @@ import { matchAiNamesWithCustomers } from "@/lib/fuzzy-match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
-import { ListOrdered, Loader2, Save, Utensils } from "lucide-react";
+import { BarChart, ListOrdered, Loader2, Save, Utensils } from "lucide-react";
 import toast from "react-hot-toast";
 import useSWR, { Fetcher } from "swr";
 import Loading from "./components/loading";
 import MenuRow from "./components/menu-row";
 import OrderRow from "./components/order-row";
+import { getMenuOrderSummary } from "@/lib/utils";
 
 type StoreMenuOrder = {
   menus: StoreMenu[];
@@ -86,6 +87,9 @@ const PreviewPage = () => {
   const similarNamesMap = useMemo(() => {
     return matchAiNamesWithCustomers(customers || [], aiDetectedNames);
   }, [customers, aiDetectedNames]);
+  const sumsOfOders = useMemo(() => {
+    return getMenuOrderSummary(initialData);
+  }, [initialData]);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const hasEmptyName = data.orders.some((o) => !o.inputName?.trim());
@@ -170,6 +174,44 @@ const PreviewPage = () => {
                 )}
               </tbody>
             </table>
+          </div>
+        </section>
+        <section className="space-y-4 px-2 mt-6 mb-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
+            <BarChart className="h-5 w-5 text-primary" />
+            สรุปจำนวนออเดอร์ที่ต้องทำ
+          </h2>
+
+          {/* Responsive Grid: มือถือ 2 กล่อง, แท็บเล็ต 3 กล่อง, คอม 4 กล่อง */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
+            {sumsOfOders.map((menu, index) => (
+              <div
+                key={index}
+                className="flex flex-col justify-between p-4 rounded-lg border bg-white shadow-sm hover:border-primary/50 transition-colors"
+              >
+                {/* ชื่อเมนู (ใช้ line-clamp-2 เผื่อชื่อเมนูยาวเกินไปจะได้ตัดขึ้นบรรทัดใหม่สวยๆ) */}
+                <span className="text-sm font-medium text-muted-foreground line-clamp-2">
+                  {menu.name}
+                </span>
+
+                {/* ตัวเลขจำนวน */}
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold text-foreground text-primary">
+                    {menu.totalOrdered}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    รายการ
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* กรณีที่ยังไม่มีข้อมูลออเดอร์ */}
+            {(!sumsOfOders || sumsOfOders.length === 0) && (
+              <div className="col-span-full p-6 text-center text-sm text-muted-foreground border border-dashed rounded-lg bg-slate-50">
+                ยังไม่มีรายการสั่งอาหาร
+              </div>
+            )}
           </div>
         </section>
         <section className="space-y-4 px-2">
