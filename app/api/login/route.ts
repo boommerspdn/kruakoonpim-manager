@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
       httpOnly: true,
       secure: !isDev,
-      sameSite: isDev ? "lax" : "none",
+      sameSite: "lax",
     });
 
     return res;
