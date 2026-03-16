@@ -79,3 +79,8 @@ export const patchMenuSchema = z.object({
   toDeleteIds: z.array(z.string()),
 });
 export type PatchMenu = z.infer<typeof patchMenuSchema>;
+
+export const publicMenuNameSchema = z.object({
+  name: z.string(),
+});
+export type PublicMenuName = z.infer<typeof publicMenuNameSchema>;

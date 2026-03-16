@@ -13,7 +13,7 @@ import {
 import { useDateStore } from "@/hooks/use-date";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Truck } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -47,7 +47,7 @@ import {
   ComboboxList,
 } from "./ui/combobox";
 import axios from "axios";
-import { easyDiff } from "@/lib/utils";
+import { cn, easyDiff } from "@/lib/utils";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -158,7 +158,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   return (
     <Dialog modal={true}>
       {children}
-      <DialogContent className="sm:max-w-[95%] xl:max-w-7xl">
+      <DialogContent className="sm:max-w-[95%] !self-start mt-10 !translate-y-0">
         <DialogHeader>
           <DialogTitle>
             {mode === "EDIT"
@@ -171,14 +171,14 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="customerName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ชื่อลูกค้า</FormLabel>
-                  <FormControl>
-                    <div>
+            <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_1fr_auto] gap-4">
+              <FormField
+                control={form.control}
+                name="customerName"
+                render={({ field }) => (
+                  <FormItem className="col-span-2 sm:col-span-1">
+                    <FormLabel>ชื่อลูกค้า</FormLabel>
+                    <FormControl>
                       <Combobox
                         items={customers?.map((c) => c.name)}
                         {...field}
@@ -205,15 +205,54 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                           </ComboboxList>
                         </ComboboxContent>
                       </Combobox>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>โน๊ต</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="หมายเหตุ"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="col-span-1 flex items-center pt-5">
+                <FormField
+                  control={form.control}
+                  name={`delivery`}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        <Truck className="text-destructive" /> ส่ง
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
             <Separator />
             <div
-              className={`grid grid-cols-3 lg:grid-cols-${fields.length} gap-4`}
+              className={
+                "grid grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4"
+              }
             >
               {fields.map((field, index) => {
                 return (
@@ -252,25 +291,13 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
               })}
             </div>
             <Separator />
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>โน๊ต</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="หมายเหตุ"
-                      className="resize-none h-[100px]"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+
+            <div
+              className={cn(
+                "grid grid-cols-3 gap-4",
+                mode === "CREATE" ? "hidden" : null,
               )}
-            />
-            <div className="grid grid-cols-3 gap-4">
+            >
               <div className="col-span-1">
                 <FormField
                   control={form.control}
@@ -323,23 +350,6 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                         </SelectContent>
                       </Select>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="col-span-1 flex items-center pt-5">
-                <FormField
-                  control={form.control}
-                  name={`delivery`}
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center gap-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm font-normal">ส่ง</FormLabel>
                     </FormItem>
                   )}
                 />

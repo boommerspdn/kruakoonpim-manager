@@ -412,17 +412,29 @@ export function DataTable({
   return (
     <div className="space-y-4 pb-4">
       <div className="flex flex-col xl:flex-row xl:justify-between gap-2">
-        <Input
-          placeholder="ค้นหาชื่อ"
-          type="search"
-          value={searchValue}
-          onChange={(event) => setSearchValue(event.target.value)}
-          onFocus={() => {
-            setSelectedTab("all");
-            setSearchValue("");
-          }}
-          className="max-w-md lg:max-w-lg "
-        />
+        <div className="flex gap-2 items-center w-full">
+          <Input
+            placeholder="ค้นหาชื่อ"
+            type="search"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            onFocus={() => {
+              setSelectedTab("all");
+              setSearchValue("");
+            }}
+            className="max-w-md lg:max-w-lg "
+          />
+          <Button
+            type="button"
+            variant={"secondary"}
+            onClick={() => {
+              setSelectedTab("all");
+              setSearchValue("");
+            }}
+          >
+            ล้าง
+          </Button>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
           <Tabs

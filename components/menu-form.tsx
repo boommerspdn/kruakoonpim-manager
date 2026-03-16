@@ -3,6 +3,7 @@ import {
   PatchMenu,
   PostMenu,
   PublicMenu,
+  PublicMenuName,
   PutMenuItem,
 } from "@/app/types/menu";
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -21,13 +22,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
-import React from "react";
+import React, { useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import { useSWRConfig } from "swr";
+import useSWR, { Fetcher, useSWRConfig } from "swr";
 import z from "zod";
 import { RemoveDialog } from "./remove-dialog";
 import { Badge } from "./ui/badge";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "./ui/combobox";
 
 type MenuForm = {
   initialData?: PublicMenu[];
@@ -39,6 +48,15 @@ const MenuForm = ({ initialData }: MenuForm) => {
   const { date } = useDateStore();
   const { mutate } = useSWRConfig();
   const [deleteLoading, setDeleteLoading] = React.useState(false);
+
+  const fetcher: Fetcher<PublicMenuName[], string> = (url) =>
+    axios.get(url).then((res) => res.data);
+  const { data: menuNames, isLoading } = useSWR("/api/menu/name", fetcher);
+
+  const getMenuNames = useMemo(
+    () => menuNames?.map((menu) => menu.name),
+    [menuNames],
+  );
 
   const formattedDate = date
     ? format(date, "yyyy-MM-dd")
@@ -139,19 +157,47 @@ const MenuForm = ({ initialData }: MenuForm) => {
             key={field.id}
             control={form.control}
             name="menu"
-            render={() => (
+            render={({ field: formField }) => (
               <FormItem>
                 <FormControl>
                   <div className="flex items-center gap-2">
                     <div className="rounded-full bg-primary w-12 h-auto py-0.5 text-white flex justify-center items-center text-center">
                       {index + 1}
                     </div>
-                    <Input
+                    {/* <Input
                       {...form.register(`menu.${index}.name`)}
                       className="w-full"
                       placeholder="ชื่อเมนู"
                       autoFocus
-                    />
+                    /> */}
+                    <Combobox
+                      items={getMenuNames}
+                      value={form.watch(`menu.${index}.name`) || ""}
+                      onValueChange={(value) => {
+                        if (!value) return;
+                        form.setValue(`menu.${index}.name`, value);
+                      }}
+                    >
+                      <ComboboxInput
+                        placeholder="พิมพ์หรือเลือกชื่อเมนู."
+                        onChange={(e) =>
+                          form.setValue(`menu.${index}.name`, e.target.value)
+                        }
+                        autoFocus
+                      />
+                      <ComboboxContent className={"pointer-events-auto"}>
+                        <ComboboxEmpty>
+                          ไม่พบชื่อเมนูนี้ (ระบบจะสร้างเป็นเมนูใหม่)
+                        </ComboboxEmpty>
+                        <ComboboxList>
+                          {(item: string) => (
+                            <ComboboxItem key={item} value={item}>
+                              {item}
+                            </ComboboxItem>
+                          )}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
                     <Input
                       {...form.register(`menu.${index}.amount`)}
                       className="w-28"

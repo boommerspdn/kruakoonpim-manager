@@ -21,6 +21,7 @@ import {
   useWatch,
 } from "react-hook-form";
 import OrderItem from "./order-items";
+import { cn } from "@/lib/utils";
 
 type StoreMenuOrder = {
   menus: StoreMenu[];
@@ -56,7 +57,7 @@ const OrderRow = ({
   return (
     <div
       key={field.id}
-      className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4 md:py-4"
+      className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4 py-4"
     >
       <div className="align-top space-y-2">
         <Controller
@@ -64,39 +65,54 @@ const OrderRow = ({
           control={control}
           render={({ fieldState }) => (
             <>
-              <Combobox
-                items={customers}
-                value={customerName}
-                onValueChange={(val) => {
-                  if (!val) return;
-                  setValue(`orders.${index}.inputName`, val, {
-                    shouldValidate: true,
-                  });
-                }}
-              >
-                <ComboboxInput
-                  placeholder="พิมพ์หรือเลือกชื่อลูกค้า..."
-                  enterKeyHint="next"
-                  onChange={(e) =>
-                    setValue(`orders.${index}.inputName`, e.target.value, {
+              <div className="flex gap-2 w-full">
+                <Combobox
+                  items={customers}
+                  value={customerName}
+                  onValueChange={(val) => {
+                    if (!val) return;
+                    setValue(`orders.${index}.inputName`, val, {
                       shouldValidate: true,
-                    })
-                  }
-                  className={`${!isExist ? "border-blue-400 focus-visible:ring-blue-400" : fieldState.error ? "border-red-400 focus-visible:ring-red-400" : "border-green-400 focus-visible:ring-green-400"}`}
-                />
-                <ComboboxContent>
-                  <ComboboxEmpty>
-                    ไม่พบชื่อนี้ (ระบบจะสร้างเป็นลูกค้าใหม่)
-                  </ComboboxEmpty>
-                  <ComboboxList>
-                    {(item: string) => (
-                      <ComboboxItem key={item} value={item}>
-                        {item}
-                      </ComboboxItem>
+                    });
+                  }}
+                >
+                  <ComboboxInput
+                    placeholder="พิมพ์หรือเลือกชื่อลูกค้า..."
+                    enterKeyHint="next"
+                    onChange={(e) =>
+                      setValue(`orders.${index}.inputName`, e.target.value, {
+                        shouldValidate: true,
+                      })
+                    }
+                    className={cn(
+                      "w-[400px]",
+                      `${!isExist ? "border-blue-400 focus-visible:ring-blue-400" : fieldState.error ? "border-red-400 focus-visible:ring-red-400" : "border-green-400 focus-visible:ring-green-400"}`,
                     )}
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
+                  />
+                  <ComboboxContent>
+                    <ComboboxEmpty>
+                      ไม่พบชื่อนี้ (ระบบจะสร้างเป็นลูกค้าใหม่)
+                    </ComboboxEmpty>
+                    <ComboboxList>
+                      {(item: string) => (
+                        <ComboboxItem key={item} value={item}>
+                          {item}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+                <Button
+                  type="button"
+                  variant={"secondary"}
+                  onClick={() => {
+                    setValue(`orders.${index}.inputName`, "");
+                  }}
+                >
+                  ล้าง
+                </Button>
+              </div>
+
               {fieldState.error && (
                 <p className="text-red-500 text-xs">
                   {fieldState.error.message}
