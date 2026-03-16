@@ -66,7 +66,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       console.log("[LOG]: Compression completed");
 
       setChunks((prev) => prev + "บีบอัดรูปภาพเสร็จสิ้น...\n");
-      setChunks((prev) => prev + "กำลังเริ่มตั้นอัพโหลดรูปภาพ...\n");
+      setChunks((prev) => prev + "กำลังเริ่มต้นอัพโหลดรูปภาพ...\n");
 
       const response = await fetch("/api/gemini-upload", {
         method: "POST",

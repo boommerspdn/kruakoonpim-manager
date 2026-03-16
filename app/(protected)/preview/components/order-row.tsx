@@ -76,6 +76,7 @@ const OrderRow = ({
               >
                 <ComboboxInput
                   placeholder="พิมพ์หรือเลือกชื่อลูกค้า..."
+                  enterKeyHint="next"
                   onChange={(e) =>
                     setValue(`orders.${index}.inputName`, e.target.value, {
                       shouldValidate: true,
@@ -147,6 +148,7 @@ const OrderRow = ({
           <div>
             <Textarea
               placeholder="เพิ่มหมายเหตุ..."
+              enterKeyHint="next"
               {...register(`orders.${index}.note` as const)}
               className="resize-none h-[60px] text-sm"
             />

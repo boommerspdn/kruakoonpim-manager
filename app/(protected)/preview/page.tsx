@@ -138,7 +138,14 @@ const PreviewPage = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+      >
         <section className="space-y-4 px-2">
           <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
             <Utensils className="h-5 w-5 text-primary" />
@@ -182,21 +189,18 @@ const PreviewPage = () => {
             สรุปจำนวนออเดอร์ที่ต้องทำ
           </h2>
 
-          {/* Responsive Grid: มือถือ 2 กล่อง, แท็บเล็ต 3 กล่อง, คอม 4 กล่อง */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
             {sumsOfOders.map((menu, index) => (
               <div
                 key={index}
                 className="flex flex-col justify-between p-4 rounded-lg border bg-white shadow-sm hover:border-primary/50 transition-colors"
               >
-                {/* ชื่อเมนู (ใช้ line-clamp-2 เผื่อชื่อเมนูยาวเกินไปจะได้ตัดขึ้นบรรทัดใหม่สวยๆ) */}
                 <span className="text-sm font-medium text-muted-foreground line-clamp-2">
                   {menu.name}
                 </span>
 
-                {/* ตัวเลขจำนวน */}
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-bold text-foreground text-primary">
+                  <span className="text-3xl font-bold text-primary">
                     {menu.totalOrdered}
                   </span>
                   <span className="text-xs text-muted-foreground font-normal">
@@ -206,7 +210,6 @@ const PreviewPage = () => {
               </div>
             ))}
 
-            {/* กรณีที่ยังไม่มีข้อมูลออเดอร์ */}
             {(!sumsOfOders || sumsOfOders.length === 0) && (
               <div className="col-span-full p-6 text-center text-sm text-muted-foreground border border-dashed rounded-lg bg-slate-50">
                 ยังไม่มีรายการสั่งอาหาร

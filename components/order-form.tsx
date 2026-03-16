@@ -62,28 +62,6 @@ type OrderFormProps = {
   menu?: PublicMenu[];
 };
 
-// interface OrderItem {
-//   menuId: string;
-//   amount: number;
-//   menu: {
-//     name: string;
-//     price: number;
-//   };
-// }
-
-// interface Order {
-//   id: string;
-//   customerId: string;
-//   customerName: string;
-//   delivery?: boolean;
-//   note?: string;
-//   payment?: string;
-//   status: string;
-//   date: string;
-//   totalPrice: number;
-//   orderItems: OrderItem[];
-// }
-
 const formSchema = createOrderSchema;
 
 const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
@@ -119,15 +97,6 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   React.useEffect(() => {
     form.reset(defaultValues);
   }, [menu, form, defaultValues]);
-
-  // const calculateOptimisticTotal = (
-  //   orderItems: z.infer<typeof formSchema>["orderItems"],
-  // ) => {
-  //   return orderItems.reduce((sum, item) => {
-  //     const menuPrice = menu?.find((m) => m.id === item.menuId)?.price || 0;
-  //     return sum + Number(item.amount || 0) * menuPrice;
-  //   }, 0);
-  // };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -165,32 +134,23 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
 
           const patchData = {
             id: values.id,
-
             customerName: values.customerName,
-
             delivery: values.delivery,
-
             note: values.note,
-
             payment: values.payment,
-
             status: values.status,
-
             orderItems: findDifference,
           };
 
           await axios.patch(`/api/order?id=${values.id}`, patchData);
-
           toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
         }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
-
       console.log(error);
     } finally {
       await mutate(`/api/order?date=${formattedDate}`);
-
       await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   }
@@ -198,7 +158,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   return (
     <Dialog modal={true}>
       {children}
-      <DialogContent>
+      <DialogContent className="sm:max-w-[95%] xl:max-w-7xl">
         <DialogHeader>
           <DialogTitle>
             {mode === "EDIT"
@@ -252,7 +212,9 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
               )}
             />
             <Separator />
-            <div className="grid grid-cols-3 gap-4">
+            <div
+              className={`grid grid-cols-3 lg:grid-cols-${fields.length} gap-4`}
+            >
               {fields.map((field, index) => {
                 return (
                   <FormField
