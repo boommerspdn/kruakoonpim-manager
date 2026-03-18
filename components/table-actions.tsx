@@ -104,14 +104,6 @@ const TableAction = ({
       </div>
 
       <div className="flex gap-2 items-center col-span-2">
-        {rowData.note && (
-          <Popover>
-            <PopoverTrigger>
-              <Info size={20} className="text-destructive" />
-            </PopoverTrigger>
-            <PopoverContent align="end">{rowData.note}</PopoverContent>
-          </Popover>
-        )}
         {rowData.delivery && <IconTruck className="text-primary" />}
       </div>
 
@@ -145,6 +137,19 @@ const TableAction = ({
           </DropdownMenu>
         </RemoveDialog>
       </OrderForm>
+      {rowData.note && (
+        <div className="col-span-8">
+          <span className="text-destructive flex items-center gap-2">
+            <Info size={20} className="text-destructive" /> {rowData.note}
+          </span>
+        </div>
+        // <Popover>
+        //   <PopoverTrigger>
+        //     <Info size={20} className="text-destructive" />
+        //   </PopoverTrigger>
+        //   <PopoverContent align="end">{rowData.note}</PopoverContent>
+        // </Popover>
+      )}
     </div>
   );
 };

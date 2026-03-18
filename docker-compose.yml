@@ -16,7 +16,7 @@ services:
     environment:
       - HOSTNAME=0.0.0.0
       - PORT=3000
-      - DATABASE_URL=***REMOVED***
+      - DATABASE_URL=${DATABASE_URL}
     networks:
       - app-tier
       - db-tier   # <--- Added back so Next.js can see the database

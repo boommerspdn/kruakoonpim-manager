@@ -1,4 +1,0 @@
-manager.home {
-    tls internal
-    reverse_proxy web:3000
-}
