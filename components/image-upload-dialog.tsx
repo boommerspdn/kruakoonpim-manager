@@ -11,7 +11,7 @@ import {
 import { formatOrderPrefix } from "@/lib/utils";
 import imageCompression from "browser-image-compression";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { StreamingContainer } from "./streaming-container";
 import { Input } from "./ui/input";
