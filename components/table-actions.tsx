@@ -142,12 +142,6 @@ const TableAction = ({
             <Info size={20} className="text-destructive" /> {rowData.note}
           </span>
         </div>
-        // <Popover>
-        //   <PopoverTrigger>
-        //     <Info size={20} className="text-destructive" />
-        //   </PopoverTrigger>
-        //   <PopoverContent align="end">{rowData.note}</PopoverContent>
-        // </Popover>
       )}
     </div>
   );

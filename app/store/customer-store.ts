@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Customer, CustomerFormValues, PublicCustomer } from '@/app/types/customer';
+import mockCustomers from '@/lib/data/mock-customers.json';
 
 // Helper function to generate unique IDs
 const generateUniqueId = (prefix: string): string => {
@@ -7,43 +8,12 @@ const generateUniqueId = (prefix: string): string => {
 };
 
 // Demo customer data
-const demoCustomers: PublicCustomer[] = [
-  {
-    id: 'customer-1',
-    name: 'สมชาย ใจดี',
-    aliases: ['ชาย', 'สมชาย', 'ไอ้ชาย'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'customer-2',
-    name: 'สมหญิง รักดี',
-    aliases: ['หญิง', 'สมหญิง', 'ยิ่ง'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'customer-3',
-    name: 'วิชัย มั่นคง',
-    aliases: ['วิชัย', 'ไอ้วิชัย', 'ชัย'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'customer-4',
-    name: 'มานี ขยันหมด',
-    aliases: ['มานี', 'นี่', 'ป้านี่'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 'customer-5',
-    name: 'บุญรอด มีตังค์',
-    aliases: ['บุญรอด', 'รอด', 'ลุงรอด'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+const demoCustomers: PublicCustomer[] = mockCustomers.map((customer, index) => ({
+  ...customer,
+  id: `customer-${index + 1}`,
+  createdAt: new Date(customer.createdAt),
+  updatedAt: new Date(customer.updatedAt),
+}));
 
 interface CustomerStore {
   // Data
@@ -57,6 +27,7 @@ interface CustomerStore {
   getCustomerByName: (name: string) => PublicCustomer | undefined;
   getCustomerByAlias: (alias: string) => PublicCustomer | undefined;
   searchCustomers: (query: string) => PublicCustomer[];
+  getCustomerByOriginalId: (originalId: string) => PublicCustomer | undefined;
 }
 
 export const useCustomerStore = create<CustomerStore>((set, get) => ({
@@ -130,4 +101,15 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       customer.aliases.some((alias) => alias.toLowerCase().includes(lowercaseQuery))
     );
   },
+
+  // Helper to get customer by original ID from mock data
+  getCustomerByOriginalId: (originalId: string) => {
+    return get().customers.find((customer) => customer.id === originalId);
+  },
 }));
+
+// Export helper for other stores
+export const getCustomerNameById = (customerId: string): string => {
+  const customer = demoCustomers.find((c) => c.id === customerId);
+  return customer?.name || "Unknown Customer";
+};

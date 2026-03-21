@@ -174,7 +174,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
             )}
           />
         ))}
-        <div className="flex justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
           <Button
             type="button"
             className="w-fit place-self-end"
@@ -184,7 +184,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
           >
             <PlusCircle /> เพิ่มบรรทัด
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-end sm:justify-start">
             {initialData && (
               <>
                 <RemoveDialog

@@ -1,0 +1,4018 @@
+[
+  {
+    "id": "36e62268-334d-498d-8abf-7bb10a728041",
+    "customerId": "be76f1f2-c077-4cfe-b1c3-639bd0268632",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 1,
+    "createdAt": "2026-03-16T06:30:41.932Z",
+    "updatedAt": "2026-03-16T10:26:02.228Z",
+    "orderItems": [
+      {
+        "id": "6ee7ac86-0ad1-4637-8a88-fec0ec7fe0ec",
+        "orderId": "36e62268-334d-498d-8abf-7bb10a728041",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "26aa6067-7763-42ec-a081-f7bd73574d9f",
+        "orderId": "36e62268-334d-498d-8abf-7bb10a728041",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "ลุงโด่ง",
+    "totalPrice": 95
+  },
+  {
+    "id": "0ff8bc40-5899-4c12-9e6e-e7855f308fdd",
+    "customerId": "1e6bda74-ffde-48f7-8d5c-9e552dfc8584",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 2,
+    "createdAt": "2026-03-16T06:30:41.939Z",
+    "updatedAt": "2026-03-16T12:20:35.312Z",
+    "orderItems": [
+      {
+        "id": "ddd30bbb-af9f-497e-81fe-a3e2730a5c30",
+        "orderId": "0ff8bc40-5899-4c12-9e6e-e7855f308fdd",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "22e95f94-1a20-4638-a3f5-a4f415882a43",
+        "orderId": "0ff8bc40-5899-4c12-9e6e-e7855f308fdd",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "K'อิม",
+    "totalPrice": 105
+  },
+  {
+    "id": "5c40f280-f0af-4da1-a238-35a223d3cf62",
+    "customerId": "7e1a9959-c4a4-4885-bf8f-466e3e0fff94",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 3,
+    "createdAt": "2026-03-16T06:30:41.944Z",
+    "updatedAt": "2026-03-16T11:05:30.551Z",
+    "orderItems": [
+      {
+        "id": "30b7f07d-cdac-4bf1-a889-6c5b281fabe3",
+        "orderId": "5c40f280-f0af-4da1-a238-35a223d3cf62",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "1da77cc1-5016-44fb-be8e-18764420593b",
+        "orderId": "5c40f280-f0af-4da1-a238-35a223d3cf62",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 3,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'เชอร์รี่",
+    "totalPrice": 125
+  },
+  {
+    "id": "21fd494e-8d16-41a6-b5a0-6abcfb9b8e74",
+    "customerId": "b2b6091f-09df-4aa6-b2b8-9a3e479e32be",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 4,
+    "createdAt": "2026-03-16T06:30:41.950Z",
+    "updatedAt": "2026-03-16T10:28:42.511Z",
+    "orderItems": [
+      {
+        "id": "9ce182f2-367f-4038-b2ba-d9b506dfaf23",
+        "orderId": "21fd494e-8d16-41a6-b5a0-6abcfb9b8e74",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "e1c593d4-f0b4-4d63-a37e-c233e18ddb70",
+        "orderId": "21fd494e-8d16-41a6-b5a0-6abcfb9b8e74",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "04f3abb9-af0e-43b3-a0d2-c6d0bd5cbfa1",
+        "orderId": "21fd494e-8d16-41a6-b5a0-6abcfb9b8e74",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "กรรณิการ์",
+    "totalPrice": 155
+  },
+  {
+    "id": "8fd718c4-4d0d-4ded-9156-871bee69f4e1",
+    "customerId": "832bfbdf-bf8e-43e5-93f8-6d3ae82f6a83",
+    "note": "แกงไก่หน่อไม้ดองพิเศษ",
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 5,
+    "createdAt": "2026-03-16T06:30:41.955Z",
+    "updatedAt": "2026-03-16T11:36:34.849Z",
+    "orderItems": [
+      {
+        "id": "d7555576-436b-48b4-beeb-ff3f51a23a0e",
+        "orderId": "8fd718c4-4d0d-4ded-9156-871bee69f4e1",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "19fd30e0-8f85-414f-ae95-52a1e1b879f4",
+        "orderId": "8fd718c4-4d0d-4ded-9156-871bee69f4e1",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "ปังเนย",
+    "totalPrice": 95
+  },
+  {
+    "id": "779230a2-05b2-486f-b998-6b503a221b48",
+    "customerId": "8184408b-a1fa-4635-9353-2fc864afec38",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 6,
+    "createdAt": "2026-03-16T06:30:41.959Z",
+    "updatedAt": "2026-03-16T10:38:04.895Z",
+    "orderItems": [
+      {
+        "id": "ecc9fc80-950e-4d4f-9a9c-f88bb2bb44bd",
+        "orderId": "779230a2-05b2-486f-b998-6b503a221b48",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "95ce27f7-e280-4b66-a283-e4c70125fa90",
+        "orderId": "779230a2-05b2-486f-b998-6b503a221b48",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "03ace0f7-4fcb-4aec-8fad-1ebbe4060dc0",
+        "orderId": "779230a2-05b2-486f-b998-6b503a221b48",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "K'ตุ้ม",
+    "totalPrice": 145
+  },
+  {
+    "id": "ba266644-04e9-42ae-92a8-ad62ececaaec",
+    "customerId": "1f1608d2-ef49-468f-a8ee-a51096418d99",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 8,
+    "createdAt": "2026-03-16T06:30:41.968Z",
+    "updatedAt": "2026-03-16T11:18:32.802Z",
+    "orderItems": [
+      {
+        "id": "894d80e9-f576-4144-9da2-13c40e3848fa",
+        "orderId": "ba266644-04e9-42ae-92a8-ad62ececaaec",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "27cf53a1-af0c-4095-b759-1eecc83ae4b1",
+        "orderId": "ba266644-04e9-42ae-92a8-ad62ececaaec",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "เจสซี่",
+    "totalPrice": 100
+  },
+  {
+    "id": "53f2003d-7c59-432d-8263-62c365fd1dfe",
+    "customerId": "26aa74ac-3baa-417a-8390-5c3a69a52be3",
+    "note": null,
+    "delivery": false,
+    "payment": "UNKNOWN",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 9,
+    "createdAt": "2026-03-16T06:30:41.972Z",
+    "updatedAt": "2026-03-16T10:25:54.421Z",
+    "orderItems": [
+      {
+        "id": "3021003d-4549-4e35-88f8-974b579a079e",
+        "orderId": "53f2003d-7c59-432d-8263-62c365fd1dfe",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "d08c3874-014c-4547-8d80-104505dfe45e",
+        "orderId": "53f2003d-7c59-432d-8263-62c365fd1dfe",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "547d061f-1c2c-4a02-b979-3a83d8989973",
+        "orderId": "53f2003d-7c59-432d-8263-62c365fd1dfe",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "a9e9674a-6136-4304-9989-8404ab233e9f",
+        "orderId": "53f2003d-7c59-432d-8263-62c365fd1dfe",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "K'Pat",
+    "totalPrice": 205
+  },
+  {
+    "id": "3da263f6-2cba-4b4e-a1e3-74508d0f2889",
+    "customerId": "33e33ef1-f950-4434-89e4-ba208df3b2c8",
+    "note": null,
+    "delivery": false,
+    "payment": "UNKNOWN",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 10,
+    "createdAt": "2026-03-16T06:30:41.976Z",
+    "updatedAt": "2026-03-16T10:55:17.332Z",
+    "orderItems": [
+      {
+        "id": "ac8f2615-05b1-43d1-88d5-6e5e45cfd3b8",
+        "orderId": "3da263f6-2cba-4b4e-a1e3-74508d0f2889",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "438af76d-8dd5-4047-9eb2-42680750e49a",
+        "orderId": "3da263f6-2cba-4b4e-a1e3-74508d0f2889",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      }
+    ],
+    "customerName": "MINT",
+    "totalPrice": 95
+  },
+  {
+    "id": "4bec3bd9-2845-4671-931d-4a1e7e183bf0",
+    "customerId": "93baf449-16ca-4d99-a543-cccda9926c5e",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 11,
+    "createdAt": "2026-03-16T06:30:41.981Z",
+    "updatedAt": "2026-03-16T12:20:34.380Z",
+    "orderItems": [
+      {
+        "id": "b6ff5e42-cd39-4e19-aa3e-080fa2b06782",
+        "orderId": "4bec3bd9-2845-4671-931d-4a1e7e183bf0",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "23e9fdfe-c059-4452-ab4f-c8960a875d4c",
+        "orderId": "4bec3bd9-2845-4671-931d-4a1e7e183bf0",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "80f56ec0-ba77-4ab0-a6a8-81710ff90f1c",
+        "orderId": "4bec3bd9-2845-4671-931d-4a1e7e183bf0",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'ลิ้นจี่",
+    "totalPrice": 145
+  },
+  {
+    "id": "b48b279e-0a13-44c7-915b-beae01dfbb7a",
+    "customerId": "079af59b-bff2-44df-a40b-88eea3de3004",
+    "note": null,
+    "delivery": false,
+    "payment": "UNKNOWN",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 12,
+    "createdAt": "2026-03-16T06:30:41.985Z",
+    "updatedAt": "2026-03-16T11:47:55.362Z",
+    "orderItems": [
+      {
+        "id": "fe2b21e9-a53b-4199-a189-f87548a1fd60",
+        "orderId": "b48b279e-0a13-44c7-915b-beae01dfbb7a",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "e431874f-03ea-4e8c-a930-b44ab4fdd3fb",
+        "orderId": "b48b279e-0a13-44c7-915b-beae01dfbb7a",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "P'เอียด",
+    "totalPrice": 95
+  },
+  {
+    "id": "e5395499-4a40-458d-bb1b-b977cd63091a",
+    "customerId": "ce33dd5d-2962-46e1-9e22-8da5b9702978",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 13,
+    "createdAt": "2026-03-16T06:30:41.991Z",
+    "updatedAt": "2026-03-16T11:29:40.886Z",
+    "orderItems": [
+      {
+        "id": "0dbc108a-23e4-4646-9789-e94435c8ff52",
+        "orderId": "e5395499-4a40-458d-bb1b-b977cd63091a",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "082ad1a2-890a-4ddb-bf04-2ea7f120ec6c",
+        "orderId": "e5395499-4a40-458d-bb1b-b977cd63091a",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "ce47a055-67be-4fca-af15-8f3ff6821fb6",
+        "orderId": "e5395499-4a40-458d-bb1b-b977cd63091a",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "N'อ้อ",
+    "totalPrice": 155
+  },
+  {
+    "id": "f337da72-f6d7-458d-821c-c2251c9a780b",
+    "customerId": "661be6a9-7466-4044-83a1-f943eb2ec427",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 14,
+    "createdAt": "2026-03-16T06:30:41.995Z",
+    "updatedAt": "2026-03-16T11:28:17.061Z",
+    "orderItems": [
+      {
+        "id": "18be55b6-6000-445c-ba88-f47f33324999",
+        "orderId": "f337da72-f6d7-458d-821c-c2251c9a780b",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "5527e317-175b-4645-8f6b-552b9901088b",
+        "orderId": "f337da72-f6d7-458d-821c-c2251c9a780b",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "ชนะพงศ์",
+    "totalPrice": 100
+  },
+  {
+    "id": "f83dcf7d-c275-41a1-a54f-6186030dda5f",
+    "customerId": "0a8f4dc1-19fd-4db8-a95f-15cda5a93e99",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 15,
+    "createdAt": "2026-03-16T06:30:41.999Z",
+    "updatedAt": "2026-03-16T12:01:53.504Z",
+    "orderItems": [
+      {
+        "id": "0792f0a6-dbe7-4be6-8065-28eb031a09e5",
+        "orderId": "f83dcf7d-c275-41a1-a54f-6186030dda5f",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "6543e3eb-6410-4522-b4af-657967857fb3",
+        "orderId": "f83dcf7d-c275-41a1-a54f-6186030dda5f",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "1fa14d34-608b-4bbf-88a3-656c9f415645",
+        "orderId": "f83dcf7d-c275-41a1-a54f-6186030dda5f",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "26649df8-b5ed-41c1-b0be-14e3f35893ec",
+        "orderId": "f83dcf7d-c275-41a1-a54f-6186030dda5f",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 3,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'หลุยส์",
+    "totalPrice": 220
+  },
+  {
+    "id": "091057fc-fcc2-4431-96dc-fe5cf476646f",
+    "customerId": "31b897d3-1022-4b10-ad7d-256c6dac64e4",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 16,
+    "createdAt": "2026-03-16T06:30:42.003Z",
+    "updatedAt": "2026-03-16T10:30:19.416Z",
+    "orderItems": [
+      {
+        "id": "18e033f9-b38d-46a3-8b65-68e8f7a297ff",
+        "orderId": "091057fc-fcc2-4431-96dc-fe5cf476646f",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "d2748d37-279c-4b2a-a58e-da1503a93795",
+        "orderId": "091057fc-fcc2-4431-96dc-fe5cf476646f",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 4,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "อังคณา",
+    "totalPrice": 150
+  },
+  {
+    "id": "40e046e5-121b-4ca1-b3ce-df60ee7ebfd3",
+    "customerId": "df760b53-e113-42b9-8d7b-6a6767561285",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 17,
+    "createdAt": "2026-03-16T06:30:42.008Z",
+    "updatedAt": "2026-03-16T11:18:48.257Z",
+    "orderItems": [
+      {
+        "id": "0ada5cb4-bf8e-4aa0-8b74-d36419a510a0",
+        "orderId": "40e046e5-121b-4ca1-b3ce-df60ee7ebfd3",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      }
+    ],
+    "customerName": "K'หยี",
+    "totalPrice": 90
+  },
+  {
+    "id": "f1353bdc-714b-418c-aa51-5c928c55a242",
+    "customerId": "cc5be2ba-f8ae-4b96-9825-f4502bcd7c49",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 18,
+    "createdAt": "2026-03-16T06:30:42.013Z",
+    "updatedAt": "2026-03-16T11:28:22.370Z",
+    "orderItems": [
+      {
+        "id": "534ea52c-567c-4b65-90ee-e369294fad64",
+        "orderId": "f1353bdc-714b-418c-aa51-5c928c55a242",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "e94e599d-96f9-46b5-a429-46c5bed7be69",
+        "orderId": "f1353bdc-714b-418c-aa51-5c928c55a242",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "K'บอล",
+    "totalPrice": 70
+  },
+  {
+    "id": "6051b56d-8f45-498b-8c6b-457fc6cfe032",
+    "customerId": "b0e5026b-11a6-4183-92f4-bf0211f486b3",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 19,
+    "createdAt": "2026-03-16T06:30:42.018Z",
+    "updatedAt": "2026-03-16T11:28:24.609Z",
+    "orderItems": [
+      {
+        "id": "2c9a9b8a-4beb-44d8-b2b5-3c17a826cb9a",
+        "orderId": "6051b56d-8f45-498b-8c6b-457fc6cfe032",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "86f35ab5-5a58-4ed5-9b8f-63979a308b07",
+        "orderId": "6051b56d-8f45-498b-8c6b-457fc6cfe032",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "e0627d04-cb77-4eb0-a965-42f20444b923",
+        "orderId": "6051b56d-8f45-498b-8c6b-457fc6cfe032",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "น้าไพ",
+    "totalPrice": 190
+  },
+  {
+    "id": "2006096e-d694-4353-90b5-175b819d8ee3",
+    "customerId": "c184c03f-3355-483b-9a0c-c4ab9f39e03e",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 20,
+    "createdAt": "2026-03-16T06:30:42.022Z",
+    "updatedAt": "2026-03-16T12:31:34.604Z",
+    "orderItems": [
+      {
+        "id": "5de4a132-f718-4ab8-84e4-572337e87d31",
+        "orderId": "2006096e-d694-4353-90b5-175b819d8ee3",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "6a911870-4476-4791-8a16-72d949066389",
+        "orderId": "2006096e-d694-4353-90b5-175b819d8ee3",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "aa895e16-72e3-4c9e-bfbe-d5d5df6ea56f",
+        "orderId": "2006096e-d694-4353-90b5-175b819d8ee3",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 2,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "ป้าจิบ",
+    "totalPrice": 210
+  },
+  {
+    "id": "af96945d-cf0b-4d2e-8e37-fd1435fd186a",
+    "customerId": "619ac11f-3bb5-4caf-811a-b60b7f5a8121",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 21,
+    "createdAt": "2026-03-16T06:30:42.027Z",
+    "updatedAt": "2026-03-16T10:30:56.063Z",
+    "orderItems": [
+      {
+        "id": "6f83e19f-2f57-495b-966a-7995c2d0be7a",
+        "orderId": "af96945d-cf0b-4d2e-8e37-fd1435fd186a",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "815fd726-8d5e-40f0-9ae9-b7b46f1e49b4",
+        "orderId": "af96945d-cf0b-4d2e-8e37-fd1435fd186a",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "K'โบว์",
+    "totalPrice": 105
+  },
+  {
+    "id": "e9a43139-3bea-47bf-bc50-d696ac1dfb56",
+    "customerId": "e0978394-ddfc-4d6e-adcf-a27d7a9e53b1",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 22,
+    "createdAt": "2026-03-16T06:30:42.032Z",
+    "updatedAt": "2026-03-16T10:25:27.823Z",
+    "orderItems": [
+      {
+        "id": "faa2e782-b74c-4155-a3ea-ae36e9407a2c",
+        "orderId": "e9a43139-3bea-47bf-bc50-d696ac1dfb56",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "c968203d-654d-4e8b-83a4-ef13dffc1be1",
+        "orderId": "e9a43139-3bea-47bf-bc50-d696ac1dfb56",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "สมบูรณ์",
+    "totalPrice": 75
+  },
+  {
+    "id": "ed36e08f-3ee9-49c3-93ee-c0d0fe87e229",
+    "customerId": "fbaeb602-2fad-44a8-94a2-96eb61b10055",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 23,
+    "createdAt": "2026-03-16T06:30:42.036Z",
+    "updatedAt": "2026-03-16T12:21:33.434Z",
+    "orderItems": [
+      {
+        "id": "69515069-fc6c-419f-a863-fa687e304861",
+        "orderId": "ed36e08f-3ee9-49c3-93ee-c0d0fe87e229",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "9995abb0-2f1e-44b3-a836-1a5504112711",
+        "orderId": "ed36e08f-3ee9-49c3-93ee-c0d0fe87e229",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "4381689a-d7ac-4d38-9008-12a28c3fd5a0",
+        "orderId": "ed36e08f-3ee9-49c3-93ee-c0d0fe87e229",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "ป้าแป๋ว",
+    "totalPrice": 120
+  },
+  {
+    "id": "25166a5f-a90c-4b94-9b48-3ede35b93bab",
+    "customerId": "c9f88b76-7f8e-4e86-81c0-d553d0bba577",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 24,
+    "createdAt": "2026-03-16T06:30:42.040Z",
+    "updatedAt": "2026-03-16T12:08:09.656Z",
+    "orderItems": [
+      {
+        "id": "f9bfd574-f33d-4cae-94e5-b722cd255a60",
+        "orderId": "25166a5f-a90c-4b94-9b48-3ede35b93bab",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "2eaf77dc-b41d-4fe3-9612-697eb9b1cfe2",
+        "orderId": "25166a5f-a90c-4b94-9b48-3ede35b93bab",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "N'ปู้",
+    "totalPrice": 100
+  },
+  {
+    "id": "720d81bb-f7c6-47b5-b666-1de42405e031",
+    "customerId": "54bde95e-f198-436c-a017-72a58febb6bc",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 25,
+    "createdAt": "2026-03-16T06:30:42.044Z",
+    "updatedAt": "2026-03-16T11:56:15.057Z",
+    "orderItems": [
+      {
+        "id": "7f7b6ecf-0132-4595-a4a5-03b07d4cc9f4",
+        "orderId": "720d81bb-f7c6-47b5-b666-1de42405e031",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "f4bf5e83-9ed8-409b-a8f7-15b8ba4c1105",
+        "orderId": "720d81bb-f7c6-47b5-b666-1de42405e031",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "Masbam",
+    "totalPrice": 95
+  },
+  {
+    "id": "a4215ba1-d796-4731-84c6-592ab5c1f85b",
+    "customerId": "26803eec-732c-4669-b939-c7eba8c609c2",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 26,
+    "createdAt": "2026-03-16T06:30:42.048Z",
+    "updatedAt": "2026-03-16T11:18:53.038Z",
+    "orderItems": [
+      {
+        "id": "15648650-61c5-441c-9514-b02970849b2d",
+        "orderId": "a4215ba1-d796-4731-84c6-592ab5c1f85b",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "82007f3b-2b18-487a-b66b-e91581cf6e22",
+        "orderId": "a4215ba1-d796-4731-84c6-592ab5c1f85b",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "บุญเลิศ",
+    "totalPrice": 95
+  },
+  {
+    "id": "21166550-37b8-45a5-8b65-764785eab2cb",
+    "customerId": "0087f1b5-650f-4465-bfb1-29a74694e868",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 27,
+    "createdAt": "2026-03-16T06:30:42.052Z",
+    "updatedAt": "2026-03-16T10:36:25.555Z",
+    "orderItems": [
+      {
+        "id": "0a52824d-cb90-42f0-9ed0-62b7b5287cc5",
+        "orderId": "21166550-37b8-45a5-8b65-764785eab2cb",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "f3868fab-e3af-4b56-9b7f-4cef6185812d",
+        "orderId": "21166550-37b8-45a5-8b65-764785eab2cb",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "f9f3f041-e017-4e5c-84df-af02a12fbe8b",
+        "orderId": "21166550-37b8-45a5-8b65-764785eab2cb",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "ee4cf316-8b79-4476-b064-da10d2502a7e",
+        "orderId": "21166550-37b8-45a5-8b65-764785eab2cb",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'สมคิด",
+    "totalPrice": 210
+  },
+  {
+    "id": "db9bd1a2-a246-4a64-bd33-736122480c2d",
+    "customerId": "ac051df2-bf90-4805-bc32-aba03abd32e8",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 28,
+    "createdAt": "2026-03-16T06:30:42.056Z",
+    "updatedAt": "2026-03-16T11:18:55.293Z",
+    "orderItems": [
+      {
+        "id": "7119b649-f0be-40b3-be39-21360d81f414",
+        "orderId": "db9bd1a2-a246-4a64-bd33-736122480c2d",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "45d519d8-f832-4213-85c0-ea1208aa912d",
+        "orderId": "db9bd1a2-a246-4a64-bd33-736122480c2d",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "4fad58c0-2c55-4dd4-8ec3-6687459709b2",
+        "orderId": "db9bd1a2-a246-4a64-bd33-736122480c2d",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "รอยพิมพ์",
+    "totalPrice": 155
+  },
+  {
+    "id": "3b4f0b0c-09d4-4dc5-a899-61b715848928",
+    "customerId": "32672091-14d5-4762-b66e-20445820e6fd",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 29,
+    "createdAt": "2026-03-16T06:30:42.060Z",
+    "updatedAt": "2026-03-16T11:05:11.693Z",
+    "orderItems": [
+      {
+        "id": "5c7850c2-508c-4546-93fa-47b588788a51",
+        "orderId": "3b4f0b0c-09d4-4dc5-a899-61b715848928",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "c93f0200-d751-4c31-8252-bf33e6897ce3",
+        "orderId": "3b4f0b0c-09d4-4dc5-a899-61b715848928",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "f2b7d266-5650-42b8-8478-5820b7b60855",
+        "orderId": "3b4f0b0c-09d4-4dc5-a899-61b715848928",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "748b563d-5ea6-4e5e-8399-02939d775b87",
+        "orderId": "3b4f0b0c-09d4-4dc5-a899-61b715848928",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      }
+    ],
+    "customerName": "pat pien",
+    "totalPrice": 195
+  },
+  {
+    "id": "123fd273-0d90-4799-87a7-096bc6853733",
+    "customerId": "610afbb3-38b3-486c-9c32-e9a0493b0adb",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 30,
+    "createdAt": "2026-03-16T06:30:42.064Z",
+    "updatedAt": "2026-03-16T11:41:39.247Z",
+    "orderItems": [
+      {
+        "id": "58bb5686-e112-4f7b-a5dc-ca26032d7863",
+        "orderId": "123fd273-0d90-4799-87a7-096bc6853733",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "751d8010-36a6-4a31-8e09-38bdf87d2262",
+        "orderId": "123fd273-0d90-4799-87a7-096bc6853733",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "K'ติ๋ม",
+    "totalPrice": 105
+  },
+  {
+    "id": "84e30c34-eaf1-4c25-8439-e95a78a90092",
+    "customerId": "4d8d1315-f693-497f-a150-760eb207860f",
+    "note": "ไม่หู้",
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 31,
+    "createdAt": "2026-03-16T06:30:42.069Z",
+    "updatedAt": "2026-03-16T11:05:22.120Z",
+    "orderItems": [
+      {
+        "id": "2778afde-c439-4d6b-a3c7-3d516d46c708",
+        "orderId": "84e30c34-eaf1-4c25-8439-e95a78a90092",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "a6bf4523-550b-4f9f-a15b-a495a6bcf037",
+        "orderId": "84e30c34-eaf1-4c25-8439-e95a78a90092",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      },
+      {
+        "id": "229375f0-98e1-4f99-9265-e4058f06a151",
+        "orderId": "84e30c34-eaf1-4c25-8439-e95a78a90092",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "8ff319a3-5717-4178-8df6-9cb851082055",
+        "orderId": "84e30c34-eaf1-4c25-8439-e95a78a90092",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "ปราณี",
+    "totalPrice": 215
+  },
+  {
+    "id": "644517b6-6b3e-459a-b81d-bb6bf6e2e916",
+    "customerId": "efa825fa-1709-4c41-899c-e95f3ab30371",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 32,
+    "createdAt": "2026-03-16T06:30:42.074Z",
+    "updatedAt": "2026-03-16T12:33:43.690Z",
+    "orderItems": [
+      {
+        "id": "7e9efe7c-681a-4128-9353-1450af6e14f5",
+        "orderId": "644517b6-6b3e-459a-b81d-bb6bf6e2e916",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      }
+    ],
+    "customerName": "K'บอม",
+    "totalPrice": 45
+  },
+  {
+    "id": "a6ec45b4-23a0-4a3c-91bf-4799586882b1",
+    "customerId": "04152e93-6a75-4f6c-a834-c32d13b7bcd3",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 33,
+    "createdAt": "2026-03-16T06:30:42.078Z",
+    "updatedAt": "2026-03-16T12:22:15.983Z",
+    "orderItems": [
+      {
+        "id": "9503f27c-28a9-4c74-8301-72923ca6e17d",
+        "orderId": "a6ec45b4-23a0-4a3c-91bf-4799586882b1",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "04e9b840-e86a-48c5-979c-f11cbe41c181",
+        "orderId": "a6ec45b4-23a0-4a3c-91bf-4799586882b1",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 3,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'ติ๋ม",
+    "totalPrice": 120
+  },
+  {
+    "id": "ce8e1fcb-6814-46c4-9a48-e88e82873fe5",
+    "customerId": "03a8d341-06ce-46d0-ad8f-8dcb0ed2a934",
+    "note": "",
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 34,
+    "createdAt": "2026-03-16T06:30:42.082Z",
+    "updatedAt": "2026-03-16T12:22:39.005Z",
+    "orderItems": [
+      {
+        "id": "97a46381-1afc-49e8-ad3d-db0fe423fb25",
+        "orderId": "ce8e1fcb-6814-46c4-9a48-e88e82873fe5",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "a55eab3f-3277-482e-9e4d-400bf8fa8bf5",
+        "orderId": "ce8e1fcb-6814-46c4-9a48-e88e82873fe5",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "โอ๊ค",
+    "totalPrice": 95
+  },
+  {
+    "id": "d603e766-20c7-4f29-80e6-0fad8b965c84",
+    "customerId": "ab2e4f79-a467-41af-897c-33e45a2f728f",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 35,
+    "createdAt": "2026-03-16T06:30:42.086Z",
+    "updatedAt": "2026-03-16T12:23:15.988Z",
+    "orderItems": [
+      {
+        "id": "26742178-ca92-41a4-b28b-30012ed9863d",
+        "orderId": "d603e766-20c7-4f29-80e6-0fad8b965c84",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "485e68ca-52de-413e-a227-9db8669ef5a6",
+        "orderId": "d603e766-20c7-4f29-80e6-0fad8b965c84",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 3,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "ดากานดา",
+    "totalPrice": 120
+  },
+  {
+    "id": "8862e1c7-fab5-48b4-bb0b-b50b6a7c18af",
+    "customerId": "14a51641-bfa2-46c5-894b-3f7a71bc3755",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 36,
+    "createdAt": "2026-03-16T06:30:42.091Z",
+    "updatedAt": "2026-03-16T12:23:42.001Z",
+    "orderItems": [
+      {
+        "id": "a86992d8-fa67-4920-a226-cab73e4019b7",
+        "orderId": "8862e1c7-fab5-48b4-bb0b-b50b6a7c18af",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "2174c436-10cb-4cbc-87a8-afc8e473f2ed",
+        "orderId": "8862e1c7-fab5-48b4-bb0b-b50b6a7c18af",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "K'Pek",
+    "totalPrice": 95
+  },
+  {
+    "id": "f421c59b-c618-42f9-a024-21c76295c580",
+    "customerId": "f3995736-ca96-4138-890b-3b9d056d9365",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 37,
+    "createdAt": "2026-03-16T06:30:42.095Z",
+    "updatedAt": "2026-03-16T12:34:02.055Z",
+    "orderItems": [
+      {
+        "id": "de1f40ca-9d6b-4272-8f96-40a68777f7f6",
+        "orderId": "f421c59b-c618-42f9-a024-21c76295c580",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "08099e5b-b795-4b5b-82af-f778b330dda2",
+        "orderId": "f421c59b-c618-42f9-a024-21c76295c580",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "K'ผึ้ง",
+    "totalPrice": 95
+  },
+  {
+    "id": "6995b442-354a-4dd1-ab19-48be2a4e7310",
+    "customerId": "b0bd7a5f-7917-4d57-9710-5bb562ac299b",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 38,
+    "createdAt": "2026-03-16T06:30:42.099Z",
+    "updatedAt": "2026-03-16T10:56:04.583Z",
+    "orderItems": [
+      {
+        "id": "bb5b7756-969f-4a1c-9a26-f82b84084d68",
+        "orderId": "6995b442-354a-4dd1-ab19-48be2a4e7310",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "a6830e5d-e58d-459a-b4c3-a0cb0e438076",
+        "orderId": "6995b442-354a-4dd1-ab19-48be2a4e7310",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "f5541aa2-effc-4b7e-b4b0-e25b49dc5c1b",
+        "orderId": "6995b442-354a-4dd1-ab19-48be2a4e7310",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "3ad2ffa8-5fb2-4239-8b53-488809130e7f",
+        "orderId": "6995b442-354a-4dd1-ab19-48be2a4e7310",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'มด",
+    "totalPrice": 205
+  },
+  {
+    "id": "a6093ef2-51b2-439c-a723-a27729e69431",
+    "customerId": "341dc7d6-d795-4ce2-a7bf-f9973890d068",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 39,
+    "createdAt": "2026-03-16T06:30:42.103Z",
+    "updatedAt": "2026-03-16T11:19:01.411Z",
+    "orderItems": [
+      {
+        "id": "12db18c5-6d35-400d-8c62-7bc14ce92b6e",
+        "orderId": "a6093ef2-51b2-439c-a723-a27729e69431",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "0d719fe2-3ee8-4786-b3ae-2462ee95fd99",
+        "orderId": "a6093ef2-51b2-439c-a723-a27729e69431",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "ป้าแดง",
+    "totalPrice": 95
+  },
+  {
+    "id": "1e2b003a-ed6c-4aa4-80f9-dd299ef01932",
+    "customerId": "44800189-c461-41c7-8485-7f38dbfcfa2b",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 40,
+    "createdAt": "2026-03-16T06:30:42.108Z",
+    "updatedAt": "2026-03-16T10:30:36.241Z",
+    "orderItems": [
+      {
+        "id": "c5c3e648-522e-4814-9240-44bbb0130101",
+        "orderId": "1e2b003a-ed6c-4aa4-80f9-dd299ef01932",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "90f1d524-d801-4821-b4f5-5ae7171a7cc4",
+        "orderId": "1e2b003a-ed6c-4aa4-80f9-dd299ef01932",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "e5745b58-7c29-49f3-9949-63226e1b8e48",
+        "orderId": "1e2b003a-ed6c-4aa4-80f9-dd299ef01932",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "P'เกียว",
+    "totalPrice": 155
+  },
+  {
+    "id": "35b0d189-c04c-45f3-b17e-2967b4330090",
+    "customerId": "fdd69c36-fc20-40ae-9058-8528dd01ae0f",
+    "note": "ไข่พะโล้ไข่ 3 ใบ",
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 41,
+    "createdAt": "2026-03-16T06:30:42.113Z",
+    "updatedAt": "2026-03-16T12:24:13.700Z",
+    "orderItems": [
+      {
+        "id": "4d22b9a4-e606-40c3-8d92-25f94934db6a",
+        "orderId": "35b0d189-c04c-45f3-b17e-2967b4330090",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "28438c5f-dffc-4a4a-93ef-93e1741eb5a4",
+        "orderId": "35b0d189-c04c-45f3-b17e-2967b4330090",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "b40e214e-b068-4e00-8d00-1692c2c9bafe",
+        "orderId": "35b0d189-c04c-45f3-b17e-2967b4330090",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'แอ๋ว",
+    "totalPrice": 120
+  },
+  {
+    "id": "487ef014-7217-4010-a461-086fbaf12fa2",
+    "customerId": "63a775a9-43de-43d0-840a-03b8f1c176c6",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 42,
+    "createdAt": "2026-03-16T06:30:42.117Z",
+    "updatedAt": "2026-03-16T11:47:48.929Z",
+    "orderItems": [
+      {
+        "id": "e6b446e5-de23-4429-b467-1491b0d0b4c1",
+        "orderId": "487ef014-7217-4010-a461-086fbaf12fa2",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "a4a95359-160c-4abf-b79a-57d11e0c37e2",
+        "orderId": "487ef014-7217-4010-a461-086fbaf12fa2",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "51a9e792-da14-40d1-bfc7-746dc0eaecab",
+        "orderId": "487ef014-7217-4010-a461-086fbaf12fa2",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "e805311f-f0aa-47db-a6ea-a7dfe2e326d9",
+        "orderId": "487ef014-7217-4010-a461-086fbaf12fa2",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 3,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'ไหม",
+    "totalPrice": 265
+  },
+  {
+    "id": "88203f39-a73d-45fe-a29c-b55030a2aaec",
+    "customerId": "9b7b69bc-6fb9-419e-ab8b-5c05daa7f31e",
+    "note": "ไข่พะโล้ไข่ 3 ใบ",
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 43,
+    "createdAt": "2026-03-16T06:30:42.121Z",
+    "updatedAt": "2026-03-16T11:28:08.061Z",
+    "orderItems": [
+      {
+        "id": "72064da2-b9e3-4a0f-8d84-d572c565ff13",
+        "orderId": "88203f39-a73d-45fe-a29c-b55030a2aaec",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "3617a2f2-de7c-46be-90c2-5a7c405af98a",
+        "orderId": "88203f39-a73d-45fe-a29c-b55030a2aaec",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "904b9710-939f-4c4f-b8ef-e5d8dc416825",
+        "orderId": "88203f39-a73d-45fe-a29c-b55030a2aaec",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "~_~",
+    "totalPrice": 155
+  },
+  {
+    "id": "d9519a9f-f2d7-435a-8554-354a854802ff",
+    "customerId": "463ce54c-aa9e-42b2-a898-001cc39b9a20",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 44,
+    "createdAt": "2026-03-16T06:30:42.126Z",
+    "updatedAt": "2026-03-16T10:56:48.166Z",
+    "orderItems": [
+      {
+        "id": "fa110a27-e4f8-48ac-9100-15a56af114d6",
+        "orderId": "d9519a9f-f2d7-435a-8554-354a854802ff",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "f68fc1f4-da23-499e-b2f0-57768b8b0c45",
+        "orderId": "d9519a9f-f2d7-435a-8554-354a854802ff",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "fb4058ef-44ef-46f5-ac55-3f43b173c4ac",
+        "orderId": "d9519a9f-f2d7-435a-8554-354a854802ff",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "K'Tui",
+    "totalPrice": 160
+  },
+  {
+    "id": "b7d1031a-d0c0-4d4e-8bfd-0e408d62fd0b",
+    "customerId": "e3505e8e-b9ef-4ea1-bfd2-76ec53353d55",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 45,
+    "createdAt": "2026-03-16T06:30:42.129Z",
+    "updatedAt": "2026-03-16T06:30:42.129Z",
+    "orderItems": [
+      {
+        "id": "5379a6d2-b177-4a2a-9c1c-352dfe8e9fb9",
+        "orderId": "b7d1031a-d0c0-4d4e-8bfd-0e408d62fd0b",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      }
+    ],
+    "customerName": "P'เอ๋",
+    "totalPrice": 90
+  },
+  {
+    "id": "5b596456-6b8f-4e4c-9faa-5b6f0095b583",
+    "customerId": "290652ad-4db3-4a65-b80c-8184fafd6c56",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 46,
+    "createdAt": "2026-03-16T06:30:42.133Z",
+    "updatedAt": "2026-03-16T10:29:42.806Z",
+    "orderItems": [
+      {
+        "id": "89eb61be-66b4-4b23-98a3-e01f24c61dad",
+        "orderId": "5b596456-6b8f-4e4c-9faa-5b6f0095b583",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "ca3b6c1b-bf89-46d1-aac8-5b0355406107",
+        "orderId": "5b596456-6b8f-4e4c-9faa-5b6f0095b583",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "5b1dd33e-5ce6-4c77-99ed-346e197408bc",
+        "orderId": "5b596456-6b8f-4e4c-9faa-5b6f0095b583",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "N'ตุ่น",
+    "totalPrice": 150
+  },
+  {
+    "id": "a7b0f45b-e7a3-45f5-b8de-4e8750407c1c",
+    "customerId": "981e8191-36d5-409f-9cf7-57ce64f4923b",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 47,
+    "createdAt": "2026-03-16T06:30:42.138Z",
+    "updatedAt": "2026-03-16T12:24:39.451Z",
+    "orderItems": [
+      {
+        "id": "cb15204a-050a-4148-901f-d7998dc6adc2",
+        "orderId": "a7b0f45b-e7a3-45f5-b8de-4e8750407c1c",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "K'สุขจิต",
+    "totalPrice": 50
+  },
+  {
+    "id": "81a387cd-96dd-48a0-97f9-c18d132b5574",
+    "customerId": "993164a9-8414-40e1-9451-1d45a65bdd6b",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 48,
+    "createdAt": "2026-03-16T06:30:42.142Z",
+    "updatedAt": "2026-03-16T10:35:39.797Z",
+    "orderItems": [
+      {
+        "id": "98072e99-2635-40b6-ba0a-cbbb3e4f0085",
+        "orderId": "81a387cd-96dd-48a0-97f9-c18d132b5574",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "7d340e61-c7bd-4865-a13c-03b332daa2f7",
+        "orderId": "81a387cd-96dd-48a0-97f9-c18d132b5574",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "K'อุบล",
+    "totalPrice": 95
+  },
+  {
+    "id": "d6d53611-ba16-4fb0-99c0-4e5485651889",
+    "customerId": "ea7f1cfb-9c2d-4ebd-9b60-92d4f9e618d4",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 49,
+    "createdAt": "2026-03-16T06:30:42.146Z",
+    "updatedAt": "2026-03-16T10:37:32.485Z",
+    "orderItems": [
+      {
+        "id": "3f589621-72ab-44ca-99ea-9556f4afe34f",
+        "orderId": "d6d53611-ba16-4fb0-99c0-4e5485651889",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "11d6881f-34b9-4996-9770-5a3cb72e96c1",
+        "orderId": "d6d53611-ba16-4fb0-99c0-4e5485651889",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "e5a6b457-8ae3-4ab5-9425-e60975de88aa",
+        "orderId": "d6d53611-ba16-4fb0-99c0-4e5485651889",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 4,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "N'ยุ้ย",
+    "totalPrice": 240
+  },
+  {
+    "id": "03b629d8-5536-4762-9c38-2618ba0367e5",
+    "customerId": "45c4c66b-ef5b-417a-a8d6-d2be89477199",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 50,
+    "createdAt": "2026-03-16T06:30:42.151Z",
+    "updatedAt": "2026-03-16T10:44:44.866Z",
+    "orderItems": [
+      {
+        "id": "79035f22-77f9-4d73-b3f7-0e9e27b4aecb",
+        "orderId": "03b629d8-5536-4762-9c38-2618ba0367e5",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "78e9b4ee-b933-4e6f-bca3-8686e685fbb5",
+        "orderId": "03b629d8-5536-4762-9c38-2618ba0367e5",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "31d7561e-1b6a-4c89-ac1b-435db211c1a2",
+        "orderId": "03b629d8-5536-4762-9c38-2618ba0367e5",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "41d937f2-4757-42b1-82b4-00725111a4df",
+        "orderId": "03b629d8-5536-4762-9c38-2618ba0367e5",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 4,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "น้อย",
+    "totalPrice": 245
+  },
+  {
+    "id": "8e979dfc-69d4-49b6-a986-9eec086c7418",
+    "customerId": "08110cf9-2eaa-48f1-b770-59a17aa4efca",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 51,
+    "createdAt": "2026-03-16T06:30:42.155Z",
+    "updatedAt": "2026-03-16T12:25:00.839Z",
+    "orderItems": [
+      {
+        "id": "697ab906-88d0-4a23-9870-890d7e4de3ce",
+        "orderId": "8e979dfc-69d4-49b6-a986-9eec086c7418",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "b5d6a922-8e65-4889-aaa3-8c73571fde85",
+        "orderId": "8e979dfc-69d4-49b6-a986-9eec086c7418",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "P'ติ๊ก",
+    "totalPrice": 110
+  },
+  {
+    "id": "e6ae6bfd-e0c2-4f12-a13a-fdfbc10209d0",
+    "customerId": "b8193115-6553-4d7e-8c88-fca940f77714",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 52,
+    "createdAt": "2026-03-16T06:30:42.159Z",
+    "updatedAt": "2026-03-16T11:33:31.235Z",
+    "orderItems": [
+      {
+        "id": "f262fff0-6706-4796-bbde-21259c55518d",
+        "orderId": "e6ae6bfd-e0c2-4f12-a13a-fdfbc10209d0",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "87fddf86-4567-4f0c-9c5f-d91835b88c55",
+        "orderId": "e6ae6bfd-e0c2-4f12-a13a-fdfbc10209d0",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "b2b5bc22-1aac-42ee-a046-c86039d98819",
+        "orderId": "e6ae6bfd-e0c2-4f12-a13a-fdfbc10209d0",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "K'เจี้ยบ",
+    "totalPrice": 160
+  },
+  {
+    "id": "a36735a2-511f-4bbd-8a95-9f1fd6ad522c",
+    "customerId": "7ad9e1ab-e552-41c1-bcbb-a079e80cdd6e",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 53,
+    "createdAt": "2026-03-16T06:30:42.164Z",
+    "updatedAt": "2026-03-16T11:51:24.810Z",
+    "orderItems": [
+      {
+        "id": "df1bc22e-8676-4513-ab50-0aca94334b9a",
+        "orderId": "a36735a2-511f-4bbd-8a95-9f1fd6ad522c",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 2,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "52093d0d-e452-4c66-b2f3-6aedea0c6bb7",
+        "orderId": "a36735a2-511f-4bbd-8a95-9f1fd6ad522c",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "3a5cf966-1526-47d8-96f8-34545d493bc4",
+        "orderId": "a36735a2-511f-4bbd-8a95-9f1fd6ad522c",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "a10ecc58-8d86-4bee-bf4f-7e61a86fac2c",
+        "orderId": "a36735a2-511f-4bbd-8a95-9f1fd6ad522c",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 2,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'จันดี",
+    "totalPrice": 260
+  },
+  {
+    "id": "1235782b-44f8-472c-b6eb-2762d7dd55c9",
+    "customerId": "7343209a-2964-418c-adf6-569b595ff464",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 54,
+    "createdAt": "2026-03-16T06:30:42.168Z",
+    "updatedAt": "2026-03-16T11:19:16.074Z",
+    "orderItems": [
+      {
+        "id": "1eab182d-e14f-4e1f-950b-0b9a370f2b7c",
+        "orderId": "1235782b-44f8-472c-b6eb-2762d7dd55c9",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "609e55cf-5066-472b-af01-105c24438211",
+        "orderId": "1235782b-44f8-472c-b6eb-2762d7dd55c9",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "d39b5fd9-0661-4e03-b0da-ddfb2a3fabb0",
+        "orderId": "1235782b-44f8-472c-b6eb-2762d7dd55c9",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      }
+    ],
+    "customerName": "K'ชูก้า",
+    "totalPrice": 160
+  },
+  {
+    "id": "2412287b-dad2-4386-a2af-c9eff47dc267",
+    "customerId": "d44a5dc5-6ece-4312-8f2b-9bd254091ae3",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 55,
+    "createdAt": "2026-03-16T06:30:42.172Z",
+    "updatedAt": "2026-03-16T12:34:30.587Z",
+    "orderItems": [
+      {
+        "id": "b76a8345-3413-4b88-b3d4-57b1b5b46bd4",
+        "orderId": "2412287b-dad2-4386-a2af-c9eff47dc267",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "e80b36b3-c339-46be-a270-bf928c913f96",
+        "orderId": "2412287b-dad2-4386-a2af-c9eff47dc267",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "69012c21-1992-4ef1-a1c4-771c817375bc",
+        "orderId": "2412287b-dad2-4386-a2af-c9eff47dc267",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "N'เฟิน",
+    "totalPrice": 120
+  },
+  {
+    "id": "ab39f0b5-feed-4350-8462-24b7c8b526fe",
+    "customerId": "5a1c7e88-04c9-487c-9e4f-480c9a45e130",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 56,
+    "createdAt": "2026-03-16T06:30:42.176Z",
+    "updatedAt": "2026-03-16T11:19:30.174Z",
+    "orderItems": [
+      {
+        "id": "a2daffd6-e072-49d8-90f5-e10a2702826c",
+        "orderId": "ab39f0b5-feed-4350-8462-24b7c8b526fe",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "6a263056-3fa7-4c00-8a60-19bcec469a63",
+        "orderId": "ab39f0b5-feed-4350-8462-24b7c8b526fe",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "dbc76ae5-3687-4b62-b13f-a1ca3b5f3154",
+        "orderId": "ab39f0b5-feed-4350-8462-24b7c8b526fe",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "787ba30b-8736-4da6-afc7-77975d482e11",
+        "orderId": "ab39f0b5-feed-4350-8462-24b7c8b526fe",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "9f33fef6-d049-4540-be33-8f432d5b1acb",
+        "orderId": "ab39f0b5-feed-4350-8462-24b7c8b526fe",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'ฟ้า",
+    "totalPrice": 220
+  },
+  {
+    "id": "6e75a917-0db9-4fe2-907d-1ebea5fa3bf9",
+    "customerId": "26bd8736-ce03-4e82-9fb0-9b08b7a4b66d",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 57,
+    "createdAt": "2026-03-16T06:30:42.181Z",
+    "updatedAt": "2026-03-16T12:25:39.676Z",
+    "orderItems": [
+      {
+        "id": "d608e241-6824-48ab-b500-21dccf8e8bd8",
+        "orderId": "6e75a917-0db9-4fe2-907d-1ebea5fa3bf9",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "4b74baf6-d2a9-4b01-b8ea-19d2d9aae826",
+        "orderId": "6e75a917-0db9-4fe2-907d-1ebea5fa3bf9",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "P'ชูชาติ",
+    "totalPrice": 105
+  },
+  {
+    "id": "b8e228f1-b97b-4df9-a1d2-cd97c2f3aba3",
+    "customerId": "9595ffd7-40fa-401f-adfe-4afadd07a980",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 58,
+    "createdAt": "2026-03-16T06:30:42.186Z",
+    "updatedAt": "2026-03-16T12:25:18.757Z",
+    "orderItems": [
+      {
+        "id": "f0902bee-5e58-404a-a42e-14548073428a",
+        "orderId": "b8e228f1-b97b-4df9-a1d2-cd97c2f3aba3",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "73cd70db-b255-45f0-9905-2fbc992e4905",
+        "orderId": "b8e228f1-b97b-4df9-a1d2-cd97c2f3aba3",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "ร้านธงไชย",
+    "totalPrice": 105
+  },
+  {
+    "id": "fb339226-8aeb-499a-b707-66319e28fd68",
+    "customerId": "11ad6a8d-6603-4d31-a3cd-ffd6e394d21a",
+    "note": null,
+    "delivery": false,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 59,
+    "createdAt": "2026-03-16T06:30:42.190Z",
+    "updatedAt": "2026-03-16T12:34:58.753Z",
+    "orderItems": [
+      {
+        "id": "c7c78c3e-569d-4dcb-92a8-e7171db4ef31",
+        "orderId": "fb339226-8aeb-499a-b707-66319e28fd68",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "19d06652-7b45-4ccc-9090-9f57d96ad582",
+        "orderId": "fb339226-8aeb-499a-b707-66319e28fd68",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "35da4e02-6f21-4074-97e6-da9e132e438d",
+        "orderId": "fb339226-8aeb-499a-b707-66319e28fd68",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 4,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "ป๊อกแป๊ก",
+    "totalPrice": 210
+  },
+  {
+    "id": "145cb9ea-f4fd-4245-a32f-4dd6a43f647e",
+    "customerId": "920d4ff4-09bc-4cd0-85fb-678c9fc2fed0",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 60,
+    "createdAt": "2026-03-16T06:30:42.194Z",
+    "updatedAt": "2026-03-16T11:31:50.649Z",
+    "orderItems": [
+      {
+        "id": "b3e8d6dc-3a09-45a7-999b-a95d650e30dc",
+        "orderId": "145cb9ea-f4fd-4245-a32f-4dd6a43f647e",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "2688d82f-709b-4424-b6e5-0521f0dfa609",
+        "orderId": "145cb9ea-f4fd-4245-a32f-4dd6a43f647e",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      },
+      {
+        "id": "d7f31baa-c629-4634-92fa-0959f6bae948",
+        "orderId": "145cb9ea-f4fd-4245-a32f-4dd6a43f647e",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "K'สุพัฒน์",
+    "totalPrice": 120
+  },
+  {
+    "id": "7bac2962-b5f4-4415-9c53-3826d88b60dd",
+    "customerId": "5de97c33-d267-46ef-993d-4acae9c7b1a3",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 61,
+    "createdAt": "2026-03-16T06:30:42.199Z",
+    "updatedAt": "2026-03-16T12:26:14.433Z",
+    "orderItems": [
+      {
+        "id": "8e32c580-3f0c-4974-8b4a-054617da2764",
+        "orderId": "7bac2962-b5f4-4415-9c53-3826d88b60dd",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "d377f3b3-9d02-4071-b3b2-98a924f41418",
+        "orderId": "7bac2962-b5f4-4415-9c53-3826d88b60dd",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      }
+    ],
+    "customerName": "พรทิพย์",
+    "totalPrice": 105
+  },
+  {
+    "id": "5f95e6be-bbab-405e-bd37-904292d01c2c",
+    "customerId": "f618e141-6028-4321-a4e6-ffd14063e971",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 62,
+    "createdAt": "2026-03-16T06:30:42.203Z",
+    "updatedAt": "2026-03-16T10:36:41.122Z",
+    "orderItems": [
+      {
+        "id": "8991c5ad-f93c-4b01-97c3-dcc292a5bbb9",
+        "orderId": "5f95e6be-bbab-405e-bd37-904292d01c2c",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "P'เพ็ญ",
+    "totalPrice": 50
+  },
+  {
+    "id": "5a25b7a4-481e-455b-9a3d-591a493e0c26",
+    "customerId": "ddc398d8-329e-45c5-968b-4473674520d5",
+    "note": null,
+    "delivery": false,
+    "payment": "UNKNOWN",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 63,
+    "createdAt": "2026-03-16T06:30:42.208Z",
+    "updatedAt": "2026-03-16T10:41:22.196Z",
+    "orderItems": [
+      {
+        "id": "31023d11-64af-426e-8761-9c3cdd3c272f",
+        "orderId": "5a25b7a4-481e-455b-9a3d-591a493e0c26",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "e79d62dc-d078-4f6c-9932-876df2de3513",
+        "orderId": "5a25b7a4-481e-455b-9a3d-591a493e0c26",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 1,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "P'แต",
+    "totalPrice": 75
+  },
+  {
+    "id": "516629dd-d0ab-4b62-ae65-654baf05e244",
+    "customerId": "d453375f-dadf-46c5-8a8b-a37848a51cbd",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 64,
+    "createdAt": "2026-03-16T06:30:42.212Z",
+    "updatedAt": "2026-03-16T11:54:27.914Z",
+    "orderItems": [
+      {
+        "id": "5c5d746b-462d-4f5c-babe-1e83943fef1e",
+        "orderId": "516629dd-d0ab-4b62-ae65-654baf05e244",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "N’เก๋",
+    "totalPrice": 50
+  },
+  {
+    "id": "b74e65f8-5a75-4ec6-8a39-fa4b870eb9a6",
+    "customerId": "3225a7d7-75be-4df5-8f81-45225aa5fde2",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 65,
+    "createdAt": "2026-03-16T06:30:42.216Z",
+    "updatedAt": "2026-03-16T12:26:42.005Z",
+    "orderItems": [
+      {
+        "id": "7b1fa069-4dea-468a-9c3b-3b9fbf6784ae",
+        "orderId": "b74e65f8-5a75-4ec6-8a39-fa4b870eb9a6",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "3a580a69-23ad-48b7-b97e-f773b4d37e5a",
+        "orderId": "b74e65f8-5a75-4ec6-8a39-fa4b870eb9a6",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "P'ตา",
+    "totalPrice": 95
+  },
+  {
+    "id": "4c14d11f-a382-4a17-84a2-d356ff59f43c",
+    "customerId": "153f4089-5893-4381-92b9-260bfd786ace",
+    "note": null,
+    "delivery": false,
+    "payment": "CASH",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 66,
+    "createdAt": "2026-03-16T06:30:42.221Z",
+    "updatedAt": "2026-03-16T10:39:47.136Z",
+    "orderItems": [
+      {
+        "id": "b7b23b15-5028-4370-8de8-d6237cd6feed",
+        "orderId": "4c14d11f-a382-4a17-84a2-d356ff59f43c",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      }
+    ],
+    "customerName": "ธนพร",
+    "totalPrice": 45
+  },
+  {
+    "id": "b921343a-8c23-49ab-a22c-ca7bc18c3ba4",
+    "customerId": "ef126b95-5086-4ba4-b4fc-52a132eb72b6",
+    "note": null,
+    "delivery": false,
+    "payment": "UNKNOWN",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 67,
+    "createdAt": "2026-03-16T06:30:42.224Z",
+    "updatedAt": "2026-03-16T10:55:12.393Z",
+    "orderItems": [
+      {
+        "id": "ea46d3fc-b55a-4dbb-91bc-e842046f2c8c",
+        "orderId": "b921343a-8c23-49ab-a22c-ca7bc18c3ba4",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "6967e6bc-af63-4c11-a9a7-33dd7b4eca89",
+        "orderId": "b921343a-8c23-49ab-a22c-ca7bc18c3ba4",
+        "menuId": "76b7e097-d294-478b-bb12-14087c93d90a",
+        "amount": 1,
+        "menu": {
+          "id": "76b7e097-d294-478b-bb12-14087c93d90a",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "คั่วกลิ้งหมูสับ",
+          "price": 60,
+          "amount": 22,
+          "sortOrder": 2,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.248Z"
+        }
+      },
+      {
+        "id": "c1cdc377-73b1-463a-bcac-74e36cb9d7c8",
+        "orderId": "b921343a-8c23-49ab-a22c-ca7bc18c3ba4",
+        "menuId": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+        "amount": 1,
+        "menu": {
+          "id": "0e1ba7cb-9570-4ae6-975c-d0f0077da18b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ผัดบร็อคโคลี่กุ้ง",
+          "price": 50,
+          "amount": 20,
+          "sortOrder": 3,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T06:30:41.926Z"
+        }
+      }
+    ],
+    "customerName": "K'Aoi",
+    "totalPrice": 160
+  },
+  {
+    "id": "24929cd9-5331-4d8f-9509-408a6f80cf7b",
+    "customerId": "9546081e-533a-4fe9-8f71-2c79491610f5",
+    "note": null,
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 68,
+    "createdAt": "2026-03-16T06:30:42.228Z",
+    "updatedAt": "2026-03-16T12:27:15.982Z",
+    "orderItems": [
+      {
+        "id": "f474152e-0429-42fc-8f4c-b90c64f934f0",
+        "orderId": "24929cd9-5331-4d8f-9509-408a6f80cf7b",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "667b8380-4fee-4baf-b76e-3f9aa1373492",
+        "orderId": "24929cd9-5331-4d8f-9509-408a6f80cf7b",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "P'ติ๋ว",
+    "totalPrice": 95
+  },
+  {
+    "id": "109ae3f1-7392-46f9-90f3-09dd5e5cd9e1",
+    "customerId": "571b214f-bf70-4f61-be87-49804ac23820",
+    "note": null,
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 69,
+    "createdAt": "2026-03-16T06:30:42.233Z",
+    "updatedAt": "2026-03-16T10:53:51.584Z",
+    "orderItems": [
+      {
+        "id": "6c653234-bb7e-454b-b788-83675fcfd13e",
+        "orderId": "109ae3f1-7392-46f9-90f3-09dd5e5cd9e1",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "K'โส่ย",
+    "totalPrice": 50
+  },
+  {
+    "id": "82efae0a-247f-4079-9793-83c3e0ed30a4",
+    "customerId": "6a8c22d3-0f61-47be-980f-a576c9f0b2c7",
+    "note": "",
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 70,
+    "createdAt": "2026-03-16T08:18:11.319Z",
+    "updatedAt": "2026-03-16T12:27:38.056Z",
+    "orderItems": [
+      {
+        "id": "985201c2-b5d0-4b6c-9e90-db5be290821e",
+        "orderId": "82efae0a-247f-4079-9793-83c3e0ed30a4",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      }
+    ],
+    "customerName": "ยายต้นข้าว",
+    "totalPrice": 50
+  },
+  {
+    "id": "9a6fed71-a924-4ac6-988e-575fe832169c",
+    "customerId": "6a8c22d3-0f61-47be-980f-a576c9f0b2c7",
+    "note": "",
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 71,
+    "createdAt": "2026-03-16T08:18:30.176Z",
+    "updatedAt": "2026-03-16T12:27:38.198Z",
+    "orderItems": [
+      {
+        "id": "1d2292ab-07a0-4ec7-874e-41fa1e99869c",
+        "orderId": "9a6fed71-a924-4ac6-988e-575fe832169c",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 2,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      }
+    ],
+    "customerName": "ยายต้นข้าว",
+    "totalPrice": 90
+  },
+  {
+    "id": "a909ca28-586e-49a4-9ee5-5085e214500b",
+    "customerId": "1c2694da-8752-47d1-a058-bdc0d4759352",
+    "note": "",
+    "delivery": false,
+    "payment": "ONLINE",
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 72,
+    "createdAt": "2026-03-16T11:13:11.361Z",
+    "updatedAt": "2026-03-16T11:28:47.377Z",
+    "orderItems": [
+      {
+        "id": "bf6575d6-f369-401b-97f0-1f4f503e8ada",
+        "orderId": "a909ca28-586e-49a4-9ee5-5085e214500b",
+        "menuId": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+        "amount": 1,
+        "menu": {
+          "id": "ad276f50-5c08-4d3b-88ba-f36c546fbb7c",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไข่พะโล้",
+          "price": 45,
+          "amount": 56,
+          "sortOrder": 0,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.243Z"
+        }
+      },
+      {
+        "id": "70db7cea-c8f0-48cd-80c1-5fcee637fb86",
+        "orderId": "a909ca28-586e-49a4-9ee5-5085e214500b",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "ddeb39bd-a33e-4476-b7ca-83d7d98128de",
+        "orderId": "a909ca28-586e-49a4-9ee5-5085e214500b",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      },
+      {
+        "id": "e7425f2e-d769-44a5-bdef-3034d3a7490b",
+        "orderId": "a909ca28-586e-49a4-9ee5-5085e214500b",
+        "menuId": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+        "amount": 4,
+        "menu": {
+          "id": "7e9e6ef4-caf6-4265-8ffe-7e9332f97ce5",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ไก่ทอด",
+          "price": 25,
+          "amount": 72,
+          "sortOrder": 5,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T08:23:05.905Z"
+        }
+      }
+    ],
+    "customerName": "พี่กัน",
+    "totalPrice": 245
+  },
+  {
+    "id": "d9f851c1-c311-4688-b024-16119cf8a685",
+    "customerId": "87b6f9e8-9d11-4625-89cd-4fde5f6c5010",
+    "note": "",
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 73,
+    "createdAt": "2026-03-16T11:27:38.661Z",
+    "updatedAt": "2026-03-16T12:30:53.980Z",
+    "orderItems": [
+      {
+        "id": "02b29e83-54e9-49ea-8068-e5c4bb2c8dc0",
+        "orderId": "d9f851c1-c311-4688-b024-16119cf8a685",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "ป้าพวง",
+    "totalPrice": 50
+  },
+  {
+    "id": "69857c8d-1282-4dcb-a3b3-ec28c54e04a1",
+    "customerId": "1a90b567-f283-4892-8a91-0e7ed12ce2ec",
+    "note": "",
+    "delivery": true,
+    "payment": null,
+    "status": "PENDING",
+    "date": "2026-03-16T00:00:00.000Z",
+    "sortOrder": 74,
+    "createdAt": "2026-03-16T11:29:08.130Z",
+    "updatedAt": "2026-03-16T12:28:16.159Z",
+    "orderItems": [
+      {
+        "id": "acd42143-7f90-4b45-bcfa-7798da4d1e1e",
+        "orderId": "69857c8d-1282-4dcb-a3b3-ec28c54e04a1",
+        "menuId": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+        "amount": 1,
+        "menu": {
+          "id": "66521b66-4fbc-400d-b8cf-adf0512eec8b",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "แกงไก่หน่อไม้ดอง",
+          "price": 50,
+          "amount": 27,
+          "sortOrder": 1,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T12:10:57.246Z"
+        }
+      },
+      {
+        "id": "8b630c6d-b3b3-45b7-8631-b965befac8ea",
+        "orderId": "69857c8d-1282-4dcb-a3b3-ec28c54e04a1",
+        "menuId": "b5462608-fd27-4ab5-81e9-092337b67c99",
+        "amount": 1,
+        "menu": {
+          "id": "b5462608-fd27-4ab5-81e9-092337b67c99",
+          "date": "2026-03-16T00:00:00.000Z",
+          "name": "ยำมะเขือยาว",
+          "price": 50,
+          "amount": 32,
+          "sortOrder": 4,
+          "createdAt": "2026-03-16T06:30:41.926Z",
+          "updatedAt": "2026-03-16T11:49:08.471Z"
+        }
+      }
+    ],
+    "customerName": "ป้าดา",
+    "totalPrice": 100
+  }
+]

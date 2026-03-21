@@ -314,12 +314,11 @@ export function DataTable({
     try {
       const order = data.find(item => item.id === id);
       if (order) {
-        const newStatus = order.status === "COMPLETED" ? "PENDING" : "COMPLETED";
-        updateOrder(id, { status: newStatus });
+        updateOrder(id, { status });
         
         setData((current) =>
           current.map((item) =>
-            item.id === id ? { ...item, status: newStatus } : item,
+            item.id === id ? { ...item, status } : item,
           ),
         );
       }
