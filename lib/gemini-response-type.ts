@@ -51,7 +51,7 @@ export const responseSchema = {
           payment: {
             type: Type.STRING,
             description:
-              "สถานะการจ่ายเงิน: 'ONLINE' ถ้ามีคำว่า 'โอนแล้ว', 'CASH' หรือ 'UNKNOWN' ถ้าไม่ระบุ",
+              "สถานะการจ่ายเงิน: 'ONLINE' ถ้ามีคำว่า 'โอนแล้ว', null ถ้าไม่ระบุ",
           },
           sortOrder: {
             type: Type.INTEGER,
