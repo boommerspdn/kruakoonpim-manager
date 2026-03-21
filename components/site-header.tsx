@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { DatePickerForm } from "./date-picker";
-import { LogoutButton } from "./logout-button";
 import { Button } from "./ui/button";
 import { Home, UserPlus } from "lucide-react";
 
@@ -21,11 +19,10 @@ export function SiteHeader() {
           </Button>
         </Link>
       </div>
-      <div>
-        <DatePickerForm />
+      <div className="flex items-center">
+        <span className="text-sm font-medium text-muted-foreground">Demo Mode - Today's Data</span>
       </div>
       <div>
-        <LogoutButton />
       </div>
     </header>
   );

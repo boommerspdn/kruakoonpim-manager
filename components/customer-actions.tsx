@@ -8,11 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCustomerModal } from "@/hooks/use-customer-modal";
-import axios from "axios";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { mutate } from "swr";
+import { useCustomerStore } from "@/app/store/customer-store";
 
 type CustomerActionsProps = {
   customer: PublicCustomer;
@@ -21,12 +20,12 @@ type CustomerActionsProps = {
 const CustomerActions = ({ customer }: CustomerActionsProps) => {
   const onOpen = useCustomerModal((state) => state.onOpen);
   const setData = useCustomerModal((state) => state.setData);
+  const { deleteCustomer } = useCustomerStore();
   const [open, setOpen] = useState(false);
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/customers/${customer.id}`);
-      mutate("/api/customers");
+      deleteCustomer(customer.id);
       toast.success("ลบข้อมูลสำเร็จ");
     } catch {
       toast.error("ลบข้อมูลไม่สำเร็จ");

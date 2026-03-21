@@ -9,8 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useDateStore } from "@/hooks/use-date";
-import { Calendar, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import MenuForm from "./menu-form";
 import { Badge } from "./ui/badge";
 import { PublicMenu } from "@/app/types/menu";
@@ -20,8 +19,6 @@ type MenuEditProps = {
 };
 
 export default function MenuEdit({ menu }: MenuEditProps) {
-  const { date } = useDateStore();
-
   return (
     <Dialog>
       <form>
@@ -37,13 +34,11 @@ export default function MenuEdit({ menu }: MenuEditProps) {
         >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              แก้ไขเมนูวันที่
-              <Badge>
-                <Calendar /> {date?.toLocaleDateString("th-TH")}
-              </Badge>
+              แก้ไขเมนูวันนี้
+              <Badge>Demo Mode</Badge>
             </DialogTitle>
             <DialogDescription>
-              เช็ควันที่ก่อนแก้ไข สามารถลบ เพิ่ม และแก้ไขชื่อ จำนวน หรือราคาได้
+              สามารถลบ เพิ่ม และแก้ไขชื่อ จำนวน หรือราคาได้
             </DialogDescription>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[60vh] px-2">

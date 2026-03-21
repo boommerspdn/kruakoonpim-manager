@@ -10,26 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDateStore } from "@/hooks/use-date";
 import { cn, easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { format } from "date-fns";
 import { Loader2, Save, Truck } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import useSWR, { useSWRConfig } from "swr";
 import { z } from "zod";
 import { Checkbox } from "./ui/checkbox";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "./ui/combobox";
 import {
   Form,
   FormControl,
@@ -47,11 +35,11 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Separator } from "./ui/separator";
+import { useDashboardStore } from "@/app/store/dashboard-store";
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  const json = await res.json();
-  return json.data;
+// Helper function to generate unique IDs
+const generateUniqueId = (prefix: string): string => {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
 type OrderFormProps = {
@@ -64,13 +52,7 @@ type OrderFormProps = {
 const formSchema = createOrderSchema;
 
 const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
-  const { date } = useDateStore();
-  const formattedDate = date
-    ? format(date, "yyyy-MM-dd")
-    : format(new Date(), "yyyy-MM-dd");
-  const { mutate } = useSWRConfig();
-
-  const { data: customers } = useSWR<Customer[]>("/api/customers", fetcher);
+  const { addOrder, orders } = useDashboardStore();
 
   const defaultValues = initialData;
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,7 +73,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
 
   React.useEffect(() => {
     form.reset(defaultValues);
-  }, [date, form, defaultValues]);
+  }, [form, defaultValues]);
 
   React.useEffect(() => {
     form.reset(defaultValues);
@@ -101,56 +83,35 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     try {
       if (form.formState.isDirty) {
         if (mode === "CREATE") {
-          await axios.post(`/api/order?date=${formattedDate}`, values);
+          // Calculate the next sort order
+          const maxSortOrder = Math.max(...orders.map(o => o.sortOrder || 0), -1) + 1;
+          
+          // Calculate total price
+          const totalPrice = values.orderItems.reduce((sum, item) => {
+            const menuItem = menu?.find(m => m.id === item.menuId);
+            return sum + ((menuItem?.price || 0) * (item.amount || 0));
+          }, 0);
+
+          addOrder({
+            ...values,
+            sortOrder: maxSortOrder,
+            totalPrice,
+            delivery: values.delivery || false,
+            note: values.note || "",
+            orderItems: values.orderItems.map(item => ({
+              id: item.id || generateUniqueId('item'),
+              menuId: item.menuId,
+              amount: item.amount || 0,
+            })),
+          });
 
           form.reset(defaultValues);
-
-          toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
-        }
-
-        if (mode === "EDIT") {
-          const formatOrderItems = initialData.orderItems.map((orderItem) => ({
-            ...orderItem,
-
-            id: orderItem.id || "",
-          }));
-
-          const removeInitialZero = formatOrderItems.filter(
-            (orderItem) => !!orderItem.amount,
-          );
-
-          const formatValues = values.orderItems.map((orderItem) => ({
-            ...orderItem,
-
-            id: orderItem.id || "",
-          }));
-
-          const removeZeroValues = formatValues.filter(
-            (orderItem) => !!orderItem.amount,
-          );
-
-          const findDifference = easyDiff(removeInitialZero, removeZeroValues);
-
-          const patchData = {
-            id: values.id,
-            customerName: values.customerName,
-            delivery: values.delivery,
-            note: values.note,
-            payment: values.payment,
-            status: values.status,
-            orderItems: findDifference,
-          };
-
-          await axios.patch(`/api/order?id=${values.id}`, patchData);
           toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
         }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
-    } finally {
-      await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
     }
   }
 
@@ -178,32 +139,11 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                   <FormItem className="col-span-2 sm:col-span-1">
                     <FormLabel>ชื่อลูกค้า</FormLabel>
                     <FormControl>
-                      <Combobox
-                        items={customers?.map((c) => c.name)}
+                      <Input
+                        placeholder="พิมพ์ชื่อลูกค้า..."
                         {...field}
                         value={field.value || ""}
-                        onValueChange={(value) => {
-                          if (!value) return;
-                          field.onChange(value);
-                        }}
-                      >
-                        <ComboboxInput
-                          placeholder="พิมพ์หรือเลือกชื่อลูกค้า..."
-                          onChange={(e) => field.onChange(e.target.value)}
-                        />
-                        <ComboboxContent className={"pointer-events-auto"}>
-                          <ComboboxEmpty>
-                            ไม่พบชื่อนี้ (ระบบจะสร้างเป็นลูกค้าใหม่)
-                          </ComboboxEmpty>
-                          <ComboboxList>
-                            {(item: string) => (
-                              <ComboboxItem key={item} value={item}>
-                                {item}
-                              </ComboboxItem>
-                            )}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

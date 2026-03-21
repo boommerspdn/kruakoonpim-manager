@@ -55,20 +55,16 @@ import OrderForm from "@/components/order-form";
 import TableAction from "@/components/table-actions";
 import { Badge } from "@/components/ui/badge";
 import { DialogTrigger } from "@/components/ui/dialog";
-import { useDateStore } from "@/hooks/use-date";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-import { format } from "date-fns";
 import { PlusCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { useSWRConfig } from "swr";
 import { PublicMenu } from "./types/menu";
 import {
   OrderStatus,
   Payment,
   publicOrderSchema,
-  RowSwapBody,
 } from "./types/order";
+import { useDashboardStore } from "./store/dashboard-store";
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({
@@ -125,6 +121,7 @@ export function DataTable({
   data: z.infer<typeof publicOrderSchema>[];
   menu: PublicMenu[];
 }) {
+  const { updateOrder, deleteOrder } = useDashboardStore();
   const [data, setData] = React.useState(() => initialData);
   React.useEffect(() => {
     setData(initialData);
@@ -169,13 +166,6 @@ export function DataTable({
 
     return () => clearTimeout(timeout); // cancel previous
   }, [searchValue]);
-
-  const { date } = useDateStore();
-  const formattedDate = date
-    ? format(date, "yyyy-MM-dd")
-    : format(new Date(), "yyyy-MM-dd");
-
-  const { mutate } = useSWRConfig();
 
   const columns = React.useMemo<
     ColumnDef<z.infer<typeof publicOrderSchema>>[]
@@ -278,7 +268,7 @@ export function DataTable({
         cell: () => null,
       },
     ];
-  }, [menu, date]); // Recreate columns only when `menu` prop changes
+  }, [menu]); // Recreate columns only when `menu` prop changes
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
@@ -310,44 +300,29 @@ export function DataTable({
     if (active && over && active.id !== over.id) {
       const oldIndex = dataIds.indexOf(active.id);
       const newIndex = dataIds.indexOf(over.id);
-      setData((data) => {
-        return arrayMove(data, oldIndex, newIndex);
+      const reorderedData = arrayMove(data, oldIndex, newIndex);
+      setData(reorderedData);
+
+      // Update sortOrder in store for all affected items
+      reorderedData.forEach((item, index) => {
+        updateOrder(item.id, { sortOrder: index });
       });
-
-      const body: RowSwapBody = {
-        active: active.id as string,
-        over: over.id as string,
-      };
-
-      try {
-        const response = await axios.put("/api/order/swap-row", body);
-        console.log(response);
-      } catch (error) {
-        console.log(error);
-      }
     }
   }
 
   const handleConfirm = async (id: string, status: OrderStatus) => {
     try {
-      setData((current) =>
-        current.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                status: item.status === "COMPLETED" ? "PENDING" : "COMPLETED",
-              }
-            : item,
-        ),
-      );
-
-      const response = await axios.put(
-        `/api/order/confirm?id=${id}&status=${status}`,
-      );
-
-      // await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      console.log(response);
+      const order = data.find(item => item.id === id);
+      if (order) {
+        const newStatus = order.status === "COMPLETED" ? "PENDING" : "COMPLETED";
+        updateOrder(id, { status: newStatus });
+        
+        setData((current) =>
+          current.map((item) =>
+            item.id === id ? { ...item, status: newStatus } : item,
+          ),
+        );
+      }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -356,24 +331,13 @@ export function DataTable({
 
   const handlePayment = async (id: string, payment: Payment) => {
     try {
+      updateOrder(id, { payment });
+      
       setData((current) =>
         current.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                payment: payment,
-              }
-            : item,
+          item.id === id ? { ...item, payment } : item,
         ),
       );
-
-      const response = await axios.put(
-        `/api/order/payment?id=${id}&payment=${payment}`,
-      );
-      console.log(response);
-
-      // await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -383,12 +347,8 @@ export function DataTable({
   const handleDelete = async (id: string) => {
     try {
       setData((current) => current.filter((item) => item.id !== id));
-      const response = await axios.delete(`/api/order?id=${id}`);
-
-      await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
+      deleteOrder(id);
       toast.success("ลบออเดอร์เสร็จสิ้น");
-      console.log(response);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -447,15 +407,15 @@ export function DataTable({
                 ทั้งหมด <Badge>{allCount}</Badge>
               </TabsTrigger>
               <TabsTrigger value="delivery">
-                คนส่ง
+                ลูกค้าที่ต้องส่ง
                 <Badge>{deliveryCount}</Badge>
               </TabsTrigger>
               <TabsTrigger value="pending">
-                คนที่ยังไม่มาเอา
+                ลูกค้าที่ยังไม่มาเอา
                 <Badge>{pendingCount}</Badge>
               </TabsTrigger>
               <TabsTrigger value="completed">
-                คนที่มาเอาไปแล้ว
+                ลูกค้าที่มาเอาไปแล้ว
                 <Badge>{completedCount}</Badge>
               </TabsTrigger>
             </TabsList>
@@ -465,7 +425,7 @@ export function DataTable({
             initialData={{
               id: undefined,
               customerName: "",
-              date: date,
+              date: new Date(),
               orderItems: menu.map((menuItem) => ({
                 menuId: menuItem.id,
                 menuName: menuItem.name,

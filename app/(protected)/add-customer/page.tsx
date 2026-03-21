@@ -1,22 +1,17 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import useSWR, { Fetcher } from "swr";
 
 import { CustomerModal } from "@/components/modals/customer-modal";
 import { Button } from "@/components/ui/button";
 import { useCustomerModal } from "@/hooks/use-customer-modal";
-import axios from "axios";
 import { PublicCustomer } from "../../types/customer";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
+import { useCustomerStore } from "@/app/store/customer-store";
 
 export default function CustomerManager() {
-  const fetcher: Fetcher<PublicCustomer[], string> = (url) =>
-    axios.get(url).then((res) => res.data.data);
-  const { data, isLoading } = useSWR("/api/customers", fetcher, {
-    fallbackData: [],
-  });
+  const { customers } = useCustomerStore();
 
   const onOpen = useCustomerModal((state) => state.onOpen);
   const setData = useCustomerModal((state) => state.setData);
@@ -40,7 +35,7 @@ export default function CustomerManager() {
       >
         <Plus className="mr-2 h-4 w-4" /> เพิ่มลูกค้าใหม่
       </Button>
-      <DataTable columns={columns} data={data} isLoading={isLoading} />
+      <DataTable columns={columns} data={customers} isLoading={false} />
     </div>
   );
 }

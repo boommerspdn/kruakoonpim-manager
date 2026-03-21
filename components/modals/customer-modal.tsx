@@ -2,19 +2,19 @@
 
 import { CustomerFormValues } from "@/app/types/customer";
 import { useCustomerModal } from "@/hooks/use-customer-modal";
-import axios from "axios";
 import { Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { mutate } from "swr";
 import { Button } from "../ui/button";
 import { DialogClose, DialogFooter } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import Modal from "../ui/modal";
+import { useCustomerStore } from "@/app/store/customer-store";
 
 export const CustomerModal = () => {
   const customerModal = useCustomerModal();
+  const { addCustomer, updateCustomer } = useCustomerStore();
   const initialData = customerModal.data;
   const aliasesString = initialData?.aliases.join(", ");
 
@@ -33,11 +33,11 @@ export const CustomerModal = () => {
   const onSubmit = async (data: CustomerFormValues) => {
     try {
       setIsLoading(true);
-      if (initialData) {
-        await axios.patch(`/api/customers/${currentId}`, data);
+      if (initialData && currentId) {
+        updateCustomer(currentId, data);
         toast.success("อัปเดตข้อมูลสำเร็จ");
       } else {
-        await axios.post("/api/customers", data);
+        addCustomer(data);
         toast.success("เพิ่มข้อมูลสำเร็จ");
         customerModal.setData(null);
       }
@@ -45,7 +45,6 @@ export const CustomerModal = () => {
       toast.error("เกิดข้อผิดพลาด อาจมีชื่อซ้ำอยู่แล้ว");
     } finally {
       setIsLoading(false);
-      mutate("/api/customers");
       customerModal.onClose();
     }
   };

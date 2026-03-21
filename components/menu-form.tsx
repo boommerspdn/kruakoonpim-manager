@@ -1,10 +1,6 @@
 import {
   formMenuSchema,
-  PatchMenu,
-  PostMenu,
   PublicMenu,
-  PublicMenuName,
-  PutMenuItem,
 } from "@/app/types/menu";
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -16,27 +12,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useDateStore } from "@/hooks/use-date";
 import { easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { format } from "date-fns";
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
 import React, { useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import useSWR, { Fetcher, useSWRConfig } from "swr";
 import z from "zod";
 import { RemoveDialog } from "./remove-dialog";
 import { Badge } from "./ui/badge";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "./ui/combobox";
+import { useDashboardStore } from "@/app/store/dashboard-store";
 
 type MenuForm = {
   initialData?: PublicMenu[];
@@ -45,22 +30,14 @@ type MenuForm = {
 const formSchema = formMenuSchema;
 
 const MenuForm = ({ initialData }: MenuForm) => {
-  const { date } = useDateStore();
-  const { mutate } = useSWRConfig();
   const [deleteLoading, setDeleteLoading] = React.useState(false);
+  const { menus, updateMenu, addMenu, deleteMenu, resetToDefault } = useDashboardStore();
 
-  const fetcher: Fetcher<PublicMenuName[], string> = (url) =>
-    axios.get(url).then((res) => res.data);
-  const { data: menuNames } = useSWR("/api/menu/name", fetcher);
-
+  // Get unique menu names from current menus for combobox
   const getMenuNames = useMemo(
-    () => menuNames?.map((menu) => menu.name),
-    [menuNames],
+    () => menus?.map((menu) => menu.name) || [],
+    [menus],
   );
-
-  const formattedDate = date
-    ? format(date, "yyyy-MM-dd")
-    : format(new Date(), "yyyy-MM-dd");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,67 +57,61 @@ const MenuForm = ({ initialData }: MenuForm) => {
     try {
       if (form.formState.isDirty) {
         if (initialData) {
-          const formatInitial: PutMenuItem =
-            initialData?.map((item, index) => ({
-              id: item.id || "",
+          // Update existing menus
+          values.menu.forEach((item, index) => {
+            const existingMenu = initialData[index];
+            if (existingMenu) {
+              updateMenu(existingMenu.id, {
+                name: item.name || "",
+                amount: item.amount || 0,
+                price: item.price || 0,
+                sortOrder: index,
+              });
+            }
+          });
+          
+          // Add new menus if any
+          if (values.menu.length > initialData.length) {
+            for (let i = initialData.length; i < values.menu.length; i++) {
+              const item = values.menu[i];
+              addMenu({
+                name: item.name || "",
+                amount: item.amount || 0,
+                price: item.price || 0,
+                sortOrder: i,
+                date: new Date(),
+              });
+            }
+          }
+          
+          toast.success("แก้ไขเมนูเสร็จสิ้น");
+          document.getElementById("closeDialog")?.click();
+        } else {
+          // Create new menus
+          values.menu.forEach((item, index) => {
+            addMenu({
               name: item.name || "",
               amount: item.amount || 0,
               price: item.price || 0,
               sortOrder: index,
-            })) || [];
-
-          const putItem: PutMenuItem = values.menu.map((item, index) => ({
-            id: item.id || "",
-            name: item.name || "",
-            amount: item.amount || 0,
-            price: item.price || 0,
-            sortOrder: index,
-          }));
-
-          const findDifference = easyDiff(formatInitial, putItem);
-          const PatchData: PatchMenu = findDifference;
-
-          const response = await axios.patch(
-            `/api/menu?date=${formattedDate}`,
-            PatchData,
-          );
-          toast.success("แก้ไขเมนูเสร็จสิ้น");
-          console.log(response);
-
-          document.getElementById("closeDialog")?.click();
-        } else {
-          const postData: PostMenu = values.menu.map((item) => ({
-            name: item.name || "",
-            amount: item.amount || 0,
-            price: item.price || 0,
-          }));
-
-          const response = await axios.post(
-            `/api/menu?date=${formattedDate}`,
-            postData,
-          );
+              date: new Date(),
+            });
+          });
           toast.success("สร้างเมนูเสร็จสิ้น");
-
-          console.log(response);
         }
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
-    } finally {
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
     }
   }
 
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      await axios.delete(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
+      // Delete all menus for today
+      menus.forEach(menu => deleteMenu(menu.id));
+      toast.success("ลบเมนูเสร็จสิ้น");
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -164,34 +135,11 @@ const MenuForm = ({ initialData }: MenuForm) => {
                     <div className="rounded-full bg-primary w-12 h-auto py-0.5 text-white flex justify-center items-center text-center">
                       {index + 1}
                     </div>
-                    <Combobox
-                      items={getMenuNames}
-                      value={form.watch(`menu.${index}.name`) || ""}
-                      onValueChange={(value) => {
-                        if (!value) return;
-                        form.setValue(`menu.${index}.name`, value);
-                      }}
-                    >
-                      <ComboboxInput
-                        placeholder="พิมพ์หรือเลือกชื่อเมนู."
-                        onChange={(e) =>
-                          form.setValue(`menu.${index}.name`, e.target.value)
-                        }
-                        autoFocus
-                      />
-                      <ComboboxContent className={"pointer-events-auto"}>
-                        <ComboboxEmpty>
-                          ไม่พบชื่อเมนูนี้ (ระบบจะสร้างเป็นเมนูใหม่)
-                        </ComboboxEmpty>
-                        <ComboboxList>
-                          {(item: string) => (
-                            <ComboboxItem key={item} value={item}>
-                              {item}
-                            </ComboboxItem>
-                          )}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
+                    <Input
+                      {...form.register(`menu.${index}.name`)}
+                      placeholder="ชื่อเมนู"
+                      className="flex-1"
+                    />
                     <Input
                       {...form.register(`menu.${index}.amount`)}
                       className="w-28"
@@ -207,7 +155,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
                         min={0}
                         placeholder="ราคา"
                       />
-                      <Badge className="absolute top-1/2 right-[8px] transform  -translate-y-1/2 pointer-events-none">
+                      <Badge className="absolute top-1/2 right-[8px] transform -translate-y-1/2 pointer-events-none">
                         ฿
                       </Badge>
                     </div>
@@ -241,11 +189,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
               <>
                 <RemoveDialog
                   title="แน่ใจที่จะลบเมนู?"
-                  description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบเมนูวันที่ 
-                      ${date?.toLocaleDateString(
-                        "th-TH",
-                      )} หากแน่ใจให้กดปุ่มยืนยันการลบ
-                      เมื่ลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
+                  description={`หากกดยืนยันจะเป็นการยืนยันที่จะลบเมนูวันนี้ทั้งหมด เมื่อลบแล้วจะไม่สามารถนำกลับคืนมาได้`}
                   deleteFn={handleDelete}
                 >
                   <AlertDialogTrigger asChild>
