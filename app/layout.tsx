@@ -10,7 +10,7 @@ const anuphan = Anuphan({
 });
 
 export const metadata: Metadata = {
-  title: "Kruakoonpim",
+  title: "Order Management System",
   manifest: "/maniest",
 };
 

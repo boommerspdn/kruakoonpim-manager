@@ -1,18 +1,14 @@
 "use client";
-import React from "react";
 import { DataTable } from "@/app/data-table";
-import { PublicMenu } from "@/app/types/menu";
-import { PublicOrder } from "@/app/types/order";
+import { useDashboardStore } from "@/app/store/dashboard-store";
 import FinancialSection from "@/components/financial-section";
 import Loading from "@/components/loading";
 import MenuEdit from "@/components/menu-edit";
 import MenuPrompt from "@/components/menu-promt";
 import { SectionCards } from "@/components/section-cards";
-import { useDateStore } from "@/hooks/use-date";
-import { useDashboardStore } from "@/app/store/dashboard-store";
+import React from "react";
 
 const DashboardContent = () => {
-  const { date } = useDateStore();
   const [mounted, setMounted] = React.useState(false);
 
   // Get data from Zustand store instead of API
@@ -34,7 +30,7 @@ const DashboardContent = () => {
           <SectionCards data={menuSummary} />
           <div className="flex justify-between gap-4">
             <p className="text-muted-foreground w-full">
-              *ถ้าตักเสร็จแล้วอย่าลืมแก้ยอดทั้งหมดให้เท่าจำนวนที่ตักได้ด้วย
+              {/* *ถ้าตักเสร็จแล้วอย่าลืมแก้ยอดทั้งหมดให้เท่าจำนวนที่ตักได้ด้วย */}
             </p>
             <MenuEdit menu={menus} />
           </div>

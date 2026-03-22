@@ -20,7 +20,7 @@ export function SiteHeader() {
         </Link>
       </div>
       <div className="flex items-center">
-        <span className="text-sm font-medium text-muted-foreground">Demo Mode - Today's Data</span>
+        <span className="text-sm font-medium text-muted-foreground">Demo Mode - เมนูวันนี้</span>
       </div>
       <div>
       </div>

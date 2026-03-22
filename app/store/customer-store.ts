@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { Customer, CustomerFormValues, PublicCustomer } from '@/app/types/customer';
-import mockCustomers from '@/lib/data/mock-customers.json';
+import { CustomerFormValues, PublicCustomer } from "@/app/types/customer";
+import mockCustomers from "@/lib/data/mock-customers.json";
+import { create } from "zustand";
 
 // Helper function to generate unique IDs
 const generateUniqueId = (prefix: string): string => {
@@ -8,17 +8,19 @@ const generateUniqueId = (prefix: string): string => {
 };
 
 // Demo customer data
-const demoCustomers: PublicCustomer[] = mockCustomers.map((customer, index) => ({
-  ...customer,
-  id: `customer-${index + 1}`,
-  createdAt: new Date(customer.createdAt),
-  updatedAt: new Date(customer.updatedAt),
-}));
+const demoCustomers: PublicCustomer[] = mockCustomers.map(
+  (customer, index) => ({
+    ...customer,
+    id: `customer-${index + 1}`,
+    createdAt: new Date(customer.createdAt),
+    updatedAt: new Date(customer.updatedAt),
+  }),
+);
 
 interface CustomerStore {
   // Data
   customers: PublicCustomer[];
-  
+
   // Actions
   addCustomer: (customer: CustomerFormValues) => void;
   updateCustomer: (id: string, updates: CustomerFormValues) => void;
@@ -37,15 +39,17 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   // Actions
   addCustomer: (customerData) => {
     const customer: PublicCustomer = {
-      id: generateUniqueId('customer'),
-      name: customerData.name || '',
+      id: generateUniqueId("customer"),
+      name: customerData.name || "",
       aliases: customerData.aliases || [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     set((state) => ({
-      customers: [...state.customers, customer].sort((a, b) => a.name.localeCompare(b.name)),
+      customers: [...state.customers, customer].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      ),
     }));
   },
 
@@ -80,25 +84,28 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   },
 
   getCustomerByName: (name) => {
-    return get().customers.find((customer) => 
-      customer.name.toLowerCase() === name.toLowerCase()
+    return get().customers.find(
+      (customer) => customer.name.toLowerCase() === name.toLowerCase(),
     );
   },
 
   getCustomerByAlias: (alias) => {
     return get().customers.find((customer) =>
-      customer.aliases.some((a) => a.toLowerCase() === alias.toLowerCase())
+      customer.aliases.some((a) => a.toLowerCase() === alias.toLowerCase()),
     );
   },
 
   searchCustomers: (query) => {
     const { customers } = get();
     if (!query.trim()) return customers;
-    
+
     const lowercaseQuery = query.toLowerCase();
-    return customers.filter((customer) =>
-      customer.name.toLowerCase().includes(lowercaseQuery) ||
-      customer.aliases.some((alias) => alias.toLowerCase().includes(lowercaseQuery))
+    return customers.filter(
+      (customer) =>
+        customer.name.toLowerCase().includes(lowercaseQuery) ||
+        customer.aliases.some((alias) =>
+          alias.toLowerCase().includes(lowercaseQuery),
+        ),
     );
   },
 

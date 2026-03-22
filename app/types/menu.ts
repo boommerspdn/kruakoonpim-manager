@@ -27,12 +27,12 @@ export type FormMenu = z.infer<typeof formMenuSchema>;
 export const publicMenuSchema = z.object({
   id: z.string(),
   name: z.string(),
-  date: z.date(),
+  date: z.date().or(z.string()),
   price: z.coerce.number(),
   amount: z.coerce.number(),
   sortOrder: z.number(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().or(z.string()),
+  updatedAt: z.date().or(z.string()),
 });
 export type PublicMenu = z.infer<typeof publicMenuSchema>;
 

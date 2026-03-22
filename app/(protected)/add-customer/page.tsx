@@ -2,13 +2,12 @@
 
 import { Plus } from "lucide-react";
 
+import { useCustomerStore } from "@/app/store/customer-store";
 import { CustomerModal } from "@/components/modals/customer-modal";
 import { Button } from "@/components/ui/button";
 import { useCustomerModal } from "@/hooks/use-customer-modal";
-import { PublicCustomer } from "../../types/customer";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { useCustomerStore } from "@/app/store/customer-store";
 
 export default function CustomerManager() {
   const { customers } = useCustomerStore();

@@ -1,34 +1,13 @@
-import { create } from "zustand";
-import { PaymentStatus, MenuSummary } from "@/app/types/dashboard";
+import { MenuSummary, PaymentStatus } from "@/app/types/dashboard";
 import { PublicMenu } from "@/app/types/menu";
 import { PublicOrder } from "@/app/types/order";
 import mockMenus from "@/lib/data/mock-menu.json";
 import mockOrders from "@/lib/data/mock-order.json";
-import mockCustomers from "@/lib/data/mock-customers.json";
+import { create } from "zustand";
 
 // Helper function to generate unique IDs
 const generateUniqueId = (prefix: string): string => {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
-
-// Create customer ID mapping from mock data
-const customerIdToNameMap = new Map(
-  mockCustomers.map((customer, index) => [
-    customer.id,
-    {
-      id: `customer-${index + 1}`,
-      name: customer.name,
-      aliases: customer.aliases,
-      createdAt: new Date(customer.createdAt),
-      updatedAt: new Date(customer.updatedAt),
-    }
-  ])
-);
-
-// Find customer name by ID
-const getCustomerName = (customerId: string): string => {
-  const customer = customerIdToNameMap.get(customerId);
-  return customer?.name || "Unknown Customer";
 };
 
 // Convert mock data to proper format
@@ -148,7 +127,7 @@ interface DashboardStore {
   resetToDefault: () => void;
 }
 
-export const useDashboardStore = create<DashboardStore>((set, get) => ({
+export const useDashboardStore = create<DashboardStore>((set) => ({
   // Initial state
   menus: demoMenus,
   orders: demoOrders,

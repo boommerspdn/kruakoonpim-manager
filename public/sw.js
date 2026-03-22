@@ -1,4 +1,4 @@
-const CACHE_NAME = "kruakoonpim-cache-v1";
+const CACHE_NAME = "Order Management System-cache-v1";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("push", function (event) {

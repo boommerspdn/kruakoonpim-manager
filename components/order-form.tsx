@@ -1,4 +1,4 @@
-import { Customer } from "@/app/types/customer";
+import { useDashboardStore } from "@/app/store/dashboard-store";
 import { PublicMenu } from "@/app/types/menu";
 import { CreateOrder, createOrderSchema } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn, easyDiff } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save, Truck } from "lucide-react";
 import React from "react";
@@ -35,7 +35,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Separator } from "./ui/separator";
-import { useDashboardStore } from "@/app/store/dashboard-store";
 
 // Helper function to generate unique IDs
 const generateUniqueId = (prefix: string): string => {
@@ -84,12 +83,13 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
       if (form.formState.isDirty) {
         if (mode === "CREATE") {
           // Calculate the next sort order
-          const maxSortOrder = Math.max(...orders.map(o => o.sortOrder || 0), -1) + 1;
-          
+          const maxSortOrder =
+            Math.max(...orders.map((o) => o.sortOrder || 0), -1) + 1;
+
           // Calculate total price
           const totalPrice = values.orderItems.reduce((sum, item) => {
-            const menuItem = menu?.find(m => m.id === item.menuId);
-            return sum + ((menuItem?.price || 0) * (item.amount || 0));
+            const menuItem = menu?.find((m) => m.id === item.menuId);
+            return sum + (menuItem?.price || 0) * (item.amount || 0);
           }, 0);
 
           addOrder({
@@ -98,8 +98,8 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
             totalPrice,
             delivery: values.delivery || false,
             note: values.note || "",
-            orderItems: values.orderItems.map(item => ({
-              id: item.id || generateUniqueId('item'),
+            orderItems: values.orderItems.map((item) => ({
+              id: item.id || generateUniqueId("item"),
               menuId: item.menuId,
               amount: item.amount || 0,
             })),

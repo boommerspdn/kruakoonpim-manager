@@ -1,7 +1,5 @@
-import {
-  formMenuSchema,
-  PublicMenu,
-} from "@/app/types/menu";
+import { useDashboardStore } from "@/app/store/dashboard-store";
+import { formMenuSchema, PublicMenu } from "@/app/types/menu";
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,16 +10,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { easyDiff } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleMinus, Loader2, PlusCircle, Save, Trash } from "lucide-react";
-import React, { useMemo } from "react";
+import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import z from "zod";
 import { RemoveDialog } from "./remove-dialog";
 import { Badge } from "./ui/badge";
-import { useDashboardStore } from "@/app/store/dashboard-store";
 
 type MenuForm = {
   initialData?: PublicMenu[];
@@ -31,13 +27,7 @@ const formSchema = formMenuSchema;
 
 const MenuForm = ({ initialData }: MenuForm) => {
   const [deleteLoading, setDeleteLoading] = React.useState(false);
-  const { menus, updateMenu, addMenu, deleteMenu, resetToDefault } = useDashboardStore();
-
-  // Get unique menu names from current menus for combobox
-  const getMenuNames = useMemo(
-    () => menus?.map((menu) => menu.name) || [],
-    [menus],
-  );
+  const { menus, updateMenu, addMenu, deleteMenu } = useDashboardStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +59,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
               });
             }
           });
-          
+
           // Add new menus if any
           if (values.menu.length > initialData.length) {
             for (let i = initialData.length; i < values.menu.length; i++) {
@@ -83,7 +73,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
               });
             }
           }
-          
+
           toast.success("แก้ไขเมนูเสร็จสิ้น");
           document.getElementById("closeDialog")?.click();
         } else {
@@ -110,7 +100,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
     setDeleteLoading(true);
     try {
       // Delete all menus for today
-      menus.forEach(menu => deleteMenu(menu.id));
+      menus.forEach((menu) => deleteMenu(menu.id));
       toast.success("ลบเมนูเสร็จสิ้น");
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
