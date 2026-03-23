@@ -50,8 +50,10 @@ export const responseSchema = {
           },
           payment: {
             type: Type.STRING,
+            nullable: true,
+            enum: ["ONLINE"],
             description:
-              "สถานะการจ่ายเงิน: 'ONLINE' ถ้ามีคำว่า 'โอนแล้ว', null ถ้าไม่ระบุ",
+              "สถานะการจ่ายเงิน: คืนค่า 'ONLINE' เฉพาะเมื่อพบคำว่า 'โอนแล้ว' ในข้อมูลต้นทาง เท่านั้น",
           },
           sortOrder: {
             type: Type.INTEGER,

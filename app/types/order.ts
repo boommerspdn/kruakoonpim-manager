@@ -10,7 +10,7 @@ export const orderItemsSchema = z.array(
 
 export type OrderItems = z.infer<typeof orderItemsSchema>;
 
-export const paymentSchema = z.enum(["CASH", "ONLINE", "UNKNOWN"]).optional();
+export const paymentSchema = z.enum(["CASH", "ONLINE", "UNKNOWN"]).nullish();
 
 export type Payment = z.infer<typeof paymentSchema>;
 
