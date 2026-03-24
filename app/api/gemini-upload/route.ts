@@ -4,9 +4,15 @@ import {
   createUserContent,
   GoogleGenAI,
 } from "@google/genai";
+import { Storage } from "@google-cloud/storage";
 import { NextRequest, NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({});
+
+// Google Cloud - Vertex AI
+// const storage = new Storage();
+// const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET ?? "";
+// Google Cloud - Vertex AI
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +33,37 @@ export async function POST(req: NextRequest) {
       throw new Error("files size combined are too large");
     }
 
+    // Google Cloud - Vertex AI
+    // ====================================================================================
+    // async function uploadToGCS(file: File) {
+    //   const bucket = storage.bucket(bucketName);
+    //   const blob = bucket.file(file.name);
+
+    //   const arrayBuffer = await file.arrayBuffer();
+    //   await blob.save(Buffer.from(arrayBuffer));
+
+    //   return `gs://${bucketName}/${file.name}`;
+    // }
+    // const uploadPromises = files.map(async (file) => {
+    //   const gcsUri = await uploadToGCS(file);
+    //   return {
+    //     uri: gcsUri,
+    //     mimeType: file.type,
+    //   };
+    // });
+    // const uploadedFiles = await Promise.all(uploadPromises);
+
+    // const fileParts = uploadedFiles.map((file) => ({
+    //   fileData: {
+    //     fileUri: file.uri,
+    //     mimeType: file.mimeType,
+    //   },
+    // }));
+    // ====================================================================================
+    // Google Cloud - Vertex AI
+
+    // Google Ai Studio
+    // ====================================================================================
     const uploadPromises = files.map(async (file) => {
       return ai.files.upload({
         file: file,
@@ -36,14 +73,20 @@ export async function POST(req: NextRequest) {
         },
       });
     });
+    console.log("Files Length:", files.length);
+
     const uploadedFiles = await Promise.all(uploadPromises);
+
     const fileParts = uploadedFiles.map((file) =>
       createPartFromUri(file.uri as string, file.mimeType as string),
     );
+    // ====================================================================================
+    // Google Ai Studio
+
     console.log("[LOG]: Upload completed");
 
     const prompt = `คุณคือผู้เชี่ยวชาญด้าน OCR (Optical Character Recognition) หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON 
-    กฎการอ่านและสกัดข้อมูล (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด):
+    กฎการอ่านและสกัดข้อมูล (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด) ข้อมูลอาจมีมากกว่าหนึ่งหน้าให้อ่านให้ครบทุกหน้า:
 
     [ส่วนของ เมนู (menus)]
     1. แถวบนสุดคือ "ราคา" (price) เช่น 50, 40, 200
@@ -54,16 +97,19 @@ export async function POST(req: NextRequest) {
     [ส่วนของ ออเดอร์ (orders) - การอ่านชื่อลูกค้า]
     1. คอลัมน์แรกสุดคือ "ชื่อลูกค้า" (customerName) ให้อ่านและสะกดตัวอักษร "ตามที่คุณเห็นในภาพแบบเป๊ะๆ"
     2. ห้ามเดาชื่อจากบริบท: ห้ามแปลงชื่อ ห้ามพยายามทำให้เป็นคำที่มีความหมาย หากลายมือตวัดหรืออ่านยาก ให้พยายามแกะทีละตัวอักษรตามรูปร่างที่เห็น
-    3. การแยกชื่อและยอดรวม: ชื่อลูกค้าและยอดรวมจะอยู่ติดกัน (เช่น "โอ๊ค 150" หรือ "P'อ๊อด 200") ให้สกัดเฉพาะส่วนที่เป็น "ชื่อ" ออกมา และตัดตัวเลขด้านหลังทิ้งไป
-    4. หากมีการขีดค่าชื่อและจำนวนสั่งซื้อ(line through) ให้ปล่อยไว้ไม่ต้องสนใจ
+    3. การแยกชื่อและยอดรวม: ชื่อลูกค้าและยอดรวมจะอยู่ติดกัน (เช่น "โอ๊ค 150" หรือ "P'อ๊อด 200") ให้สกัดเฉพาะส่วนที่เป็น "ชื่อ" ออกมา และตัดตัวเลขด้านหลังทิ้งไป แต่ถ้าไม่มีตัวเลขก็ไม่ต้องทำอะไร
 
     [ส่วนของ ออเดอร์ (orders) - การจัดเรียงและรายละเอียดอื่นๆ]
     1. การระวังบรรทัด (สำคัญ): ตารางในภาพไม่ได้ตีเส้นบรรทัดชัดเจน ให้คุณกวาดสายตาจากซ้ายไปขวาอย่างระมัดระวัง เพื่อไม่ให้ตัวเลขสั่งอาหารสลับบรรทัดกัน
     2. การจัดลำดับ (sortOrder): ให้รันเลข 1, 2, 3... ตามลำดับบรรทัดจากบนลงล่าง
     3. การส่ง (delivery): หากมีเครื่องหมายติ๊กถูก (/) อยู่บริเวณชื่อลูกค้า ให้ตั้งค่าเป็น true หากไม่มีเป็น false
-    5. หมายเหตุและจำนวน (Quantity & Note): หากในช่องเดียวมีการสั่งหลายครั้งและมี Note แยกกัน ให้รวมจำนวน (Quantity) เข้าด้วยกัน และนำ Note ทั้งหมดมาเขียนต่อกันใน field เดียว (เช่น "แยกน้ำ, พิเศษ") โดยใช้เครื่องหมายจุลภาค (,) คั่น ห้ามปัดตัวเลขหรือข้อความใดทิ้ง
+    5. การจัดการหมายเหตุและจำนวน (Strict Rules):
+        -ในช่องเมนู ให้อ่านเฉพาะตัวเลข (Digit) เพื่อใส่ใน amount เท่านั้น
+        -ห้ามใส่เครื่องหมายจุด (.) หรือสัญลักษณ์ขีดเขียนใดๆ ที่ปนอยู่กับตัวเลข เข้ามาใน JSON เด็ดขาด
+        -หากพบข้อความ (เช่น "แยกน้ำ") ให้สกัดเฉพาะข้อความใส่ note หากไม่มีให้ note เป็น null
     6. ให้สร้าง "id" ของออเดอร์ เช่น "order_1", "order_2"
     7. ในบางวันจะมีเมนูผัดหอยลาย เผา/เทียม ให้แยกออกต่างหากเป็น 2 เมนู เช่น ผัดหอยลาย (เผา) และ ผัดหอยลาย (กระเทียม)
+    
 
     [ส่วนของ รายการที่สั่ง (orderItems)]
     1. ให้ใช้ "menuId" ให้ตรงกับ "id" ที่คุณสร้างไว้ในส่วนของ menus 
@@ -73,7 +119,7 @@ export async function POST(req: NextRequest) {
       `[Start] Request initiated at: ${new Date().toLocaleTimeString()}`,
     );
     const response = await ai.models.generateContentStream({
-      model: "gemini-3.1-pro-preview",
+      model: process.env.GOOGLE_GENAI_MODEL ?? "gemini-3.1-flash-lite-preview",
       contents: createUserContent([prompt, ...fileParts]),
       config: {
         temperature: 0,
@@ -95,6 +141,7 @@ export async function POST(req: NextRequest) {
           }
           controller.close();
         } catch (error) {
+          console.log(error);
           controller.error(error);
         }
       },

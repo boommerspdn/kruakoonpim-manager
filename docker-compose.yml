@@ -3,10 +3,15 @@ services:
     build: 
       context: .
       args:
-        - GEMINI_API_KEY=${GEMINI_API_KEY}
         - LOGIN_PASSCODE=${LOGIN_PASSCODE}
         - INTERNAL_API_KEY=${INTERNAL_API_KEY}
         - DATABASE_URL=${DATABASE_URL}
+        - GEMINI_API_KEY=${GEMINI_API_KEY}
+    # - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+    # - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
+    # - GOOGLE_GENAI_USE_VERTEXAI=${GOOGLE_GENAI_USE_VERTEXAI}
+    # - GOOGLE_CLOUD_STORAGE_BUCKET=${GOOGLE_CLOUD_STORAGE_BUCKET}
+    # - GOOGLE_GENAI_MODEL=${GOOGLE_GENAI_MODEL}
     container_name: kruakoonpim-manager
     ports:
     - "3000:3000"
@@ -17,6 +22,9 @@ services:
       - HOSTNAME=0.0.0.0
       - PORT=3000
       - DATABASE_URL=${DATABASE_URL}
+    # - GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcloud/application_default_credentials.json
+    # volumes:
+    #   - "C:/Users/Boomm/AppData/Roaming/gcloud:/app/config/gcloud:ro"
     networks:
       - app-tier
       - db-tier   # <--- Added back so Next.js can see the database

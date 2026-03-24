@@ -40,7 +40,7 @@ export const responseSchema = {
           note: {
             type: Type.STRING,
             description:
-              "หมายเหตุเพิ่มเติม เช่น 'แยกน้ำ, เผ็ดน้อย' (ถ้าไม่มีให้เป็น null หรือเว้นว่าง)",
+              "หมายเหตุของเมนูนี้ (ถ้ามีหลายโน้ตในช่องเดียวให้คั่นด้วย ,)",
             nullable: true,
           },
           delivery: {
