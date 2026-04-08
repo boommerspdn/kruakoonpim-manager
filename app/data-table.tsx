@@ -230,7 +230,7 @@ export function DataTable({
           return (
             <div
               className={cn(
-                "flex gap-2 items-center w-[200px] xl:w-[130px]",
+                "flex gap-2 items-center w-[180px] xl:w-auto",
                 status === "COMPLETED" ? "line-through text-destructive" : "",
               )}
             >

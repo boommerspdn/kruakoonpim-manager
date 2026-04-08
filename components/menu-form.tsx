@@ -175,7 +175,9 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       <ComboboxInput
                         placeholder="พิมพ์หรือเลือกชื่อเมนู."
                         onChange={(e) =>
-                          form.setValue(`menu.${index}.name`, e.target.value)
+                          form.setValue(`menu.${index}.name`, e.target.value, {
+                            shouldDirty: true,
+                          })
                         }
                         autoFocus
                       />

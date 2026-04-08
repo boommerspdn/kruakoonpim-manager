@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatOrderPrefix } from "@/lib/utils";
-import imageCompression from "browser-image-compression";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -39,33 +38,14 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
     setError(null);
 
     setChunks("");
-    setChunks((prev) => prev + "กำลังบีบอัดรูปภาพ... \n");
 
     try {
       const formData = new FormData();
 
-      const compressionOptions = {
-        maxSizeMB: 0.2,
-        maxWidthOrHeight: 2048,
-        useWebWorker: true,
-        fileType: "image/webp",
-        initialQuality: 0.6,
-        alwaysKeepResolution: true,
-      };
-
-      const compressedImagesPromises = images.map(async (img) => {
-        if (img.type.startsWith("image/")) {
-          return await imageCompression(img, compressionOptions);
-        }
-        return img;
+      images.forEach((img) => {
+        formData.append("images", img);
       });
 
-      const compressedImages = await Promise.all(compressedImagesPromises);
-
-      compressedImages.forEach((img) => formData.append("images", img));
-      console.log("[LOG]: Compression completed");
-
-      setChunks((prev) => prev + "บีบอัดรูปภาพเสร็จสิ้น...\n");
       setChunks((prev) => prev + "กำลังเริ่มต้นอัพโหลดรูปภาพ...\n");
 
       const response = await fetch("/api/gemini-upload", {
@@ -73,14 +53,13 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
         body: formData,
       });
       console.log("[LOG]: Post completed");
+      setChunks((prev) => prev + "อัพโหลดรูปภาพเสร็จสิ้น!\n");
+
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let result = "";
 
-      setChunks(
-        (prev) =>
-          prev + "อัพโหลดรูปภาพเสร็จสิ้น! AI กำลังประมวลผลข้อมูลภาพ...\n",
-      );
+      setChunks((prev) => prev + "AI กำลังประมวลผลข้อมูลภาพ...\n");
 
       while (true) {
         const { done, value } = await reader!.read();
@@ -138,6 +117,36 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [previewUrls]);
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    let wakeLock: WakeLockSentinel | null = null;
+
+    const requestWakeLock = async () => {
+      try {
+        if ("wakeLock" in navigator) {
+          wakeLock = await navigator.wakeLock.request("screen");
+        }
+      } catch {
+        // Wake lock unavailable or denied — silently ignore
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        requestWakeLock();
+      }
+    };
+
+    requestWakeLock();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      wakeLock?.release().catch(() => {});
+    };
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

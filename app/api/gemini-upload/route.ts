@@ -1,18 +1,7 @@
 import { responseSchema } from "@/lib/gemini-response-type";
-import {
-  createPartFromUri,
-  createUserContent,
-  GoogleGenAI,
-} from "@google/genai";
-import { Storage } from "@google-cloud/storage";
+import { getGeminiProvider } from "@/lib/gemini/provider";
+import { createUserContent } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
-
-const ai = new GoogleGenAI({});
-
-// Google Cloud - Vertex AI
-// const storage = new Storage();
-// const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET ?? "";
-// Google Cloud - Vertex AI
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,57 +22,10 @@ export async function POST(req: NextRequest) {
       throw new Error("files size combined are too large");
     }
 
-    // Google Cloud - Vertex AI
-    // ====================================================================================
-    // async function uploadToGCS(file: File) {
-    //   const bucket = storage.bucket(bucketName);
-    //   const blob = bucket.file(file.name);
+    const { ai, buildFileParts, provider } = getGeminiProvider();
 
-    //   const arrayBuffer = await file.arrayBuffer();
-    //   await blob.save(Buffer.from(arrayBuffer));
-
-    //   return `gs://${bucketName}/${file.name}`;
-    // }
-    // const uploadPromises = files.map(async (file) => {
-    //   const gcsUri = await uploadToGCS(file);
-    //   return {
-    //     uri: gcsUri,
-    //     mimeType: file.type,
-    //   };
-    // });
-    // const uploadedFiles = await Promise.all(uploadPromises);
-
-    // const fileParts = uploadedFiles.map((file) => ({
-    //   fileData: {
-    //     fileUri: file.uri,
-    //     mimeType: file.mimeType,
-    //   },
-    // }));
-    // ====================================================================================
-    // Google Cloud - Vertex AI
-
-    // Google Ai Studio
-    // ====================================================================================
-    const uploadPromises = files.map(async (file) => {
-      return ai.files.upload({
-        file: file,
-        config: {
-          displayName: file.name,
-          mimeType: file.type,
-        },
-      });
-    });
-    console.log("Files Length:", files.length);
-
-    const uploadedFiles = await Promise.all(uploadPromises);
-
-    const fileParts = uploadedFiles.map((file) =>
-      createPartFromUri(file.uri as string, file.mimeType as string),
-    );
-    // ====================================================================================
-    // Google Ai Studio
-
-    console.log("[LOG]: Upload completed");
+    const fileParts = await buildFileParts(files);
+    console.log("[LOG]: Upload completed", { provider, fileCount: files.length, model: process.env.GOOGLE_GENAI_MODEL });
 
     const prompt = `คุณคือผู้เชี่ยวชาญด้าน OCR (Optical Character Recognition) หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON 
     กฎการอ่านและสกัดข้อมูล (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด) ข้อมูลอาจมีมากกว่าหนึ่งหน้าให้อ่านให้ครบทุกหน้า:
@@ -113,7 +55,10 @@ export async function POST(req: NextRequest) {
 
     [ส่วนของ รายการที่สั่ง (orderItems)]
     1. ให้ใช้ "menuId" ให้ตรงกับ "id" ที่คุณสร้างไว้ในส่วนของ menus 
-    2. ให้ใส่เฉพาะเมนูที่ลูกค้าสั่ง (จำนวนมากกว่า 0) เท่านั้น`;
+    2. ให้ใส่เฉพาะเมนูที่ลูกค้าสั่ง (จำนวนมากกว่า 0) เท่านั้น
+    
+    ตอบกลับเป็น JSON อย่างเดียว ห้ามมีข้อความอื่น/Markdown/โค้ดเฟนซ์ และห้ามใส่คีย์นอกเหนือจาก schema
+    `;
 
     console.log(
       `[Start] Request initiated at: ${new Date().toLocaleTimeString()}`,
@@ -125,6 +70,7 @@ export async function POST(req: NextRequest) {
         temperature: 0,
         responseMimeType: "application/json",
         responseSchema: responseSchema,
+        maxOutputTokens: 65536,
       },
     });
 
