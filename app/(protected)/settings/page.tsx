@@ -80,7 +80,7 @@ export default function SettingsPage() {
         | null;
 
       if (!res.ok) {
-        throw new Error(data?.message ?? "Failed to save settings");
+        throw new Error(data?.message ?? "บันทึกตั้งค่า Gemini ไม่สำเร็จ");
       }
 
       if (data) {
@@ -91,7 +91,7 @@ export default function SettingsPage() {
 
       toast.success("Saved Gemini settings");
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to save settings";
+      const message = e instanceof Error ? e.message : "บันทึกตั้งค่า Gemini ไม่สำเร็จ";
       toast.error(message);
     } finally {
       setSaving(false);
@@ -110,7 +110,7 @@ export default function SettingsPage() {
 
   function removeModel(name: string) {
     if (name === model) {
-      toast.error("Can’t remove the currently selected model");
+      toast.error("ไม่สามารถลบ Model ที่ถูกเลือกปัจจุบันได้");
       return;
     }
     setModelOptions(modelOptions.filter((m) => m !== name));
