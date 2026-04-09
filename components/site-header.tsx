@@ -4,7 +4,7 @@ import Link from "next/link";
 import { DatePickerForm } from "./date-picker";
 import { LogoutButton } from "./logout-button";
 import { Button } from "./ui/button";
-import { Home, UserPlus } from "lucide-react";
+import { Home, Settings, UserPlus } from "lucide-react";
 
 export function SiteHeader() {
   return (
@@ -24,7 +24,12 @@ export function SiteHeader() {
       <div>
         <DatePickerForm />
       </div>
-      <div>
+      <div className="flex gap-1 items-center">
+        <Link href={"/settings"}>
+          <Button variant={"outline"} size={"icon"}>
+            <Settings />
+          </Button>
+        </Link>
         <LogoutButton />
       </div>
     </header>

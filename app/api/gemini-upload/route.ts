@@ -1,5 +1,6 @@
 import { responseSchema } from "@/lib/gemini-response-type";
 import { getGeminiProvider } from "@/lib/gemini/provider";
+import { getOrCreateGeminiSettings } from "@/lib/gemini/settings";
 import { createUserContent } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -22,10 +23,17 @@ export async function POST(req: NextRequest) {
       throw new Error("files size combined are too large");
     }
 
-    const { ai, buildFileParts, provider } = getGeminiProvider();
+    const { provider: providerFromDb, model } = await getOrCreateGeminiSettings();
+    const { ai, buildFileParts, provider } = getGeminiProvider({
+      providerOverride: providerFromDb,
+    });
 
     const fileParts = await buildFileParts(files);
-    console.log("[LOG]: Upload completed", { provider, fileCount: files.length, model: process.env.GOOGLE_GENAI_MODEL });
+    console.log("[LOG]: Upload completed", {
+      provider,
+      fileCount: files.length,
+      model,
+    });
 
     const prompt = `คุณคือผู้เชี่ยวชาญด้าน OCR (Optical Character Recognition) หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON 
     กฎการอ่านและสกัดข้อมูล (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด) ข้อมูลอาจมีมากกว่าหนึ่งหน้าให้อ่านให้ครบทุกหน้า:
@@ -64,7 +72,7 @@ export async function POST(req: NextRequest) {
       `[Start] Request initiated at: ${new Date().toLocaleTimeString()}`,
     );
     const response = await ai.models.generateContentStream({
-      model: process.env.GOOGLE_GENAI_MODEL ?? "gemini-3.1-flash-lite-preview",
+      model,
       contents: createUserContent([prompt, ...fileParts]),
       config: {
         temperature: 0,

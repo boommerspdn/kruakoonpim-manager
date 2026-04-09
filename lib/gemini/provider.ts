@@ -104,8 +104,8 @@ async function buildStudioFileParts(ai: GoogleGenAI, files: File[]) {
   return uploaded.map((f) => createPartFromUri(f.uri as string, f.mimeType as string));
 }
 
-export function getGeminiProvider() {
-  const provider = getGeminiProviderName();
+export function getGeminiProvider(opts?: { providerOverride?: GeminiProviderName }) {
+  const provider = opts?.providerOverride ?? getGeminiProviderName();
 
   if (provider === "studio") {
     const apiKey = requireEnv(
@@ -122,7 +122,7 @@ export function getGeminiProvider() {
   }
 
   // Vertex: relies on GOOGLE_GENAI_USE_VERTEXAI + project/location envs that the SDK reads.
-  const ai = new GoogleGenAI({});
+  const ai = new GoogleGenAI({vertexai: true});
   return {
     provider,
     ai,
