@@ -89,7 +89,7 @@ export default function SettingsPage() {
         setModelOptions(Array.isArray(data.modelOptions) ? data.modelOptions : []);
       }
 
-      toast.success("Saved Gemini settings");
+      toast.success("บันทึกตั้งค่า Gemini สำเร็จ");
     } catch (e) {
       const message = e instanceof Error ? e.message : "บันทึกตั้งค่า Gemini ไม่สำเร็จ";
       toast.error(message);
