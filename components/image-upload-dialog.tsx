@@ -118,36 +118,6 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
     };
   }, [previewUrls]);
 
-  React.useEffect(() => {
-    if (!open) return;
-
-    let wakeLock: WakeLockSentinel | null = null;
-
-    const requestWakeLock = async () => {
-      try {
-        if ("wakeLock" in navigator) {
-          wakeLock = await navigator.wakeLock.request("screen");
-        }
-      } catch {
-        // Wake lock unavailable or denied — silently ignore
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        requestWakeLock();
-      }
-    };
-
-    requestWakeLock();
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      wakeLock?.release().catch(() => {});
-    };
-  }, [open]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
