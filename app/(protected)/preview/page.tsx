@@ -9,31 +9,97 @@ import { StoreMenu, storeMenuSchema } from "@/app/types/menu";
 import { StoreOrder, storeOrderSchema } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDateStore } from "@/hooks/use-date";
+import { useGeminiStream } from "@/hooks/use-gemini-stream";
 import { matchAiNamesWithCustomers } from "@/lib/fuzzy-match";
+import { getMenuOrderSummary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
-import { BarChart, FileText, ListOrdered, Loader2, Save, Utensils } from "lucide-react";
+import {
+  BarChart,
+  FileText,
+  ListOrdered,
+  Loader2,
+  Save,
+  Utensils,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import useSWR, { Fetcher } from "swr";
 import Loading from "./components/loading";
 import MenuRow from "./components/menu-row";
 import OrderRow from "./components/order-row";
-import { getMenuOrderSummary } from "@/lib/utils";
 
 type StoreMenuOrder = {
   menus: StoreMenu[];
   orders: StoreOrder[];
 };
 
+const PageLoadingSkeleton = ({ pageNumber }: { pageNumber: number }) => (
+  <section className="space-y-4 px-2 mt-6 animate-in fade-in duration-500">
+    <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
+      <FileText className="h-5 w-5 text-primary" />
+      หน้า {pageNumber}
+      <span className="text-sm font-normal text-muted-foreground">
+        (กำลังโหลด...)
+      </span>
+    </h2>
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="flex flex-col justify-between p-3 rounded-lg border bg-white shadow-sm"
+        >
+          <Skeleton className="h-4 w-[70%] mb-2" />
+          <Skeleton className="h-8 w-[40%]" />
+        </div>
+      ))}
+    </div>
+
+    <div className="bg-white rounded-lg border shadow-sm overflow-hidden px-4 py-6">
+      <div className="flex items-center justify-center gap-3 py-4">
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        <span className="text-sm text-muted-foreground">
+          กำลังประมวลผลหน้า {pageNumber}...
+        </span>
+      </div>
+      <div className="space-y-4 mt-2">
+        {[1, 2].map((i) => (
+          <div key={i}>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4 md:py-4">
+              <Skeleton className="h-10 w-full" />
+              <div className="space-y-3 pt-2">
+                <Skeleton className="h-4 w-[80%]" />
+                <Skeleton className="h-4 w-[60%]" />
+              </div>
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-[100px]" />
+                <Skeleton className="h-[60px] w-full rounded-md" />
+              </div>
+            </div>
+            {i !== 2 && <Separator className="mt-2" />}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 const PreviewPage = () => {
   const router = useRouter();
-  const [initialData, setInitialData] = useState<StoreMenuOrder>({
-    menus: [],
-    orders: [],
-  });
-  const [isLoading, setIsloading] = useState(true);
+  const [sessionData, setSessionData] = useState<StoreMenuOrder | null>(null);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
+
+  const {
+    menus: streamMenus,
+    ordersByPage: streamOrdersByPage,
+    totalPages,
+    isStreaming,
+    firstPageReady,
+  } = useGeminiStream();
+
   const fetcher: Fetcher<Customer[], string> = (url) =>
     axios.get(url).then((res) => res.data.data);
   const { data: customers } = useSWR("/api/customers", fetcher);
@@ -46,22 +112,33 @@ const PreviewPage = () => {
     const saved = sessionStorage.getItem("geminiPreviewData");
     if (saved) {
       try {
-        setInitialData(JSON.parse(saved));
-
-        setTimeout(() => setIsloading(false), 100);
+        setSessionData(JSON.parse(saved));
       } catch (e) {
         console.error("Failed to parse session data", e);
       }
     }
+    setSessionLoaded(true);
   }, []);
 
-  useEffect(() => {
-    const savedData = sessionStorage.getItem("geminiPreviewData");
-    if (!savedData) {
-      router.push("/");
-      return;
+  const streamPreviewData = useMemo<StoreMenuOrder | null>(() => {
+    if (!firstPageReady) return null;
+    const allOrders: StoreOrder[] = [];
+    for (const pn of Object.keys(streamOrdersByPage)
+      .map(Number)
+      .sort((a, b) => a - b)) {
+      allOrders.push(...streamOrdersByPage[pn]);
     }
-  }, [router]);
+    return { menus: streamMenus, orders: allOrders };
+  }, [firstPageReady, streamMenus, streamOrdersByPage]);
+
+  const previewData = streamPreviewData ?? sessionData;
+  const isPageLoading = !sessionLoaded && !firstPageReady;
+
+  useEffect(() => {
+    if (sessionLoaded && !previewData && !firstPageReady && !isStreaming) {
+      router.push("/");
+    }
+  }, [sessionLoaded, previewData, firstPageReady, isStreaming, router]);
 
   const formSchema = z.object({
     menus: z.array(storeMenuSchema),
@@ -72,7 +149,7 @@ const PreviewPage = () => {
     z.infer<typeof formSchema>
   >({
     resolver: zodResolver(formSchema),
-    values: initialData,
+    values: previewData ?? { menus: [], orders: [] },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -82,14 +159,17 @@ const PreviewPage = () => {
   const { fields: orderFields } = useFieldArray({ control, name: "orders" });
 
   const aiDetectedNames = useMemo(() => {
-    return initialData.orders.map((o) => o.customerName);
-  }, [initialData.orders]);
+    return (previewData?.orders ?? []).map((o) => o.customerName);
+  }, [previewData?.orders]);
   const similarNamesMap = useMemo(() => {
     return matchAiNamesWithCustomers(customers || [], aiDetectedNames);
   }, [customers, aiDetectedNames]);
 
   const ordersByPage = useMemo(() => {
-    const grouped = new Map<number, { field: typeof orderFields[number]; index: number }[]>();
+    const grouped = new Map<
+      number,
+      { field: (typeof orderFields)[number]; index: number }[]
+    >();
     orderFields.forEach((field, index) => {
       const page = field.pageNumber ?? 1;
       if (!grouped.has(page)) grouped.set(page, []);
@@ -98,18 +178,44 @@ const PreviewPage = () => {
     return Array.from(grouped.entries()).sort(([a], [b]) => a - b);
   }, [orderFields]);
 
+  const loadedPageNumbers = useMemo(
+    () => new Set(ordersByPage.map(([pn]) => pn)),
+    [ordersByPage],
+  );
+
+  const pendingPageNumbers = useMemo(() => {
+    if (!isStreaming || totalPages <= 1) return [];
+    return Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+      (pn) => !loadedPageNumbers.has(pn),
+    );
+  }, [isStreaming, totalPages, loadedPageNumbers]);
+
+  const allPageNumbers = useMemo(() => {
+    const pages = new Set([
+      ...ordersByPage.map(([pn]) => pn),
+      ...pendingPageNumbers,
+    ]);
+    return Array.from(pages).sort((a, b) => a - b);
+  }, [ordersByPage, pendingPageNumbers]);
+
   const pageSummaries = useMemo(() => {
     const map = new Map<number, ReturnType<typeof getMenuOrderSummary>>();
     for (const [pageNumber, pageOrders] of ordersByPage) {
       const pageOrderData = pageOrders.map(({ field }) => field);
-      map.set(pageNumber, getMenuOrderSummary({ menus: initialData.menus, orders: pageOrderData }));
+      map.set(
+        pageNumber,
+        getMenuOrderSummary({
+          menus: previewData?.menus ?? [],
+          orders: pageOrderData,
+        }),
+      );
     }
     return map;
-  }, [ordersByPage, initialData.menus]);
+  }, [ordersByPage, previewData?.menus]);
 
   const totalSummary = useMemo(() => {
-    return getMenuOrderSummary(initialData);
-  }, [initialData]);
+    return getMenuOrderSummary(previewData ?? { menus: [], orders: [] });
+  }, [previewData]);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const hasEmptyName = data.orders.some((o) => !o.inputName?.trim());
@@ -141,23 +247,36 @@ const PreviewPage = () => {
         id: toastId,
       });
 
-      // sessionStorage.removeItem("geminiPreviewData");
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+        error instanceof Error
+          ? error.message
+          : "เกิดข้อผิดพลาดในการเชื่อมต่อ";
       toast.error(errorMessage, {
         id: toastId,
       });
     }
   };
 
-  if (isLoading) {
+  if (isPageLoading) {
     return <Loading />;
   }
 
   return (
     <div>
+      {isStreaming && (
+        <div className="sticky top-0 z-10 bg-primary/5 border-b backdrop-blur-sm">
+          <div className="flex items-center gap-2 px-4 py-2.5">
+            <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
+            <span className="text-sm text-primary font-medium">
+              กำลังประมวลผลหน้าถัดไป... (
+              {Object.keys(streamOrdersByPage).length}/{totalPages} หน้า)
+            </span>
+          </div>
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={(e) => {
@@ -204,10 +323,26 @@ const PreviewPage = () => {
           </div>
         </section>
 
-        {ordersByPage.map(([pageNumber, pageOrders]) => {
+        {allPageNumbers.map((pageNumber) => {
+          const pageData = ordersByPage.find(([pn]) => pn === pageNumber);
+
+          if (!pageData) {
+            return (
+              <PageLoadingSkeleton
+                key={pageNumber}
+                pageNumber={pageNumber}
+              />
+            );
+          }
+
+          const [, pageOrders] = pageData;
           const summary = pageSummaries.get(pageNumber) ?? [];
+
           return (
-            <section key={pageNumber} className="space-y-4 px-2 mt-6">
+            <section
+              key={pageNumber}
+              className="space-y-4 px-2 mt-6 animate-in fade-in duration-500"
+            >
               <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
                 <FileText className="h-5 w-5 text-primary" />
                 หน้า {pageNumber}
@@ -259,7 +394,7 @@ const PreviewPage = () => {
           );
         })}
 
-        {orderFields.length > 0 && ordersByPage.length > 1 && (
+        {orderFields.length > 0 && !isStreaming && ordersByPage.length > 1 && (
           <section className="space-y-4 px-2 mt-6">
             <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
               <BarChart className="h-5 w-5 text-primary" />
@@ -288,7 +423,7 @@ const PreviewPage = () => {
           </section>
         )}
 
-        {orderFields.length === 0 && (
+        {orderFields.length === 0 && !isStreaming && (
           <section className="space-y-4 px-2 mt-6">
             <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
               <ListOrdered className="h-5 w-5 text-primary" />
@@ -301,13 +436,16 @@ const PreviewPage = () => {
         )}
 
         <div className="flex justify-end py-6 px-2">
-          <Button type="submit" disabled={formState.isSubmitting}>
-            {formState.isSubmitting ? (
+          <Button
+            type="submit"
+            disabled={formState.isSubmitting || isStreaming}
+          >
+            {formState.isSubmitting || isStreaming ? (
               <Loader2 className="animate-spin" />
             ) : (
               <Save />
             )}
-            บันทึกข้อมูล
+            {isStreaming ? "รอประมวลผล..." : "บันทึกข้อมูล"}
           </Button>
         </div>
       </form>

@@ -106,29 +106,6 @@ async function processSubsequentPage(
   return JSON.parse(response.text ?? '{"orders":[]}');
 }
 
-function combineResults(
-  firstPage: FirstPageResult,
-  subsequentPages: { orders: GeminiOrder[]; pageNumber: number }[],
-) {
-  const allOrders: (GeminiOrder & { pageNumber: number })[] = [
-    ...firstPage.orders.map((o) => ({ ...o, pageNumber: 1 })),
-  ];
-
-  for (const { orders, pageNumber } of subsequentPages) {
-    for (const order of orders) {
-      allOrders.push({ ...order, pageNumber });
-    }
-  }
-
-  const renumbered = allOrders.map((order, idx) => ({
-    ...order,
-    id: `order_${idx + 1}`,
-    sortOrder: idx + 1,
-  }));
-
-  return { menus: firstPage.menus, orders: renumbered };
-}
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -185,9 +162,8 @@ export async function POST(req: NextRequest) {
           send(
             `PROGRESS:หน้า 1 เสร็จสิ้น — พบ ${firstPageResult.menus.length} เมนู, ${firstPageResult.orders.length} ออเดอร์\n`,
           );
+          send(`FIRST_PAGE:${JSON.stringify(firstPageResult)}\n`);
           console.log(`[Done] Page 1 at: ${new Date().toLocaleTimeString()}`);
-
-          let combined: ReturnType<typeof combineResults>;
 
           const remainingFileParts = await remainingUploadPromise;
 
@@ -205,36 +181,33 @@ export async function POST(req: NextRequest) {
               price: m.price,
             }));
 
-            const subsequentResults = await Promise.all(
+            await Promise.all(
               remainingFileParts.map(async (fp, idx) => {
+                const pageNumber = idx + 2;
                 const result = await processSubsequentPage(
                   ai,
                   subsequentModel,
                   fp,
                   menuRefs,
                 );
-                return { ...result, pageNumber: idx + 2 };
+                send(
+                  `PAGE:${pageNumber}:${JSON.stringify({ orders: result.orders, pageNumber })}\n`,
+                );
+                send(
+                  `PROGRESS:หน้า ${pageNumber} เสร็จสิ้น — พบ ${result.orders.length} ออเดอร์\n`,
+                );
+                console.log(
+                  `[Done] Page ${pageNumber} at: ${new Date().toLocaleTimeString()}`,
+                );
               }),
             );
 
-            for (let i = 0; i < subsequentResults.length; i++) {
-              send(
-                `PROGRESS:หน้า ${i + 2} เสร็จสิ้น — พบ ${subsequentResults[i].orders.length} ออเดอร์\n`,
-              );
-            }
             console.log(
               `[Done] All pages at: ${new Date().toLocaleTimeString()}`,
             );
-
-            combined = combineResults(firstPageResult, subsequentResults);
-          } else {
-            combined = combineResults(firstPageResult, []);
           }
 
-          send(
-            `PROGRESS:รวมผลทั้งหมด ${combined.orders.length} ออเดอร์ เสร็จสิ้น!\n`,
-          );
-          send(JSON.stringify(combined));
+          send(`DONE\n`);
           controller.close();
         } catch (error) {
           console.error(error);

@@ -1,5 +1,3 @@
-import { StoreMenu } from "@/app/types/menu";
-import { StoreOrder } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,9 +6,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { formatOrderPrefix } from "@/lib/utils";
+import { useGeminiStream } from "@/hooks/use-gemini-stream";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { StreamingContainer } from "./streaming-container";
 import { Input } from "./ui/input";
@@ -27,88 +25,28 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   const [images, setImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [chunks, setChunks] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async () => {
+  const { startUpload, isStreaming, progressMessages, firstPageReady, error } =
+    useGeminiStream();
+
+  const handleSubmit = () => {
     if (images.length === 0) return;
-    setLoading(true);
-    setError(null);
+    startUpload(images);
+  };
 
-    setChunks("");
-
-    try {
-      const formData = new FormData();
-
-      images.forEach((img) => {
-        formData.append("images", img);
-      });
-
-      setChunks((prev) => prev + "กำลังเริ่มต้นอัพโหลดรูปภาพ...\n");
-
-      const response = await fetch("/api/gemini-upload", {
-        method: "POST",
-        body: formData,
-      });
-      console.log("[LOG]: Post completed");
-      setChunks((prev) => prev + "อัพโหลดรูปภาพเสร็จสิ้น!\n");
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let jsonPayload = "";
-      let progressLog = "AI กำลังประมวลผลข้อมูลภาพ...\n";
-      setChunks(progressLog);
-
-      while (true) {
-        const { done, value } = await reader!.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("PROGRESS:")) {
-            progressLog += line.replace("PROGRESS:", "") + "\n";
-            setChunks(progressLog);
-          } else if (line.trim()) {
-            jsonPayload += line;
-          }
-        }
-      }
-
-      const orderJSON: {
-        menus: StoreMenu[];
-        orders: StoreOrder[];
-      } = JSON.parse(jsonPayload);
-
-      const formattedData = {
-        ...orderJSON,
-        orders: orderJSON.orders.map((order: StoreOrder) => ({
-          ...order,
-          customerName: formatOrderPrefix(order.customerName),
-          inputName: formatOrderPrefix(order.customerName),
-        })),
-      };
-
-      sessionStorage.setItem(
-        "geminiPreviewData",
-        JSON.stringify(formattedData),
-      );
-
+  useEffect(() => {
+    if (firstPageReady) {
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
       router.push("/preview");
-    } catch (err) {
-      setError(
-        (err instanceof Error ? err.message : "Unknown error") ||
-          "เกิดข้อผิดพลาด",
-      );
-      toast.error("เกิดข้อผิดพลาดในการประมวลผล");
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [firstPageReady, router]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error("เกิดข้อผิดพลาดในการประมวลผล");
+    }
+  }, [error]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -125,6 +63,8 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       previewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [previewUrls]);
+
+  const chunks = progressMessages.join("\n");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -193,15 +133,15 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
         <DialogFooter className="w-full">
           <div className="flex flex-col w-full gap-2">
             <div className="w-full">
-              <StreamingContainer content={chunks} isLoading={loading} />
+              <StreamingContainer content={chunks} isLoading={isStreaming} />
             </div>
             {error && <span className="text-red-500 text-sm">{error}</span>}
             <Button
               onClick={handleSubmit}
-              disabled={images.length === 0 || loading}
+              disabled={images.length === 0 || isStreaming}
               variant="default"
             >
-              {loading ? "กำลังอัปโหลด..." : "ส่งรูปภาพไปยัง Gemini"}
+              {isStreaming ? "กำลังอัปโหลด..." : "ส่งรูปภาพไปยัง Gemini"}
             </Button>
             <Button onClick={() => onOpenChange(false)} variant="outline">
               ปิด
