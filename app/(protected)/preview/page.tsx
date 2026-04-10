@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Customer } from "@/app/types/customer";
@@ -198,24 +198,32 @@ const PreviewPage = () => {
     return Array.from(pages).sort((a, b) => a - b);
   }, [ordersByPage, pendingPageNumbers]);
 
+  const watchedMenus = useWatch({ control, name: "menus" });
+  const watchedOrders = useWatch({ control, name: "orders" });
+
   const pageSummaries = useMemo(() => {
     const map = new Map<number, ReturnType<typeof getMenuOrderSummary>>();
-    for (const [pageNumber, pageOrders] of ordersByPage) {
-      const pageOrderData = pageOrders.map(({ field }) => field);
+    const grouped = new Map<number, StoreOrder[]>();
+    (watchedOrders ?? []).forEach((order) => {
+      const page = order.pageNumber ?? 1;
+      if (!grouped.has(page)) grouped.set(page, []);
+      grouped.get(page)!.push(order);
+    });
+    for (const [pageNumber, orders] of grouped) {
       map.set(
         pageNumber,
-        getMenuOrderSummary({
-          menus: previewData?.menus ?? [],
-          orders: pageOrderData,
-        }),
+        getMenuOrderSummary({ menus: watchedMenus ?? [], orders }),
       );
     }
     return map;
-  }, [ordersByPage, previewData?.menus]);
+  }, [watchedOrders, watchedMenus]);
 
   const totalSummary = useMemo(() => {
-    return getMenuOrderSummary(previewData ?? { menus: [], orders: [] });
-  }, [previewData]);
+    return getMenuOrderSummary({
+      menus: watchedMenus ?? [],
+      orders: watchedOrders ?? [],
+    });
+  }, [watchedMenus, watchedOrders]);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const hasEmptyName = data.orders.some((o) => !o.inputName?.trim());

@@ -143,7 +143,7 @@ const OrderRow = ({
             : "-"}
         </div>
       </div>
-      <OrderItem index={index} control={control} />
+      <OrderItem index={index} control={control} setValue={setValue} />
       <div className="align-top">
         <div className="flex flex-col space-y-3">
           <div className="flex items-center space-x-2 pt-2">
