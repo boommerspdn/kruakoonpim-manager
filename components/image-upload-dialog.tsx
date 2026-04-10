@@ -57,37 +57,45 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-      let result = "";
-
-      setChunks((prev) => prev + "AI กำลังประมวลผลข้อมูลภาพ...\n");
+      let jsonPayload = "";
+      let progressLog = "AI กำลังประมวลผลข้อมูลภาพ...\n";
+      setChunks(progressLog);
 
       while (true) {
         const { done, value } = await reader!.read();
-        if (done) {
-          const orderJSON: {
-            menus: StoreMenu[];
-            orders: StoreOrder[];
-          } = JSON.parse(result);
+        if (done) break;
 
-          const formattedData = {
-            ...orderJSON,
-            orders: orderJSON.orders.map((order: StoreOrder) => ({
-              ...order,
-              customerName: formatOrderPrefix(order.customerName),
-              inputName: formatOrderPrefix(order.customerName),
-            })),
-          };
-
-          sessionStorage.setItem(
-            "geminiPreviewData",
-            JSON.stringify(formattedData),
-          );
-          break;
-        }
         const chunk = decoder.decode(value);
-        result += chunk;
-        setChunks(result);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("PROGRESS:")) {
+            progressLog += line.replace("PROGRESS:", "") + "\n";
+            setChunks(progressLog);
+          } else if (line.trim()) {
+            jsonPayload += line;
+          }
+        }
       }
+
+      const orderJSON: {
+        menus: StoreMenu[];
+        orders: StoreOrder[];
+      } = JSON.parse(jsonPayload);
+
+      const formattedData = {
+        ...orderJSON,
+        orders: orderJSON.orders.map((order: StoreOrder) => ({
+          ...order,
+          customerName: formatOrderPrefix(order.customerName),
+          inputName: formatOrderPrefix(order.customerName),
+        })),
+      };
+
+      sessionStorage.setItem(
+        "geminiPreviewData",
+        JSON.stringify(formattedData),
+      );
 
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
       router.push("/preview");
@@ -185,7 +193,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
         <DialogFooter className="w-full">
           <div className="flex flex-col w-full gap-2">
             <div className="w-full">
-              <StreamingContainer content={chunks} />
+              <StreamingContainer content={chunks} isLoading={loading} />
             </div>
             {error && <span className="text-red-500 text-sm">{error}</span>}
             <Button

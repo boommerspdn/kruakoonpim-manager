@@ -1,8 +1,133 @@
-import { responseSchema } from "@/lib/gemini-response-type";
+import {
+  ordersOnlyResponseSchema,
+  responseSchema,
+} from "@/lib/gemini-response-type";
 import { getGeminiProvider } from "@/lib/gemini/provider";
 import { getOrCreateGeminiSettings } from "@/lib/gemini/settings";
-import { createUserContent } from "@google/genai";
+import { createUserContent, GoogleGenAI, Part } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
+
+type MenuRef = { id: string; name: string; price: number };
+
+type GeminiOrder = {
+  customerName: string;
+  note?: string | null;
+  delivery: boolean;
+  payment: string | null;
+  orderItems: { menuId: string; amount: number }[];
+};
+
+type FirstPageResult = {
+  menus: { id: string; name: string; price: number; amount: number }[];
+  orders: GeminiOrder[];
+};
+
+const SHARED_INTRO = `คุณคือผู้เชี่ยวชาญด้าน OCR หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON
+กฎ (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด):`;
+
+const ORDER_RULES = `
+[ออเดอร์ - ชื่อลูกค้า]
+1. คอลัมน์แรกสุดคือ customerName ให้อ่านแบบเป๊ะๆ ตามที่เห็นในภาพ
+2. ห้ามแปลงชื่อหรือเดาจากบริบท หากอ่านยากให้แกะทีละตัวอักษร
+3. ตัดตัวเลขยอดรวมที่ติดท้ายชื่อออก (เช่น "P'อ๊อด 200" → "P'อ๊อด")
+
+[ออเดอร์ - รายละเอียด]
+1. ระวังบรรทัด: กวาดสายตาซ้ายไปขวาอย่างระมัดระวัง ห้ามให้ตัวเลขสลับบรรทัด
+2. delivery: true หากมีเครื่องหมาย / อยู่บริเวณชื่อลูกค้า
+3. amount: อ่านเฉพาะตัวเลข ห้ามใส่จุด (.) หรือสัญลักษณ์อื่น
+4. note: ถ้ามีข้อความในช่องเมนู (เช่น "แยกน้ำ") ให้ใส่ใน note ถ้าไม่มีให้เป็น null
+5. payment: คืนค่า "ONLINE" เฉพาะเมื่อพบคำว่า "โอนแล้ว" เท่านั้น
+
+[orderItems]
+- ใส่เฉพาะเมนูที่ลูกค้าสั่ง (amount > 0) โดยใช้ menuId ตามที่กำหนด
+
+ตอบกลับเป็น JSON อย่างเดียว ห้ามมีข้อความอื่น/Markdown/โค้ดเฟนซ์`;
+
+function buildFirstPagePrompt(): string {
+  return `${SHARED_INTRO}
+
+[เมนู]
+1. แถวบนสุด = ราคา (price)
+2. แถวที่สอง = ยอดคงเหลือ (amount) ให้ยึดตัวเลขที่มากที่สุด
+3. แถวที่สาม = ชื่อเมนู (name)
+4. สร้าง id สำหรับแต่ละเมนู เช่น "menu_1", "menu_2"
+5. ในบางวันจะมีเมนูผัดหอยลาย เผา/เทียม ให้แยกเป็น 2 เมนู เช่น ผัดหอยลาย (เผา) และ ผัดหอยลาย (กระเทียม)
+${ORDER_RULES}`;
+}
+
+function buildSubsequentPagePrompt(
+  menus: MenuRef[],
+): string {
+  const menuList = menus
+    .map((m) => `- ${m.id}: ${m.name} (${m.price} บาท)`)
+    .join("\n");
+
+  return `${SHARED_INTRO}
+
+[เมนูที่ใช้ (จากหน้าแรก)] ใช้ menuId ตามรายการนี้เท่านั้น:
+${menuList}
+${ORDER_RULES}`;
+}
+
+async function processFirstPage(
+  ai: GoogleGenAI,
+  model: string,
+  filePart: Part,
+): Promise<FirstPageResult> {
+  const response = await ai.models.generateContent({
+    model,
+    contents: createUserContent([buildFirstPagePrompt(), filePart]),
+    config: {
+      temperature: 0,
+      responseMimeType: "application/json",
+      responseSchema: responseSchema,
+      maxOutputTokens: 65536,
+    },
+  });
+  return JSON.parse(response.text ?? "{}");
+}
+
+async function processSubsequentPage(
+  ai: GoogleGenAI,
+  model: string,
+  filePart: Part,
+  menus: MenuRef[],
+): Promise<{ orders: GeminiOrder[] }> {
+  const response = await ai.models.generateContent({
+    model,
+    contents: createUserContent([buildSubsequentPagePrompt(menus), filePart]),
+    config: {
+      temperature: 0,
+      responseMimeType: "application/json",
+      responseSchema: ordersOnlyResponseSchema,
+      maxOutputTokens: 65536,
+    },
+  });
+  return JSON.parse(response.text ?? '{"orders":[]}');
+}
+
+function combineResults(
+  firstPage: FirstPageResult,
+  subsequentPages: { orders: GeminiOrder[]; pageNumber: number }[],
+) {
+  const allOrders: (GeminiOrder & { pageNumber: number })[] = [
+    ...firstPage.orders.map((o) => ({ ...o, pageNumber: 1 })),
+  ];
+
+  for (const { orders, pageNumber } of subsequentPages) {
+    for (const order of orders) {
+      allOrders.push({ ...order, pageNumber });
+    }
+  }
+
+  const renumbered = allOrders.map((order, idx) => ({
+    ...order,
+    id: `order_${idx + 1}`,
+    sortOrder: idx + 1,
+  }));
+
+  return { menus: firstPage.menus, orders: renumbered };
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,88 +139,105 @@ export async function POST(req: NextRequest) {
     }
 
     const limitInBytes = 20 * 1024 * 1024;
-
-    const totalSize = files.reduce((acc, file) => {
-      return acc + file.size;
-    }, 0);
-
+    const totalSize = files.reduce((acc, file) => acc + file.size, 0);
     if (totalSize > limitInBytes) {
       throw new Error("files size combined are too large");
     }
 
-    const { provider: providerFromDb, model } = await getOrCreateGeminiSettings();
+    const { provider: providerFromDb, model, subModel } =
+      await getOrCreateGeminiSettings();
     const { ai, buildFileParts, provider } = getGeminiProvider({
       providerOverride: providerFromDb,
     });
+    const subsequentModel = subModel || model;
 
-    const fileParts = await buildFileParts(files);
-    console.log("[LOG]: Upload completed", {
+    const [firstFilePart] = await buildFileParts([files[0]]);
+    console.log("[LOG]: First image uploaded", {
       provider,
-      fileCount: files.length,
       model,
-    });
-
-    const prompt = `คุณคือผู้เชี่ยวชาญด้าน OCR (Optical Character Recognition) หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON 
-    กฎการอ่านและสกัดข้อมูล (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด) ข้อมูลอาจมีมากกว่าหนึ่งหน้าให้อ่านให้ครบทุกหน้า:
-
-    [ส่วนของ เมนู (menus)]
-    1. แถวบนสุดคือ "ราคา" (price) เช่น 50, 40, 200
-    2. แถวที่สองคือ "ยอดคงเหลือ" (amount) ให้ยึดตัวเลขที่มากที่สุดในหน้าแรกเป็นหลัก
-    3. แถวที่สามคือ "ชื่อเมนู" (name) เช่น ต้มยำไก่, แกงหมูฟักทอง
-    4. ให้สร้าง "id" สำหรับแต่ละเมนู เช่น "menu_1", "menu_2" เพื่อนำไปใช้อ้างอิง
-
-    [ส่วนของ ออเดอร์ (orders) - การอ่านชื่อลูกค้า]
-    1. คอลัมน์แรกสุดคือ "ชื่อลูกค้า" (customerName) ให้อ่านและสะกดตัวอักษร "ตามที่คุณเห็นในภาพแบบเป๊ะๆ"
-    2. ห้ามเดาชื่อจากบริบท: ห้ามแปลงชื่อ ห้ามพยายามทำให้เป็นคำที่มีความหมาย หากลายมือตวัดหรืออ่านยาก ให้พยายามแกะทีละตัวอักษรตามรูปร่างที่เห็น
-    3. การแยกชื่อและยอดรวม: ชื่อลูกค้าและยอดรวมจะอยู่ติดกัน (เช่น "โอ๊ค 150" หรือ "P'อ๊อด 200") ให้สกัดเฉพาะส่วนที่เป็น "ชื่อ" ออกมา และตัดตัวเลขด้านหลังทิ้งไป แต่ถ้าไม่มีตัวเลขก็ไม่ต้องทำอะไร
-
-    [ส่วนของ ออเดอร์ (orders) - การจัดเรียงและรายละเอียดอื่นๆ]
-    1. การระวังบรรทัด (สำคัญ): ตารางในภาพไม่ได้ตีเส้นบรรทัดชัดเจน ให้คุณกวาดสายตาจากซ้ายไปขวาอย่างระมัดระวัง เพื่อไม่ให้ตัวเลขสั่งอาหารสลับบรรทัดกัน
-    2. การจัดลำดับ (sortOrder): ให้รันเลข 1, 2, 3... ตามลำดับบรรทัดจากบนลงล่าง
-    3. การส่ง (delivery): หากมีเครื่องหมายติ๊กถูก (/) อยู่บริเวณชื่อลูกค้า ให้ตั้งค่าเป็น true หากไม่มีเป็น false
-    5. การจัดการหมายเหตุและจำนวน (Strict Rules):
-        -ในช่องเมนู ให้อ่านเฉพาะตัวเลข (Digit) เพื่อใส่ใน amount เท่านั้น
-        -ห้ามใส่เครื่องหมายจุด (.) หรือสัญลักษณ์ขีดเขียนใดๆ ที่ปนอยู่กับตัวเลข เข้ามาใน JSON เด็ดขาด
-        -หากพบข้อความ (เช่น "แยกน้ำ") ให้สกัดเฉพาะข้อความใส่ note หากไม่มีให้ note เป็น null
-    6. ให้สร้าง "id" ของออเดอร์ เช่น "order_1", "order_2"
-    7. ในบางวันจะมีเมนูผัดหอยลาย เผา/เทียม ให้แยกออกต่างหากเป็น 2 เมนู เช่น ผัดหอยลาย (เผา) และ ผัดหอยลาย (กระเทียม)
-    
-
-    [ส่วนของ รายการที่สั่ง (orderItems)]
-    1. ให้ใช้ "menuId" ให้ตรงกับ "id" ที่คุณสร้างไว้ในส่วนของ menus 
-    2. ให้ใส่เฉพาะเมนูที่ลูกค้าสั่ง (จำนวนมากกว่า 0) เท่านั้น
-    
-    ตอบกลับเป็น JSON อย่างเดียว ห้ามมีข้อความอื่น/Markdown/โค้ดเฟนซ์ และห้ามใส่คีย์นอกเหนือจาก schema
-    `;
-
-    console.log(
-      `[Start] Request initiated at: ${new Date().toLocaleTimeString()}`,
-    );
-    const response = await ai.models.generateContentStream({
-      model,
-      contents: createUserContent([prompt, ...fileParts]),
-      config: {
-        temperature: 0,
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-        maxOutputTokens: 65536,
-      },
+      subsequentModel,
     });
 
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
+        const send = (text: string) =>
+          controller.enqueue(encoder.encode(text));
+
         try {
-          for await (const chunk of response) {
-            const content = chunk.text;
-            console.log(content);
-            if (content) {
-              controller.enqueue(encoder.encode(content));
+          send(
+            `PROGRESS:กำลังประมวลผลหน้า 1 จาก ${files.length} หน้า (เมนู + ออเดอร์)...\n`,
+          );
+          console.log(
+            `[Start] Page 1 at: ${new Date().toLocaleTimeString()}`,
+          );
+
+          const remainingUploadPromise =
+            files.length > 1
+              ? buildFileParts(files.slice(1))
+              : Promise.resolve([]);
+
+          const firstPageResult = await processFirstPage(
+            ai,
+            model,
+            firstFilePart,
+          );
+          send(
+            `PROGRESS:หน้า 1 เสร็จสิ้น — พบ ${firstPageResult.menus.length} เมนู, ${firstPageResult.orders.length} ออเดอร์\n`,
+          );
+          console.log(`[Done] Page 1 at: ${new Date().toLocaleTimeString()}`);
+
+          let combined: ReturnType<typeof combineResults>;
+
+          const remainingFileParts = await remainingUploadPromise;
+
+          if (remainingFileParts.length > 0) {
+            send(
+              `PROGRESS:กำลังประมวลผลหน้า 2-${files.length} พร้อมกัน (${remainingFileParts.length} หน้า)...\n`,
+            );
+            console.log(
+              `[Start] Pages 2-${files.length} at: ${new Date().toLocaleTimeString()}`,
+            );
+
+            const menuRefs: MenuRef[] = firstPageResult.menus.map((m) => ({
+              id: m.id,
+              name: m.name,
+              price: m.price,
+            }));
+
+            const subsequentResults = await Promise.all(
+              remainingFileParts.map(async (fp, idx) => {
+                const result = await processSubsequentPage(
+                  ai,
+                  subsequentModel,
+                  fp,
+                  menuRefs,
+                );
+                return { ...result, pageNumber: idx + 2 };
+              }),
+            );
+
+            for (let i = 0; i < subsequentResults.length; i++) {
+              send(
+                `PROGRESS:หน้า ${i + 2} เสร็จสิ้น — พบ ${subsequentResults[i].orders.length} ออเดอร์\n`,
+              );
             }
+            console.log(
+              `[Done] All pages at: ${new Date().toLocaleTimeString()}`,
+            );
+
+            combined = combineResults(firstPageResult, subsequentResults);
+          } else {
+            combined = combineResults(firstPageResult, []);
           }
+
+          send(
+            `PROGRESS:รวมผลทั้งหมด ${combined.orders.length} ออเดอร์ เสร็จสิ้น!\n`,
+          );
+          send(JSON.stringify(combined));
           controller.close();
         } catch (error) {
-          console.log(error);
+          console.error(error);
           controller.error(error);
         }
       },

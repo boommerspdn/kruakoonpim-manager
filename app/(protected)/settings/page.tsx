@@ -20,8 +20,11 @@ type GeminiProvider = "vertex" | "studio";
 type GeminiSettingsDto = {
   provider: GeminiProvider;
   model: string;
+  subModel: string | null;
   modelOptions: string[];
 };
+
+const SAME_AS_MAIN = "__same__";
 
 function uniq(items: string[]) {
   return Array.from(new Set(items));
@@ -33,6 +36,7 @@ export default function SettingsPage() {
 
   const [provider, setProvider] = React.useState<GeminiProvider>("vertex");
   const [model, setModel] = React.useState<string>("");
+  const [subModel, setSubModel] = React.useState<string | null>(null);
   const [modelOptions, setModelOptions] = React.useState<string[]>([]);
   const [newModel, setNewModel] = React.useState("");
 
@@ -47,6 +51,7 @@ export default function SettingsPage() {
       const data = (await res.json()) as GeminiSettingsDto;
       setProvider(data.provider);
       setModel(data.model);
+      setSubModel(data.subModel);
       setModelOptions(Array.isArray(data.modelOptions) ? data.modelOptions : []);
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to load settings";
@@ -63,11 +68,12 @@ export default function SettingsPage() {
   async function save(next?: Partial<GeminiSettingsDto>) {
     setSaving(true);
     try {
-      const payload = {
+      const payload: GeminiSettingsDto = {
         provider: next?.provider ?? provider,
         model: next?.model ?? model,
+        subModel: next?.subModel !== undefined ? next.subModel : subModel,
         modelOptions: next?.modelOptions ?? modelOptions,
-      } satisfies GeminiSettingsDto;
+      };
 
       const res = await fetch("/api/settings/gemini", {
         method: "POST",
@@ -86,6 +92,7 @@ export default function SettingsPage() {
       if (data) {
         setProvider(data.provider);
         setModel(data.model);
+        setSubModel(data.subModel);
         setModelOptions(Array.isArray(data.modelOptions) ? data.modelOptions : []);
       }
 
@@ -111,6 +118,10 @@ export default function SettingsPage() {
   function removeModel(name: string) {
     if (name === model) {
       toast.error("ไม่สามารถลบ Model ที่ถูกเลือกปัจจุบันได้");
+      return;
+    }
+    if (name === subModel) {
+      toast.error("ไม่สามารถลบ Sub-model ที่ถูกเลือกปัจจุบันได้");
       return;
     }
     setModelOptions(modelOptions.filter((m) => m !== name));
@@ -147,7 +158,10 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Model</Label>
+            <Label>Model (หน้าแรก)</Label>
+            <p className="text-xs text-muted-foreground">
+              ใช้สำหรับหน้าแรก (อ่านเมนู + ออเดอร์)
+            </p>
             <Select
               value={model}
               onValueChange={(v) => setModel(v)}
@@ -157,6 +171,32 @@ export default function SettingsPage() {
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
               <SelectContent>
+                {modelOptions.map((m) => (
+                  <SelectItem key={m} value={m}>
+                    {m}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Sub-model (หน้า 2+)</Label>
+            <p className="text-xs text-muted-foreground">
+              ใช้สำหรับหน้าถัดไป (อ่านออเดอร์อย่างเดียว) — เลือก Flash เพื่อความเร็ว
+            </p>
+            <Select
+              value={subModel ?? SAME_AS_MAIN}
+              onValueChange={(v) => setSubModel(v === SAME_AS_MAIN ? null : v)}
+              disabled={disabled || modelOptions.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select sub-model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={SAME_AS_MAIN}>
+                  ใช้ Model เดียวกับหน้าแรก
+                </SelectItem>
                 {modelOptions.map((m) => (
                   <SelectItem key={m} value={m}>
                     {m}
@@ -188,8 +228,14 @@ export default function SettingsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => removeModel(m)}
-                    disabled={disabled || m === model}
-                    title={m === model ? "Selected model cannot be removed" : "Remove model"}
+                    disabled={disabled || m === model || m === subModel}
+                    title={
+                      m === model
+                        ? "Selected model cannot be removed"
+                        : m === subModel
+                          ? "Selected sub-model cannot be removed"
+                          : "Remove model"
+                    }
                   >
                     {m}
                     <span className="text-muted-foreground">×</span>

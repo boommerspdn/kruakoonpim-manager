@@ -105,6 +105,7 @@ export const storeOrderSchema = z.object({
   payment: paymentSchema,
   orderItems: z.array(z.object({ menuId: z.string(), amount: z.number() })),
   sortOrder: z.number().optional(),
+  pageNumber: z.number().optional(),
 });
 
 export type StoreOrder = z.infer<typeof storeOrderSchema>;

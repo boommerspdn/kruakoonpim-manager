@@ -63,11 +63,12 @@ model OrderItem {
 }
 
 model AppSetting {
-  id                String   @id
-  geminiProvider    String
-  geminiModel       String
+  id                 String   @id
+  geminiProvider     String
+  geminiModel        String
+  geminiSubModel     String?
   geminiModelOptions String[] @default([])
-  updatedAt         DateTime @updatedAt
+  updatedAt          DateTime @updatedAt
 }
 
 enum Status {

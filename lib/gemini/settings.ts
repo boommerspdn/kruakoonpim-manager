@@ -7,12 +7,14 @@ export type GeminiProviderName = "vertex" | "studio";
 export type GeminiSettings = {
   provider: GeminiProviderName;
   model: string;
+  subModel: string | null;
   modelOptions: string[];
 };
 
 const DEFAULT_SETTINGS: GeminiSettings = {
   provider: "vertex",
   model: "gemini-3.1-pro-preview",
+  subModel: null,
   modelOptions: ["gemini-3.1-pro-preview", "gemini-3-flash-preview"],
 };
 
@@ -40,6 +42,7 @@ export async function getOrCreateGeminiSettings(): Promise<GeminiSettings> {
     return {
       provider: existing.geminiProvider as GeminiProviderName,
       model: existing.geminiModel,
+      subModel: existing.geminiSubModel,
       modelOptions: existing.geminiModelOptions,
     };
   }
@@ -49,6 +52,7 @@ export async function getOrCreateGeminiSettings(): Promise<GeminiSettings> {
       id: GEMINI_SETTINGS_ID,
       geminiProvider: DEFAULT_SETTINGS.provider,
       geminiModel: DEFAULT_SETTINGS.model,
+      geminiSubModel: DEFAULT_SETTINGS.subModel,
       geminiModelOptions: DEFAULT_SETTINGS.modelOptions,
     },
   });
@@ -56,6 +60,7 @@ export async function getOrCreateGeminiSettings(): Promise<GeminiSettings> {
   return {
     provider: created.geminiProvider as GeminiProviderName,
     model: created.geminiModel,
+    subModel: created.geminiSubModel,
     modelOptions: created.geminiModelOptions,
   };
 }
@@ -63,6 +68,7 @@ export async function getOrCreateGeminiSettings(): Promise<GeminiSettings> {
 export type UpdateGeminiSettingsInput = Partial<{
   provider: GeminiProviderName;
   model: string;
+  subModel: string | null;
   modelOptions: string[];
 }>;
 
@@ -86,6 +92,15 @@ export function validateAndNormalizeGeminiSettingsUpdate(
     out.model = normalized;
   }
 
+  if (input.subModel !== undefined) {
+    if (input.subModel === null) {
+      out.subModel = null;
+    } else {
+      const normalized = normalizeModelName(input.subModel);
+      out.subModel = normalized || null;
+    }
+  }
+
   if (input.modelOptions !== undefined) {
     const normalized = uniqPreserveOrder(
       input.modelOptions.map(normalizeModelName).filter(Boolean),
@@ -95,4 +110,3 @@ export function validateAndNormalizeGeminiSettingsUpdate(
 
   return out;
 }
-

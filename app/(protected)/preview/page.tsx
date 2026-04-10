@@ -14,7 +14,7 @@ import { matchAiNamesWithCustomers } from "@/lib/fuzzy-match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
-import { BarChart, ListOrdered, Loader2, Save, Utensils } from "lucide-react";
+import { BarChart, FileText, ListOrdered, Loader2, Save, Utensils } from "lucide-react";
 import toast from "react-hot-toast";
 import useSWR, { Fetcher } from "swr";
 import Loading from "./components/loading";
@@ -87,7 +87,27 @@ const PreviewPage = () => {
   const similarNamesMap = useMemo(() => {
     return matchAiNamesWithCustomers(customers || [], aiDetectedNames);
   }, [customers, aiDetectedNames]);
-  const sumsOfOders = useMemo(() => {
+
+  const ordersByPage = useMemo(() => {
+    const grouped = new Map<number, { field: typeof orderFields[number]; index: number }[]>();
+    orderFields.forEach((field, index) => {
+      const page = field.pageNumber ?? 1;
+      if (!grouped.has(page)) grouped.set(page, []);
+      grouped.get(page)!.push({ field, index });
+    });
+    return Array.from(grouped.entries()).sort(([a], [b]) => a - b);
+  }, [orderFields]);
+
+  const pageSummaries = useMemo(() => {
+    const map = new Map<number, ReturnType<typeof getMenuOrderSummary>>();
+    for (const [pageNumber, pageOrders] of ordersByPage) {
+      const pageOrderData = pageOrders.map(({ field }) => field);
+      map.set(pageNumber, getMenuOrderSummary({ menus: initialData.menus, orders: pageOrderData }));
+    }
+    return map;
+  }, [ordersByPage, initialData.menus]);
+
+  const totalSummary = useMemo(() => {
     return getMenuOrderSummary(initialData);
   }, [initialData]);
 
@@ -183,66 +203,103 @@ const PreviewPage = () => {
             </table>
           </div>
         </section>
-        <section className="space-y-4 px-2 mt-6 mb-6">
-          <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
-            <BarChart className="h-5 w-5 text-primary" />
-            สรุปจำนวนออเดอร์ที่ต้องทำ
-          </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
-            {sumsOfOders.map((menu, index) => (
-              <div
-                key={index}
-                className="flex flex-col justify-between p-4 rounded-lg border bg-white shadow-sm hover:border-primary/50 transition-colors"
-              >
-                <span className="text-sm font-medium text-muted-foreground line-clamp-2">
-                  {menu.name}
+        {ordersByPage.map(([pageNumber, pageOrders]) => {
+          const summary = pageSummaries.get(pageNumber) ?? [];
+          return (
+            <section key={pageNumber} className="space-y-4 px-2 mt-6">
+              <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
+                <FileText className="h-5 w-5 text-primary" />
+                หน้า {pageNumber}
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({pageOrders.length} ออเดอร์)
                 </span>
+              </h2>
 
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-bold text-primary">
-                    {menu.totalOrdered}
-                  </span>
-                  <span className="text-xs text-muted-foreground font-normal">
-                    รายการ
-                  </span>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
+                {summary.map((menu, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-col justify-between p-3 rounded-lg border bg-white shadow-sm"
+                  >
+                    <span className="text-sm font-medium text-muted-foreground line-clamp-2">
+                      {menu.name}
+                    </span>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-bold text-primary">
+                        {menu.totalOrdered}
+                      </span>
+                      <span className="text-xs text-muted-foreground font-normal">
+                        รายการ
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
 
-            {(!sumsOfOders || sumsOfOders.length === 0) && (
-              <div className="col-span-full p-6 text-center text-sm text-muted-foreground border border-dashed rounded-lg bg-slate-50">
-                ยังไม่มีรายการสั่งอาหาร
+              <div className="bg-white rounded-lg border shadow-sm overflow-hidden px-4 grid gap-4">
+                {pageOrders.map(({ field, index }) => (
+                  <div key={field.id}>
+                    <OrderRow
+                      control={control}
+                      customers={customers?.map((c) => c.name) || []}
+                      index={index}
+                      field={field}
+                      setValue={setValue}
+                      register={register}
+                      siimilarNames={
+                        similarNamesMap.get(field.customerName) || null
+                      }
+                    />
+                    <Separator />
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        </section>
-        <section className="space-y-4 px-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
-            <ListOrdered className="h-5 w-5 text-primary" />
-            สรุปรายการสั่งอาหาร
-          </h2>
-          <div className="bg-white rounded-lg border shadow-sm overflow-hidden px-4 grid gap-4">
-            {orderFields.map((field, index) => {
-              return (
-                <div key={field.id}>
-                  <OrderRow
-                    control={control}
-                    customers={customers?.map((c) => c.name) || []}
-                    index={index}
-                    field={field}
-                    setValue={setValue}
-                    register={register}
-                    siimilarNames={
-                      similarNamesMap.get(field.customerName) || null
-                    }
-                  />
-                  <Separator />
+            </section>
+          );
+        })}
+
+        {orderFields.length > 0 && ordersByPage.length > 1 && (
+          <section className="space-y-4 px-2 mt-6">
+            <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
+              <BarChart className="h-5 w-5 text-primary" />
+              สรุปรวมทุกหน้า
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
+              {totalSummary.map((menu, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col justify-between p-4 rounded-lg border bg-white shadow-sm hover:border-primary/50 transition-colors"
+                >
+                  <span className="text-sm font-medium text-muted-foreground line-clamp-2">
+                    {menu.name}
+                  </span>
+                  <div className="mt-2 flex items-baseline gap-1.5">
+                    <span className="text-3xl font-bold text-primary">
+                      {menu.totalOrdered}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      รายการ
+                    </span>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {orderFields.length === 0 && (
+          <section className="space-y-4 px-2 mt-6">
+            <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
+              <ListOrdered className="h-5 w-5 text-primary" />
+              สรุปรายการสั่งอาหาร
+            </h2>
+            <div className="p-6 text-center text-sm text-muted-foreground border border-dashed rounded-lg bg-slate-50 mx-2">
+              ไม่พบรายการสั่งอาหารจากภาพ
+            </div>
+          </section>
+        )}
+
         <div className="flex justify-end py-6 px-2">
           <Button type="submit" disabled={formState.isSubmitting}>
             {formState.isSubmitting ? (

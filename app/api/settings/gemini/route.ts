@@ -28,6 +28,7 @@ export async function POST(req: Request) {
       .object({
         provider: z.enum(["vertex", "studio"]).optional(),
         model: z.string().optional(),
+        subModel: z.string().nullable().optional(),
         modelOptions: z.array(z.string()).optional(),
       })
       .strict();
@@ -40,12 +41,15 @@ export async function POST(req: Request) {
 
     const nextProvider = parsed.provider ?? current.provider;
     const nextModel = parsed.model ?? current.model;
+    const nextSubModel =
+      parsed.subModel !== undefined ? parsed.subModel : current.subModel;
     const nextModelOptions =
       parsed.modelOptions ?? current.modelOptions ?? [];
 
     const mergedModelOptions = (() => {
       const set = new Set(nextModelOptions);
       set.add(nextModel);
+      if (nextSubModel) set.add(nextSubModel);
       return Array.from(set);
     })();
 
@@ -54,6 +58,7 @@ export async function POST(req: Request) {
       data: {
         geminiProvider: nextProvider,
         geminiModel: nextModel,
+        geminiSubModel: nextSubModel,
         geminiModelOptions: mergedModelOptions,
       },
     });
@@ -61,6 +66,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       provider: updated.geminiProvider,
       model: updated.geminiModel,
+      subModel: updated.geminiSubModel,
       modelOptions: updated.geminiModelOptions,
     });
   } catch (error) {
