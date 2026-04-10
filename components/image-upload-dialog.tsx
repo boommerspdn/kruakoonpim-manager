@@ -35,8 +35,11 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   const { startUpload, isStreaming, progressMessages, firstPageReady, error } =
     useGeminiStream();
 
+  const uploadStarted = React.useRef(false);
+
   const handleSubmit = () => {
     if (images.length === 0) return;
+    uploadStarted.current = true;
     startUpload(images);
   };
 
@@ -56,7 +59,8 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   };
 
   useEffect(() => {
-    if (firstPageReady) {
+    if (firstPageReady && uploadStarted.current) {
+      uploadStarted.current = false;
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
       router.push("/preview");
     }
@@ -166,22 +170,26 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
             <Button onClick={() => onOpenChange(false)} variant="outline">
               ปิด
             </Button>
-            <Separator className="my-2" />
+
             {hasSavedPreview && (
-            <Badge
-              asChild
-              variant="secondary"
-              className="h-auto w-full max-w-full cursor-pointer justify-center whitespace-normal px-3 py-2 text-center text-xs font-normal leading-snug hover:bg-secondary/80"
-            >
-              <button
-                type="button"
-                onClick={goToSavedPreview}
-                className="inline-flex w-full items-center justify-center text-pretty outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                มีข้อมูลตรวจสอบจากครั้งก่อนอยู่แล้ว ไม่ต้องสแกนใหม่ — แตะเพื่อไปหน้าตรวจสอบ
-              </button>
-            </Badge>
-          )}
+              <>
+                <Separator className="my-2" />
+                <Badge
+                  asChild
+                  variant="secondary"
+                  className="h-auto w-full max-w-full cursor-pointer justify-center whitespace-normal px-3 py-2 text-center text-xs font-normal leading-snug hover:bg-secondary/80"
+                >
+                  <button
+                    type="button"
+                    onClick={goToSavedPreview}
+                    className="inline-flex w-full items-center justify-center text-pretty outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    มีข้อมูลตรวจสอบจากครั้งก่อนอยู่แล้ว ไม่ต้องสแกนใหม่ —
+                    แตะเพื่อไปหน้าตรวจสอบ
+                  </button>
+                </Badge>
+              </>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>

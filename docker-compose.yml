@@ -9,9 +9,7 @@ services:
         # - GEMINI_API_KEY=${GEMINI_API_KEY}
         - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
         - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
-        - GOOGLE_GENAI_USE_VERTEXAI=${GOOGLE_GENAI_USE_VERTEXAI}
         - GOOGLE_CLOUD_STORAGE_BUCKET=${GOOGLE_CLOUD_STORAGE_BUCKET}
-        - GOOGLE_GENAI_MODEL=${GOOGLE_GENAI_MODEL}
     container_name: kruakoonpim-manager
     ports:
     - "3000:3000"
@@ -21,7 +19,7 @@ services:
     environment:
       - HOSTNAME=0.0.0.0
       - PORT=3000
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=${DATABASE_URL_BUILD}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcloud/application_default_credentials.json
     volumes:
       - "C:/Users/Boomm/AppData/Roaming/gcloud:/app/config/gcloud:ro"

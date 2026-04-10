@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -145,18 +145,68 @@ const PreviewPage = () => {
     orders: z.array(storeOrderSchema),
   });
 
+  const syncedPagesRef = useRef<Set<number>>(new Set());
+  const dataSourceRef = useRef<"none" | "session" | "stream">("none");
+
   const { setValue, handleSubmit, control, register, formState } = useForm<
     z.infer<typeof formSchema>
   >({
     resolver: zodResolver(formSchema),
-    values: previewData ?? { menus: [], orders: [] },
-    resetOptions: {
-      keepDirtyValues: true,
-    },
+    defaultValues: { menus: [], orders: [] },
   });
 
-  const { fields: menuFields } = useFieldArray({ control, name: "menus" });
-  const { fields: orderFields } = useFieldArray({ control, name: "orders" });
+  const { fields: menuFields, replace: replaceMenus } = useFieldArray({
+    control,
+    name: "menus",
+  });
+  const {
+    fields: orderFields,
+    replace: replaceOrders,
+    append: appendOrders,
+  } = useFieldArray({ control, name: "orders" });
+
+  useEffect(() => {
+    if (!sessionData || firstPageReady || isStreaming) return;
+    if (dataSourceRef.current !== "none") return;
+
+    replaceMenus(sessionData.menus);
+    replaceOrders(sessionData.orders);
+    dataSourceRef.current = "session";
+    syncedPagesRef.current = new Set(
+      sessionData.orders.map((o) => o.pageNumber ?? 1),
+    );
+  }, [sessionData, firstPageReady, isStreaming, replaceMenus, replaceOrders]);
+
+  useEffect(() => {
+    if (!firstPageReady) return;
+
+    const pageNumbers = Object.keys(streamOrdersByPage)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    if (dataSourceRef.current !== "stream") {
+      replaceMenus(streamMenus);
+      const allOrders = pageNumbers.flatMap((pn) => streamOrdersByPage[pn]);
+      replaceOrders(allOrders);
+      dataSourceRef.current = "stream";
+      syncedPagesRef.current = new Set(pageNumbers);
+    } else {
+      const newPages = pageNumbers.filter(
+        (pn) => !syncedPagesRef.current.has(pn),
+      );
+      if (newPages.length === 0) return;
+      const newOrders = newPages.flatMap((pn) => streamOrdersByPage[pn]);
+      appendOrders(newOrders);
+      newPages.forEach((pn) => syncedPagesRef.current.add(pn));
+    }
+  }, [
+    firstPageReady,
+    streamMenus,
+    streamOrdersByPage,
+    replaceMenus,
+    replaceOrders,
+    appendOrders,
+  ]);
 
   const aiDetectedNames = useMemo(() => {
     return (previewData?.orders ?? []).map((o) => o.customerName);
@@ -255,6 +305,7 @@ const PreviewPage = () => {
         id: toastId,
       });
 
+      sessionStorage.removeItem("geminiPreviewData");
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =
@@ -264,8 +315,6 @@ const PreviewPage = () => {
       toast.error(errorMessage, {
         id: toastId,
       });
-    } finally {
-      sessionStorage.removeItem("geminiPreviewData");
     }
   };
 

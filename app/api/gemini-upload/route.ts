@@ -81,7 +81,6 @@ async function processFirstPage(
       temperature: 0,
       responseMimeType: "application/json",
       responseSchema: responseSchema,
-      maxOutputTokens: 65536,
     },
   });
   return JSON.parse(response.text ?? "{}");
@@ -100,7 +99,6 @@ async function processSubsequentPage(
       temperature: 0,
       responseMimeType: "application/json",
       responseSchema: ordersOnlyResponseSchema,
-      maxOutputTokens: 65536,
     },
   });
   return JSON.parse(response.text ?? '{"orders":[]}');
