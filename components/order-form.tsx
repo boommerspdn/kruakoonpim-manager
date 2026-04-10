@@ -274,6 +274,8 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
                             <Input
                               placeholder={value.menuName}
                               type="number"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               min={0}
                               defaultValue={findAmount?.toString()}
                               onChange={(e) =>

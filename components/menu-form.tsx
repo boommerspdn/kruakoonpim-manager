@@ -198,6 +198,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       {...form.register(`menu.${index}.amount`)}
                       className="w-28"
                       type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       min={0}
                       placeholder="จำนวน"
                     />
@@ -206,6 +208,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
                         {...form.register(`menu.${index}.price`)}
                         className="w-28"
                         type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         min={0}
                         placeholder="ราคา"
                       />

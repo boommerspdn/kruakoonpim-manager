@@ -31,6 +31,8 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
           </span>
           <Input
             type="number"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="pl-8 bg-white"
             min={0}
             placeholder="0.00"
@@ -41,6 +43,8 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
       <td className="p-1 pe-4 md:p-4">
         <Input
           type="number"
+          inputMode="numeric"
+          pattern="[0-9]*"
           className="bg-white"
           min={0}
           placeholder="0"

@@ -64,6 +64,8 @@ const OrderItem = ({ index, control, setValue }: OrderItemProps) => {
               </span>
               <Input
                 type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min={0}
                 value={hasValue ? amount : ""}
                 placeholder="-"
