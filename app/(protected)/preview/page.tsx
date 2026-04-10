@@ -264,6 +264,8 @@ const PreviewPage = () => {
       toast.error(errorMessage, {
         id: toastId,
       });
+    } finally {
+      sessionStorage.removeItem("geminiPreviewData");
     }
   };
 

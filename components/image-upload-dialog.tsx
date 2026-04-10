@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,11 +13,14 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { StreamingContainer } from "./streaming-container";
 import { Input } from "./ui/input";
+import { Separator } from "./ui/separator";
 
 interface ImageUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const PREVIEW_SESSION_KEY = "geminiPreviewData";
 
 const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   open,
@@ -25,6 +29,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   const [images, setImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasSavedPreview, setHasSavedPreview] = useState(false);
   const router = useRouter();
 
   const { startUpload, isStreaming, progressMessages, firstPageReady, error } =
@@ -33,6 +38,21 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   const handleSubmit = () => {
     if (images.length === 0) return;
     startUpload(images);
+  };
+
+  useEffect(() => {
+    if (!open || typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(PREVIEW_SESSION_KEY);
+      setHasSavedPreview(Boolean(raw?.trim()));
+    } catch {
+      setHasSavedPreview(false);
+    }
+  }, [open]);
+
+  const goToSavedPreview = () => {
+    onOpenChange(false);
+    router.push("/preview");
   };
 
   useEffect(() => {
@@ -146,6 +166,22 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
             <Button onClick={() => onOpenChange(false)} variant="outline">
               ปิด
             </Button>
+            <Separator className="my-2" />
+            {hasSavedPreview && (
+            <Badge
+              asChild
+              variant="secondary"
+              className="h-auto w-full max-w-full cursor-pointer justify-center whitespace-normal px-3 py-2 text-center text-xs font-normal leading-snug hover:bg-secondary/80"
+            >
+              <button
+                type="button"
+                onClick={goToSavedPreview}
+                className="inline-flex w-full items-center justify-center text-pretty outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                มีข้อมูลตรวจสอบจากครั้งก่อนอยู่แล้ว ไม่ต้องสแกนใหม่ — แตะเพื่อไปหน้าตรวจสอบ
+              </button>
+            </Badge>
+          )}
           </div>
         </DialogFooter>
       </DialogContent>
