@@ -34,7 +34,6 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import * as React from "react";
 
 import { z } from "zod";
@@ -91,79 +90,32 @@ function DragHandle({ id }: { id: string }) {
   );
 }
 
-const DraggableRow = React.memo(
-  function DraggableRow({
-    row,
-  }: {
-    row: Row<z.infer<typeof publicOrderSchema> & { id: string }>;
-  }) {
-    const { transform, transition, setNodeRef, isDragging } = useSortable({
-      id: row.original.id,
-    });
-
-    return (
-      <TableRow
-        data-state={row.getIsSelected() && "selected"}
-        data-dragging={isDragging}
-        ref={setNodeRef}
-        className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
-        style={{
-          transform: CSS.Transform.toString(transform),
-          transition: transition,
-        }}
-      >
-        {row.getVisibleCells().map((cell) => (
-          <TableCell key={cell.id}>
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-          </TableCell>
-        ))}
-      </TableRow>
-    );
-  },
-  (prev, next) => prev.row.original === next.row.original,
-);
-
-function SearchInput({
-  onSearch,
-  onClear,
+function DraggableRow({
+  row,
 }: {
-  onSearch: (value: string) => void;
-  onClear: () => void;
+  row: Row<z.infer<typeof publicOrderSchema> & { id: string }>;
 }) {
-  const [value, setValue] = React.useState("");
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setValue(newValue);
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => onSearch(newValue), 150);
-  };
-
-  const handleClear = () => {
-    setValue("");
-    clearTimeout(timeoutRef.current);
-    onClear();
-  };
-
-  React.useEffect(() => {
-    return () => clearTimeout(timeoutRef.current);
-  }, []);
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: row.original.id,
+  });
 
   return (
-    <div className="flex gap-2 items-center w-full">
-      <Input
-        placeholder="ค้นหาชื่อ"
-        type="search"
-        value={value}
-        onChange={handleChange}
-        onFocus={handleClear}
-        className="max-w-md lg:max-w-lg"
-      />
-      <Button type="button" variant="secondary" onClick={handleClear}>
-        ล้าง
-      </Button>
-    </div>
+    <TableRow
+      data-state={row.getIsSelected() && "selected"}
+      data-dragging={isDragging}
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: transition,
+      }}
+    >
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
   );
 }
 
@@ -181,19 +133,17 @@ export function DataTable({
 
   const [selectedTab, setSelectedTab] = React.useState("all");
 
-  const handleTabChange = React.useCallback((value: string) => {
-    setSelectedTab(value);
-    if (value === "delivery") {
-      setColumnFilters([{ id: "delivery", value: true }]);
-    } else if (value === "pending") {
-      setColumnFilters([{ id: "status", value: "PENDING" }]);
-    } else if (value === "completed") {
-      setColumnFilters([{ id: "status", value: "COMPLETED" }]);
+  React.useEffect(() => {
+    if (selectedTab === "delivery") {
+      table.setColumnFilters([{ id: "delivery", value: true }]);
+    } else if (selectedTab === "pending") {
+      table.setColumnFilters([{ id: "status", value: "PENDING" }]);
+    } else if (selectedTab === "completed") {
+      table.setColumnFilters([{ id: "status", value: "COMPLETED" }]);
     } else {
-      setColumnFilters([]);
+      table.setColumnFilters([]); // Clear all
     }
-    scrollContainerRef.current?.scrollTo({ top: 0 });
-  }, []);
+  }, [selectedTab]);
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -211,19 +161,15 @@ export function DataTable({
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {}),
   );
-  const handleSearch = React.useCallback((value: string) => {
-    setColumnFilters((prev) => {
-      const withoutSearch = prev.filter((f) => f.id !== "customerName");
-      return value
-        ? [...withoutSearch, { id: "customerName", value }]
-        : withoutSearch;
-    });
-  }, []);
+  const [searchValue, setSearchValue] = React.useState("");
 
-  const handleSearchClear = React.useCallback(
-    () => handleTabChange("all"),
-    [handleTabChange],
-  );
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      table.getColumn("customerName")?.setFilterValue(searchValue);
+    }, 300); // delay in ms
+
+    return () => clearTimeout(timeout); // cancel previous
+  }, [searchValue]);
 
   const { date } = useDateStore();
   const formattedDate = date
@@ -231,12 +177,6 @@ export function DataTable({
     : format(new Date(), "yyyy-MM-dd");
 
   const { mutate } = useSWRConfig();
-
-  const handleConfirmRef =
-    React.useRef<(id: string, status: OrderStatus) => void>(() => {});
-  const handlePaymentRef =
-    React.useRef<(id: string, payment: Payment) => void>(() => {});
-  const handleDeleteRef = React.useRef<(id: string) => void>(() => {});
 
   const columns = React.useMemo<
     ColumnDef<z.infer<typeof publicOrderSchema>>[]
@@ -323,9 +263,9 @@ export function DataTable({
                 key={row.original.id}
                 rowData={row.original}
                 menu={menu}
-                handleConfirm={handleConfirmRef.current}
-                handlePayment={handlePaymentRef.current}
-                handleDelete={handleDeleteRef.current}
+                handleConfirm={handleConfirm}
+                handlePayment={handlePayment}
+                handleDelete={handleDelete}
               />
             </div>
           );
@@ -348,7 +288,7 @@ export function DataTable({
         cell: () => null,
       },
     ];
-  }, [menu]);
+  }, [menu, date]); // Recreate columns only when `menu` prop changes
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
@@ -374,19 +314,6 @@ export function DataTable({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
-
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-  const tableRows = table.getRowModel().rows;
-
-  const virtualizer = useVirtualizer({
-    count: tableRows.length,
-    getScrollElement: () => scrollContainerRef.current,
-    estimateSize: () => 56,
-    overscan: 5,
-  });
-
-  const virtualItems = virtualizer.getVirtualItems();
-  const totalVirtualSize = virtualizer.getTotalSize();
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -478,37 +405,51 @@ export function DataTable({
     }
   };
 
-  handleConfirmRef.current = handleConfirm;
-  handlePaymentRef.current = handlePayment;
-  handleDeleteRef.current = handleDelete;
+  const allCount = data.length;
 
-  const { allCount, deliveryCount, pendingCount, completedCount } =
-    React.useMemo(() => {
-      let delivery = 0;
-      let pending = 0;
-      let completed = 0;
-      for (const row of data) {
-        if (row.delivery) delivery++;
-        if (row.status === "PENDING") pending++;
-        if (row.status === "COMPLETED") completed++;
-      }
-      return {
-        allCount: data.length,
-        deliveryCount: delivery,
-        pendingCount: pending,
-        completedCount: completed,
-      };
-    }, [data]);
+  const deliveryCount = React.useMemo(() => {
+    return data.filter((row) => row.delivery === true).length;
+  }, [data]);
+
+  const pendingCount = React.useMemo(() => {
+    return data.filter((row) => row.status === "PENDING").length;
+  }, [data]);
+
+  const completedCount = React.useMemo(() => {
+    return data.filter((row) => row.status === "COMPLETED").length;
+  }, [data]);
 
   return (
     <div className="space-y-4 pb-4">
       <div className="flex flex-col xl:flex-row xl:justify-between gap-2">
-        <SearchInput onSearch={handleSearch} onClear={handleSearchClear} />
+        <div className="flex gap-2 items-center w-full">
+          <Input
+            placeholder="ค้นหาชื่อ"
+            type="search"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            onFocus={() => {
+              setSelectedTab("all");
+              setSearchValue("");
+            }}
+            className="max-w-md lg:max-w-lg "
+          />
+          <Button
+            type="button"
+            variant={"secondary"}
+            onClick={() => {
+              setSelectedTab("all");
+              setSearchValue("");
+            }}
+          >
+            ล้าง
+          </Button>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
           <Tabs
             value={selectedTab}
-            onValueChange={handleTabChange}
+            onValueChange={setSelectedTab}
             className="w-full"
           >
             <TabsList className="w-full justify-start h-auto p-1 overflow-x-auto overflow-y-hidden whitespace-nowrap custom-scrollbar">
@@ -565,10 +506,7 @@ export function DataTable({
           sensors={sensors}
           id={sortableId}
         >
-          <div
-            ref={scrollContainerRef}
-            className="h-[80vh] relative overflow-auto"
-          >
+          <div className="h-[80vh] relative overflow-auto">
             <Table className="text-base">
               <TableHeader className="bg-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -594,37 +532,14 @@ export function DataTable({
                 ))}
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8 border-b">
-                {tableRows.length ? (
+                {table.getRowModel().rows?.length ? (
                   <SortableContext
                     items={dataIds}
                     strategy={verticalListSortingStrategy}
                   >
-                    {virtualItems[0]?.start > 0 && (
-                      <tr>
-                        <td
-                          colSpan={columns.length}
-                          style={{ height: virtualItems[0].start }}
-                        />
-                      </tr>
-                    )}
-                    {virtualItems.map((virtualRow) => {
-                      const row = tableRows[virtualRow.index];
-                      return (
-                        <DraggableRow key={row.original.id} row={row} />
-                      );
-                    })}
-                    {virtualItems.length > 0 && (
-                      <tr>
-                        <td
-                          colSpan={columns.length}
-                          style={{
-                            height:
-                              totalVirtualSize -
-                              (virtualItems.at(-1)?.end ?? 0),
-                          }}
-                        />
-                      </tr>
-                    )}
+                    {table.getRowModel().rows.map((row) => (
+                      <DraggableRow key={row.original.id} row={row} />
+                    ))}
                   </SortableContext>
                 ) : (
                   <TableRow>
