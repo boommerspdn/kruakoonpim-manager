@@ -22,24 +22,22 @@ type FirstPageResult = {
   orders: GeminiOrder[];
 };
 
-const SHARED_INTRO = `คุณคือผู้เชี่ยวชาญด้าน OCR หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON
-กฎ (สำคัญมาก ห้ามเดาข้อมูลเด็ดขาด):`;
+const SHARED_INTRO = `คุณคือผู้เชี่ยวชาญด้าน OCR หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON`;
 
 const ORDER_RULES = `
 [ออเดอร์ - ชื่อลูกค้า]
-1. คอลัมน์แรกสุดคือ customerName ให้อ่านแบบเป๊ะๆ ตามที่เห็นในภาพ
-2. ห้ามแปลงชื่อหรือเดาจากบริบท หากอ่านยากให้แกะทีละตัวอักษร
+1. คอลัมน์แรกสุดคือชื่อลูกค้า (customerName)
 3. ตัดตัวเลขยอดรวมที่ติดท้ายชื่อออก (เช่น "P'อ๊อด 200" → "P'อ๊อด")
 
 [ออเดอร์ - รายละเอียด]
 1. ระวังบรรทัด: กวาดสายตาซ้ายไปขวาอย่างระมัดระวัง ห้ามให้ตัวเลขสลับบรรทัด
-2. delivery: true หากมีเครื่องหมาย / อยู่บริเวณชื่อลูกค้า
+2. delivery: true หากมีเครื่องหมายติ๊กถูก อยู่บริเวณชื่อลูกค้าบางทีอาจอยู่ในคอลัมน์ของเมนูแรก ให้ดูให้ดี เครื่องหมายติ๊กถูกไม่ใช้ตัวเลข
 3. amount: อ่านเฉพาะตัวเลข ห้ามใส่จุด (.) หรือสัญลักษณ์อื่น
-4. note: ถ้ามีข้อความในช่องเมนู (เช่น "แยกน้ำ") ให้ใส่ใน note ถ้าไม่มีให้เป็น null
+4. note: ถ้ามีข้อความในช่องเมนู (เช่น "แยกน้ำ") ให้ใส่ใน note ถ้าไม่มีให้เป็น null แต่ถ้าเป็นคำว่า "หมด" ไม่ต้องสนใจ
 5. payment: คืนค่า "ONLINE" เฉพาะเมื่อพบคำว่า "โอนแล้ว" เท่านั้น
 
 [orderItems]
-- ใส่เฉพาะเมนูที่ลูกค้าสั่ง (amount > 0) โดยใช้ menuId ตามที่กำหนด
+- ใส่เฉพาะเมนูที่ลูกค้าสั่ง (amount > 0) โดยใช้ menuId ตามที่กำหนด อ่านตัวเลขให้ดี ห้ามผิดเด็ดขาด คอลัมน์ไหนไม่มีเลขคือลูกค้าไม่ได้สั่งเมนูนั้น
 
 ตอบกลับเป็น JSON อย่างเดียว ห้ามมีข้อความอื่น/Markdown/โค้ดเฟนซ์`;
 
@@ -78,7 +76,7 @@ async function processFirstPage(
     model,
     contents: createUserContent([buildFirstPagePrompt(), filePart]),
     config: {
-      temperature: 0,
+      temperature: 1,
       responseMimeType: "application/json",
       responseSchema: responseSchema,
     },
@@ -96,12 +94,32 @@ async function processSubsequentPage(
     model,
     contents: createUserContent([buildSubsequentPagePrompt(menus), filePart]),
     config: {
-      temperature: 0,
+      temperature: 1,
       responseMimeType: "application/json",
       responseSchema: ordersOnlyResponseSchema,
     },
   });
   return JSON.parse(response.text ?? '{"orders":[]}');
+}
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxAttempts: number,
+  label: string,
+): Promise<T> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      console.warn(
+        `[Retry] ${label} attempt ${attempt}/${maxAttempts} failed:`,
+        err instanceof Error ? err.message : err,
+      );
+      if (attempt === maxAttempts) throw err;
+      await new Promise((r) => setTimeout(r, 2000 * attempt));
+    }
+  }
+  throw new Error("unreachable");
 }
 
 export async function POST(req: NextRequest) {
@@ -182,21 +200,39 @@ export async function POST(req: NextRequest) {
             await Promise.all(
               remainingFileParts.map(async (fp, idx) => {
                 const pageNumber = idx + 2;
-                const result = await processSubsequentPage(
-                  ai,
-                  subsequentModel,
-                  fp,
-                  menuRefs,
-                );
-                send(
-                  `PAGE:${pageNumber}:${JSON.stringify({ orders: result.orders, pageNumber })}\n`,
-                );
-                send(
-                  `PROGRESS:หน้า ${pageNumber} เสร็จสิ้น — พบ ${result.orders.length} ออเดอร์\n`,
-                );
-                console.log(
-                  `[Done] Page ${pageNumber} at: ${new Date().toLocaleTimeString()}`,
-                );
+                try {
+                  const result = await withRetry(
+                    () =>
+                      processSubsequentPage(
+                        ai,
+                        subsequentModel,
+                        fp,
+                        menuRefs,
+                      ),
+                    3,
+                    `Page ${pageNumber}`,
+                  );
+                  send(
+                    `PAGE:${pageNumber}:${JSON.stringify({ orders: result.orders, pageNumber })}\n`,
+                  );
+                  send(
+                    `PROGRESS:หน้า ${pageNumber} เสร็จสิ้น — พบ ${result.orders.length} ออเดอร์\n`,
+                  );
+                  console.log(
+                    `[Done] Page ${pageNumber} at: ${new Date().toLocaleTimeString()}`,
+                  );
+                } catch (err) {
+                  console.error(
+                    `[Error] Page ${pageNumber} failed after retries:`,
+                    err,
+                  );
+                  send(
+                    `PAGE_ERROR:${pageNumber}:${err instanceof Error ? err.message : "Unknown error"}\n`,
+                  );
+                  send(
+                    `PROGRESS:หน้า ${pageNumber} ล้มเหลว — กรุณาลองใหม่\n`,
+                  );
+                }
               }),
             );
 

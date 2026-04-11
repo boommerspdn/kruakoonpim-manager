@@ -30,19 +30,36 @@ type RawOrder = {
 function formatRawOrders(
   raw: RawOrder[],
   pageNumber: number,
-  startIdx: number,
 ): StoreOrder[] {
   return raw.map((o, i) => ({
-    id: `order_${startIdx + i + 1}`,
+    id: `order_p${pageNumber}_${i + 1}`,
     customerName: formatOrderPrefix(o.customerName),
     inputName: formatOrderPrefix(o.customerName),
     delivery: o.delivery,
     note: o.note ?? null,
     payment: o.payment as StoreOrder["payment"],
     orderItems: o.orderItems,
-    sortOrder: startIdx + i + 1,
+    sortOrder: 0,
     pageNumber,
   }));
+}
+
+function recalculateOrderMeta(
+  ordersByPage: Record<number, StoreOrder[]>,
+): Record<number, StoreOrder[]> {
+  const result: Record<number, StoreOrder[]> = {};
+  let counter = 0;
+  for (const pn of Object.keys(ordersByPage)
+    .map(Number)
+    .sort((a, b) => a - b)) {
+    result[pn] = ordersByPage[pn].map((o, i) => ({
+      ...o,
+      id: `order_${counter + i + 1}`,
+      sortOrder: counter + i + 1,
+    }));
+    counter += ordersByPage[pn].length;
+  }
+  return result;
 }
 
 function saveToSessionStorage(
@@ -117,7 +134,6 @@ export const useGeminiStream = create<GeminiStreamState & GeminiStreamActions>(
 
           const decoder = new TextDecoder();
           let buf = "";
-          let orderCounter = 0;
 
           while (true) {
             const { done, value } = await reader.read();
@@ -137,14 +153,19 @@ export const useGeminiStream = create<GeminiStreamState & GeminiStreamActions>(
                 }));
               } else if (line.startsWith("FIRST_PAGE:")) {
                 const data = JSON.parse(line.slice(11));
-                const orders = formatRawOrders(data.orders, 1, orderCounter);
-                orderCounter += orders.length;
+                const orders = formatRawOrders(data.orders, 1);
 
-                set((s) => ({
-                  menus: data.menus,
-                  ordersByPage: { ...s.ordersByPage, 1: orders },
-                  firstPageReady: true,
-                }));
+                set((s) => {
+                  const newOrdersByPage = recalculateOrderMeta({
+                    ...s.ordersByPage,
+                    1: orders,
+                  });
+                  return {
+                    menus: data.menus,
+                    ordersByPage: newOrdersByPage,
+                    firstPageReady: true,
+                  };
+                });
                 const st = get();
                 saveToSessionStorage(st.menus, st.ordersByPage);
               } else if (line.startsWith("PAGE:")) {
@@ -152,14 +173,29 @@ export const useGeminiStream = create<GeminiStreamState & GeminiStreamActions>(
                 if (idx === -1) continue;
                 const pn = parseInt(line.slice(5, idx), 10);
                 const data = JSON.parse(line.slice(idx + 1));
-                const orders = formatRawOrders(data.orders, pn, orderCounter);
-                orderCounter += orders.length;
+                const orders = formatRawOrders(data.orders, pn);
 
-                set((s) => ({
-                  ordersByPage: { ...s.ordersByPage, [pn]: orders },
-                }));
+                set((s) => {
+                  const newOrdersByPage = recalculateOrderMeta({
+                    ...s.ordersByPage,
+                    [pn]: orders,
+                  });
+                  return { ordersByPage: newOrdersByPage };
+                });
                 const st = get();
                 saveToSessionStorage(st.menus, st.ordersByPage);
+              } else if (line.startsWith("PAGE_ERROR:")) {
+                const idx = line.indexOf(":", 11);
+                if (idx === -1) continue;
+                const pn = parseInt(line.slice(11, idx), 10);
+                const msg = line.slice(idx + 1);
+                console.error(`Page ${pn} failed: ${msg}`);
+                set((s) => ({
+                  progressMessages: [
+                    ...s.progressMessages,
+                    `หน้า ${pn} ล้มเหลว: ${msg}`,
+                  ],
+                }));
               } else if (line === "DONE") {
                 set({ allPagesReady: true, isStreaming: false });
                 const st = get();

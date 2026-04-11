@@ -159,11 +159,10 @@ const PreviewPage = () => {
     control,
     name: "menus",
   });
-  const {
-    fields: orderFields,
-    replace: replaceOrders,
-    append: appendOrders,
-  } = useFieldArray({ control, name: "orders" });
+  const { fields: orderFields, replace: replaceOrders } = useFieldArray({
+    control,
+    name: "orders",
+  });
 
   useEffect(() => {
     if (!sessionData || firstPageReady || isStreaming) return;
@@ -195,8 +194,9 @@ const PreviewPage = () => {
         (pn) => !syncedPagesRef.current.has(pn),
       );
       if (newPages.length === 0) return;
-      const newOrders = newPages.flatMap((pn) => streamOrdersByPage[pn]);
-      appendOrders(newOrders);
+      replaceMenus(streamMenus);
+      const allOrders = pageNumbers.flatMap((pn) => streamOrdersByPage[pn]);
+      replaceOrders(allOrders);
       newPages.forEach((pn) => syncedPagesRef.current.add(pn));
     }
   }, [
@@ -205,7 +205,6 @@ const PreviewPage = () => {
     streamOrdersByPage,
     replaceMenus,
     replaceOrders,
-    appendOrders,
   ]);
 
   const aiDetectedNames = useMemo(() => {
