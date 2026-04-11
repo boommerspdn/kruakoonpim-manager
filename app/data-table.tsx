@@ -55,6 +55,7 @@ import OrderForm from "@/components/order-form";
 import TableAction from "@/components/table-actions";
 import { Badge } from "@/components/ui/badge";
 import { DialogTrigger } from "@/components/ui/dialog";
+import { useChangeCalculatorModal } from "@/hooks/use-change-calculator-modal";
 import { useDateStore } from "@/hooks/use-date";
 import { cn } from "@/lib/utils";
 import axios from "axios";
@@ -228,9 +229,18 @@ export function DataTable({
           const status = row.original.status;
 
           return (
-            <div
+            <button
+              type="button"
+              onClick={() => {
+                const { setData, onOpen } = useChangeCalculatorModal.getState();
+                setData({
+                  customerName: row.original.customerName,
+                  totalPrice: row.original.totalPrice ?? 0,
+                });
+                onOpen();
+              }}
               className={cn(
-                "flex gap-2 items-center w-[180px] xl:w-auto",
+                "flex gap-2 items-center w-[180px] xl:w-auto cursor-pointer hover:underline",
                 status === "COMPLETED" ? "line-through text-destructive" : "",
               )}
             >
@@ -238,7 +248,7 @@ export function DataTable({
               <span className="text-destructive text-sm">
                 {row.original.totalPrice}฿
               </span>
-            </div>
+            </button>
           );
         },
         enableHiding: false,

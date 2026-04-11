@@ -6,6 +6,7 @@ import { DataTable } from "@/app/data-table";
 import { publicDashboard } from "@/app/types/dashboard";
 import { PublicMenu } from "@/app/types/menu";
 import { PublicOrder } from "@/app/types/order";
+import { ChangeCalculatorModal } from "@/components/modals/change-calculator-modal";
 import FinancialSection from "@/components/financial-section";
 import Loading from "@/components/loading";
 import MenuEdit from "@/components/menu-edit";
@@ -45,6 +46,7 @@ const DashboardContent = () => {
   if (mounted || !isLoading || !orderIsLoading || !dashboardIsLoading) {
     return (
       <div className="flex flex-col gap-4 md:gap-6 size-full">
+        <ChangeCalculatorModal />
         {data?.length !== 0 && data && dashboardData ? (
           <>
             <FinancialSection data={dashboardData?.financial} />
