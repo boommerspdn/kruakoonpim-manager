@@ -52,8 +52,16 @@ async function buildVertexFileParts(files: File[]) {
     const bucket = storage.bucket(bucketName);
 
     const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
-    const convertedName = `${Date.now()}-${nameWithoutExtension}.webp`;
+    const convertedName = `${nameWithoutExtension}.webp`;
     const blob = bucket.file(convertedName);
+
+    const [exists] = await blob.exists();
+    if (exists) {
+      return {
+        uri: `gs://${bucketName}/${convertedName}`,
+        mimeType: "image/webp",
+      };
+    }
 
     const compressedBuffer = await compressToWebpBuffer(file);
 
@@ -79,11 +87,32 @@ async function buildStudioFileParts(ai: GoogleGenAI, files: File[]) {
     // Some Node runtimes (e.g. node:18-alpine) may not provide global File.
     typeof File !== "undefined" ? File : undefined;
 
+  const existingFiles = new Map<string, { uri: string; mimeType: string }>();
+  try {
+    const pager = await ai.files.list({ config: { pageSize: 100 } });
+    for (const f of pager.page ?? []) {
+      if (f.displayName && f.uri && f.state === "ACTIVE") {
+        existingFiles.set(f.displayName, {
+          uri: f.uri,
+          mimeType: f.mimeType ?? "image/webp",
+        });
+      }
+    }
+  } catch {
+    // If listing fails, proceed with fresh uploads
+  }
+
   const uploaded = await Promise.all(
     files.map(async (file) => {
-      const compressed = await compressToWebpBuffer(file);
       const processedName = file.name.replace(/\.[^.]+$/, ".webp");
       const processedMimeType = "image/webp";
+
+      const existing = existingFiles.get(processedName);
+      if (existing) {
+        return existing;
+      }
+
+      const compressed = await compressToWebpBuffer(file);
 
       const uploadFile: File | Blob = FileCtor
         ? new FileCtor([new Uint8Array(compressed)], processedName, {
@@ -91,17 +120,18 @@ async function buildStudioFileParts(ai: GoogleGenAI, files: File[]) {
           })
         : new Blob([new Uint8Array(compressed)], { type: processedMimeType });
 
-      return ai.files.upload({
+      const result = await ai.files.upload({
         file: uploadFile,
         config: {
           displayName: processedName,
           mimeType: processedMimeType,
         },
       });
+      return { uri: result.uri as string, mimeType: result.mimeType as string };
     }),
   );
 
-  return uploaded.map((f) => createPartFromUri(f.uri as string, f.mimeType as string));
+  return uploaded.map((f) => createPartFromUri(f.uri, f.mimeType));
 }
 
 export function getGeminiProvider(opts?: { providerOverride?: GeminiProviderName }) {

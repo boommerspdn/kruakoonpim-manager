@@ -24,6 +24,15 @@ type GeminiSettingsDto = {
   modelOptions: string[];
 };
 
+type CacheEntry = {
+  name: string;
+  displayName?: string;
+  model?: string;
+  createTime?: string;
+  expireTime?: string;
+  usageMetadata?: { totalTokenCount?: number };
+};
+
 const SAME_AS_MAIN = "__same__";
 
 function uniq(items: string[]) {
@@ -127,10 +136,74 @@ export default function SettingsPage() {
     setModelOptions(modelOptions.filter((m) => m !== name));
   }
 
+  const [caches, setCaches] = React.useState<CacheEntry[]>([]);
+  const [cachesLoading, setCachesLoading] = React.useState(false);
+  const [deletingCache, setDeletingCache] = React.useState<string | null>(null);
+
+  async function loadCaches() {
+    setCachesLoading(true);
+    try {
+      const res = await fetch("/api/settings/gemini/caches", { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to load caches");
+      const data = (await res.json()) as { caches: CacheEntry[] };
+      setCaches(data.caches);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to load caches";
+      toast.error(message);
+    } finally {
+      setCachesLoading(false);
+    }
+  }
+
+  async function deleteCache(name: string) {
+    setDeletingCache(name);
+    try {
+      const res = await fetch("/api/settings/gemini/caches", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(data?.message ?? "Failed to delete cache");
+      }
+      setCaches((prev) => prev.filter((c) => c.name !== name));
+      toast.success("ลบ Cache สำเร็จ");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "ลบ Cache ไม่สำเร็จ";
+      toast.error(message);
+    } finally {
+      setDeletingCache(null);
+    }
+  }
+
+  async function deleteAllCaches() {
+    if (caches.length === 0) return;
+    setCachesLoading(true);
+    try {
+      await Promise.all(
+        caches.map((c) =>
+          fetch("/api/settings/gemini/caches", {
+            method: "DELETE",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ name: c.name }),
+          }),
+        ),
+      );
+      setCaches([]);
+      toast.success("ลบ Cache ทั้งหมดสำเร็จ");
+    } catch {
+      toast.error("ลบ Cache บางรายการไม่สำเร็จ");
+      void loadCaches();
+    } finally {
+      setCachesLoading(false);
+    }
+  }
+
   const disabled = loading || saving;
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="p-4 lg:p-6 space-y-6">
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>ตั้งค่า Gemini</CardTitle>
@@ -253,6 +326,90 @@ export default function SettingsPage() {
           <Button type="button" onClick={() => void save()} disabled={disabled || !model}>
             บันทึก
           </Button>
+        </CardFooter>
+      </Card>
+
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle>Gemini Context Cache</CardTitle>
+          <CardDescription>
+            จัดการ cache ที่ถูกสร้างจากการประมวลผลรูปภาพ — ลดค่าใช้จ่าย token
+            สำหรับ prompt ที่ซ้ำกัน
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {cachesLoading ? (
+            <p className="text-sm text-muted-foreground">กำลังโหลด...</p>
+          ) : caches.length === 0 ? (
+            <p className="text-sm text-muted-foreground">ไม่พบ Cache</p>
+          ) : (
+            <div className="space-y-3">
+              {caches.map((c) => (
+                <div
+                  key={c.name}
+                  className="flex items-start justify-between gap-3 rounded-lg border p-3"
+                >
+                  <div className="min-w-0 space-y-1 text-sm">
+                    <p className="font-medium truncate">
+                      {c.displayName || c.name}
+                    </p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                      {c.model && <span>Model: {c.model}</span>}
+                      {c.usageMetadata?.totalTokenCount != null && (
+                        <span>
+                          Tokens: {c.usageMetadata.totalTokenCount.toLocaleString()}
+                        </span>
+                      )}
+                      {c.createTime && (
+                        <span>
+                          สร้างเมื่อ:{" "}
+                          {new Date(c.createTime).toLocaleString("th-TH")}
+                        </span>
+                      )}
+                      {c.expireTime && (
+                        <span>
+                          หมดอายุ:{" "}
+                          {new Date(c.expireTime).toLocaleString("th-TH")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 text-destructive hover:text-destructive"
+                    disabled={deletingCache === c.name}
+                    onClick={() => void deleteCache(c.name!)}
+                  >
+                    {deletingCache === c.name ? "กำลังลบ..." : "ลบ"}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+
+        <CardFooter className="justify-between gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void loadCaches()}
+            disabled={cachesLoading}
+          >
+            {cachesLoading ? "กำลังโหลด..." : "โหลด Cache"}
+          </Button>
+          {caches.length > 0 && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => void deleteAllCaches()}
+              disabled={cachesLoading}
+            >
+              ลบทั้งหมด ({caches.length})
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </div>
