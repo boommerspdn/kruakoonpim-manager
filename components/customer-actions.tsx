@@ -8,11 +8,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCustomerModal } from "@/hooks/use-customer-modal";
+import { swrKeys } from "@/lib/swr-keys";
 import axios from "axios";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 
 type CustomerActionsProps = {
   customer: PublicCustomer;
@@ -22,11 +23,24 @@ const CustomerActions = ({ customer }: CustomerActionsProps) => {
   const onOpen = useCustomerModal((state) => state.onOpen);
   const setData = useCustomerModal((state) => state.setData);
   const [open, setOpen] = useState(false);
+  const { mutate: globalMutate } = useSWRConfig();
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/customers/${customer.id}`);
-      mutate("/api/customers");
+      await globalMutate(
+        swrKeys.customers(),
+        async (curr: PublicCustomer[] = []) => {
+          await axios.delete(`/api/customers/${customer.id}`);
+          return curr.filter((c) => c.id !== customer.id);
+        },
+        {
+          optimisticData: (curr: PublicCustomer[] = []) =>
+            curr.filter((c) => c.id !== customer.id),
+          rollbackOnError: true,
+          revalidate: false,
+          populateCache: true,
+        },
+      );
       toast.success("ลบข้อมูลสำเร็จ");
     } catch {
       toast.error("ลบข้อมูลไม่สำเร็จ");

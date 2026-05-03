@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useDateStore } from "@/hooks/use-date";
 import { easyDiff } from "@/lib/utils";
+import { swrKeys } from "@/lib/swr-keys";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
@@ -46,7 +47,7 @@ const formSchema = formMenuSchema;
 
 const MenuForm = ({ initialData }: MenuForm) => {
   const { date } = useDateStore();
-  const { mutate } = useSWRConfig();
+  const { mutate: globalMutate } = useSWRConfig();
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   const fetcher: Fetcher<PublicMenuName[], string> = (url) =>
@@ -77,60 +78,52 @@ const MenuForm = ({ initialData }: MenuForm) => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!form.formState.isDirty) return;
     try {
-      if (form.formState.isDirty) {
-        if (initialData) {
-          const formatInitial: PutMenuItem =
-            initialData?.map((item, index) => ({
-              id: item.id || "",
-              name: item.name || "",
-              amount: item.amount || 0,
-              price: item.price || 0,
-              sortOrder: index,
-            })) || [];
-
-          const putItem: PutMenuItem = values.menu.map((item, index) => ({
+      if (initialData) {
+        const formatInitial: PutMenuItem =
+          initialData?.map((item, index) => ({
             id: item.id || "",
             name: item.name || "",
             amount: item.amount || 0,
             price: item.price || 0,
             sortOrder: index,
-          }));
+          })) || [];
 
-          const findDifference = easyDiff(formatInitial, putItem);
-          const PatchData: PatchMenu = findDifference;
+        const putItem: PutMenuItem = values.menu.map((item, index) => ({
+          id: item.id || "",
+          name: item.name || "",
+          amount: item.amount || 0,
+          price: item.price || 0,
+          sortOrder: index,
+        }));
 
-          const response = await axios.patch(
-            `/api/menu?date=${formattedDate}`,
-            PatchData,
-          );
-          toast.success("แก้ไขเมนูเสร็จสิ้น");
-          console.log(response);
+        const findDifference = easyDiff(formatInitial, putItem);
+        const PatchData: PatchMenu = findDifference;
 
-          document.getElementById("closeDialog")?.click();
-        } else {
-          const postData: PostMenu = values.menu.map((item) => ({
-            name: item.name || "",
-            amount: item.amount || 0,
-            price: item.price || 0,
-          }));
+        await axios.patch(`/api/menu?date=${formattedDate}`, PatchData);
+        toast.success("แก้ไขเมนูเสร็จสิ้น");
+        document.getElementById("closeDialog")?.click();
 
-          const response = await axios.post(
-            `/api/menu?date=${formattedDate}`,
-            postData,
-          );
-          toast.success("สร้างเมนูเสร็จสิ้น");
+        globalMutate(swrKeys.menu(date));
+        globalMutate(swrKeys.orders(date));
+        globalMutate(swrKeys.dashboard(date));
+      } else {
+        const postData: PostMenu = values.menu.map((item) => ({
+          name: item.name || "",
+          amount: item.amount || 0,
+          price: item.price || 0,
+        }));
 
-          console.log(response);
-        }
+        await axios.post(`/api/menu?date=${formattedDate}`, postData);
+        toast.success("สร้างเมนูเสร็จสิ้น");
+
+        globalMutate(swrKeys.menu(date));
+        globalMutate(swrKeys.dashboard(date));
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
-    } finally {
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
     }
   }
 
@@ -138,9 +131,20 @@ const MenuForm = ({ initialData }: MenuForm) => {
     setDeleteLoading(true);
     try {
       await axios.delete(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      await mutate(`/api/menu?date=${formattedDate}`);
-      await mutate(`/api/order?date=${formattedDate}`);
+
+      await globalMutate(swrKeys.menu(date), async () => [], {
+        optimisticData: [],
+        rollbackOnError: true,
+        revalidate: false,
+        populateCache: true,
+      });
+      await globalMutate(swrKeys.orders(date), async () => [], {
+        optimisticData: [],
+        rollbackOnError: true,
+        revalidate: false,
+        populateCache: true,
+      });
+      globalMutate(swrKeys.dashboard(date));
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
@@ -160,65 +164,68 @@ const MenuForm = ({ initialData }: MenuForm) => {
             render={() => (
               <FormItem>
                 <FormControl>
-                  <div className="flex items-center gap-2">
-                    <div className="rounded-full bg-primary w-12 h-auto py-0.5 text-white flex justify-center items-center text-center">
+                  <div className="grid w-full grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2">
+                    <div className="flex h-9 w-12 shrink-0 items-center justify-center rounded-full bg-primary py-0.5 text-center text-white">
                       {index + 1}
                     </div>
-                    <Combobox
-                      items={getMenuNames}
-                      value={form.watch(`menu.${index}.name`) || ""}
-                      onValueChange={(value) => {
-                        if (!value) return;
-                        form.setValue(`menu.${index}.name`, value);
-                      }}
-                    >
-                      <ComboboxInput
-                        placeholder="พิมพ์หรือเลือกชื่อเมนู."
-                        onChange={(e) =>
-                          form.setValue(`menu.${index}.name`, e.target.value, {
-                            shouldDirty: true,
-                          })
-                        }
-                        autoFocus
-                      />
-                      <ComboboxContent className={"pointer-events-auto"}>
-                        <ComboboxEmpty>
-                          ไม่พบชื่อเมนูนี้ (ระบบจะสร้างเป็นเมนูใหม่)
-                        </ComboboxEmpty>
-                        <ComboboxList>
-                          {(item: string) => (
-                            <ComboboxItem key={item} value={item}>
-                              {item}
-                            </ComboboxItem>
-                          )}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
+                    <div className="min-w-0">
+                      <Combobox
+                        items={getMenuNames}
+                        value={form.watch(`menu.${index}.name`) || ""}
+                        onValueChange={(value) => {
+                          if (!value) return;
+                          form.setValue(`menu.${index}.name`, value);
+                        }}
+                      >
+                        <ComboboxInput
+                          className="w-full min-w-0"
+                          placeholder="พิมพ์หรือเลือกชื่อเมนู."
+                          onChange={(e) =>
+                            form.setValue(`menu.${index}.name`, e.target.value, {
+                              shouldDirty: true,
+                            })
+                          }
+                          autoFocus
+                        />
+                        <ComboboxContent className={"pointer-events-auto"}>
+                          <ComboboxEmpty>
+                            ไม่พบชื่อเมนูนี้ (ระบบจะสร้างเป็นเมนูใหม่)
+                          </ComboboxEmpty>
+                          <ComboboxList>
+                            {(item: string) => (
+                              <ComboboxItem key={item} value={item}>
+                                {item}
+                              </ComboboxItem>
+                            )}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                    </div>
                     <Input
                       {...form.register(`menu.${index}.amount`)}
-                      className="w-28"
+                      className="min-w-0 w-full"
                       type="number"
                       inputMode="numeric"
                       pattern="[0-9]*"
                       min={0}
                       placeholder="จำนวน"
                     />
-                    <div className="relative">
+                    <div className="relative min-w-0 w-full">
                       <Input
                         {...form.register(`menu.${index}.price`)}
-                        className="w-28"
+                        className="min-w-0 w-full pr-9"
                         type="number"
                         inputMode="numeric"
                         pattern="[0-9]*"
                         min={0}
                         placeholder="ราคา"
                       />
-                      <Badge className="absolute top-1/2 right-[8px] transform  -translate-y-1/2 pointer-events-none">
+                      <Badge className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 transform">
                         ฿
                       </Badge>
                     </div>
                     <CircleMinus
-                      className="text-primary cursor-pointer"
+                      className="shrink-0 cursor-pointer text-primary"
                       size={40}
                       onClick={() => {
                         if (fields.length === 1) return;

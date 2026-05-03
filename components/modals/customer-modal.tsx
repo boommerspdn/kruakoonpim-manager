@@ -1,12 +1,13 @@
 "use client";
 
-import { CustomerFormValues } from "@/app/types/customer";
+import { CustomerFormValues, PublicCustomer } from "@/app/types/customer";
 import { useCustomerModal } from "@/hooks/use-customer-modal";
+import { swrKeys } from "@/lib/swr-keys";
 import axios from "axios";
 import { Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { Button } from "../ui/button";
 import { DialogClose, DialogFooter } from "../ui/dialog";
 import { Input } from "../ui/input";
@@ -22,6 +23,7 @@ export const CustomerModal = () => {
   const [aliases, setAliases] = useState(aliasesString);
 
   const [isLoading, setIsLoading] = useState(false);
+  const { mutate: globalMutate } = useSWRConfig();
 
   const currentId = initialData?.id;
 
@@ -34,10 +36,47 @@ export const CustomerModal = () => {
     try {
       setIsLoading(true);
       if (initialData) {
-        await axios.patch(`/api/customers/${currentId}`, data);
+        const res = await axios.patch(`/api/customers/${currentId}`, data);
+        const updated: PublicCustomer = res.data.data;
+        await globalMutate(
+          swrKeys.customers(),
+          (curr: PublicCustomer[] = []) =>
+            curr.map((c) => (c.id === currentId ? updated : c)),
+          {
+            optimisticData: (curr: PublicCustomer[] = []) =>
+              curr.map((c) =>
+                c.id === currentId
+                  ? { ...c, name: data.name ?? c.name, aliases: data.aliases ?? c.aliases }
+                  : c,
+              ),
+            rollbackOnError: true,
+            revalidate: false,
+            populateCache: true,
+          },
+        );
         toast.success("อัปเดตข้อมูลสำเร็จ");
       } else {
-        await axios.post("/api/customers", data);
+        const res = await axios.post("/api/customers", data);
+        const created: PublicCustomer = res.data.data;
+        await globalMutate(
+          swrKeys.customers(),
+          (curr: PublicCustomer[] = []) => [...curr, created],
+          {
+            optimisticData: (curr: PublicCustomer[] = []) => [
+              ...curr,
+              {
+                id: `opt-${Date.now()}`,
+                name: data.name ?? "",
+                aliases: data.aliases ?? [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              } as PublicCustomer,
+            ],
+            rollbackOnError: true,
+            revalidate: false,
+            populateCache: true,
+          },
+        );
         toast.success("เพิ่มข้อมูลสำเร็จ");
         customerModal.setData(null);
       }
@@ -45,7 +84,6 @@ export const CustomerModal = () => {
       toast.error("เกิดข้อผิดพลาด อาจมีชื่อซ้ำอยู่แล้ว");
     } finally {
       setIsLoading(false);
-      mutate("/api/customers");
       customerModal.onClose();
     }
   };

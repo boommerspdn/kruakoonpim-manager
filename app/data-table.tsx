@@ -9,7 +9,6 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-  type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -57,17 +56,19 @@ import { Badge } from "@/components/ui/badge";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { useChangeCalculatorModal } from "@/hooks/use-change-calculator-modal";
 import { useDateStore } from "@/hooks/use-date";
+import { fetcher } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { swrKeys } from "@/lib/swr-keys";
 import axios from "axios";
-import { format } from "date-fns";
 import { PlusCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { useSWRConfig } from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { PublicMenu } from "./types/menu";
 import {
   OrderStatus,
   Payment,
   publicOrderSchema,
+  PublicOrder,
   RowSwapBody,
 } from "./types/order";
 
@@ -119,17 +120,13 @@ function DraggableRow({
   );
 }
 
+const EMPTY_ORDERS: PublicOrder[] = [];
+
 export function DataTable({
-  data: initialData,
   menu,
 }: {
-  data: z.infer<typeof publicOrderSchema>[];
   menu: PublicMenu[];
 }) {
-  const [data, setData] = React.useState(() => initialData);
-  React.useEffect(() => {
-    setData(initialData);
-  }, [initialData]);
 
   const [selectedTab, setSelectedTab] = React.useState("all");
 
@@ -172,11 +169,32 @@ export function DataTable({
   }, [searchValue]);
 
   const { date } = useDateStore();
-  const formattedDate = date
-    ? format(date, "yyyy-MM-dd")
-    : format(new Date(), "yyyy-MM-dd");
 
-  const { mutate } = useSWRConfig();
+  const { data = EMPTY_ORDERS, mutate: mutateOrders } = useSWR<PublicOrder[]>(
+    swrKeys.orders(date),
+    fetcher,
+    { fallbackData: EMPTY_ORDERS },
+  );
+  const { mutate: globalMutate } = useSWRConfig();
+
+  const [orderedIds, setOrderedIds] = React.useState<string[]>(() =>
+    data.map((o) => o.id),
+  );
+  React.useEffect(() => {
+    setOrderedIds((prev) => {
+      const next = data.map((o) => o.id);
+      if (prev.length === next.length && prev.every((id, i) => id === next[i]))
+        return prev;
+      return next;
+    });
+  }, [data]);
+
+  const sortedData = React.useMemo(() => {
+    const map = new Map(data.map((o) => [o.id, o]));
+    return orderedIds
+      .map((id) => map.get(id))
+      .filter(Boolean) as PublicOrder[];
+  }, [data, orderedIds]);
 
   const columns = React.useMemo<
     ColumnDef<z.infer<typeof publicOrderSchema>>[]
@@ -290,13 +308,10 @@ export function DataTable({
     ];
   }, [menu, date]); // Recreate columns only when `menu` prop changes
 
-  const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
-    [data],
-  );
+  const dataIds = orderedIds;
 
   const table = useReactTable({
-    data,
+    data: sortedData,
     columns,
     state: {
       sorting,
@@ -318,11 +333,9 @@ export function DataTable({
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      const oldIndex = dataIds.indexOf(active.id);
-      const newIndex = dataIds.indexOf(over.id);
-      setData((data) => {
-        return arrayMove(data, oldIndex, newIndex);
-      });
+      const oldIndex = orderedIds.indexOf(active.id as string);
+      const newIndex = orderedIds.indexOf(over.id as string);
+      setOrderedIds((ids) => arrayMove(ids, oldIndex, newIndex));
 
       const body: RowSwapBody = {
         active: active.id as string,
@@ -330,75 +343,85 @@ export function DataTable({
       };
 
       try {
-        const response = await axios.put("/api/order/swap-row", body);
-        console.log(response);
-      } catch (error) {
-        console.log(error);
+        await axios.put("/api/order/swap-row", body);
+      } catch {
+        toast.error("เกิดข้อผิดพลาดในการเรียงลำดับ");
+        setOrderedIds(data.map((o) => o.id));
       }
     }
   }
 
   const handleConfirm = async (id: string, status: OrderStatus) => {
     try {
-      setData((current) =>
-        current.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                status: item.status === "COMPLETED" ? "PENDING" : "COMPLETED",
-              }
-            : item,
-        ),
+      await mutateOrders(
+        async (curr = []) => {
+          await axios.put(`/api/order/confirm?id=${id}&status=${status}`);
+          return curr.map((item) =>
+            item.id === id ? { ...item, status } : item,
+          );
+        },
+        {
+          optimisticData: (curr = []) =>
+            curr.map((item) =>
+              item.id === id ? { ...item, status } : item,
+            ),
+          rollbackOnError: true,
+          revalidate: false,
+          populateCache: true,
+        },
       );
 
-      const response = await axios.put(
-        `/api/order/confirm?id=${id}&status=${status}`,
-      );
-
-      // await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-      console.log(response);
-    } catch (error) {
+      await Promise.all([
+        globalMutate(swrKeys.dashboard(date)),
+        globalMutate(swrKeys.orders(date)),
+      ]);
+    } catch {
       toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
     }
   };
 
   const handlePayment = async (id: string, payment: Payment) => {
     try {
-      setData((current) =>
-        current.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                payment: payment,
-              }
-            : item,
-        ),
+      await mutateOrders(
+        async (curr = []) => {
+          await axios.put(`/api/order/payment?id=${id}&payment=${payment}`);
+          return curr.map((item) =>
+            item.id === id ? { ...item, payment } : item,
+          );
+        },
+        {
+          optimisticData: (curr = []) =>
+            curr.map((item) =>
+              item.id === id ? { ...item, payment } : item,
+            ),
+          rollbackOnError: true,
+          revalidate: false,
+          populateCache: true,
+        },
       );
-
-      const response = await axios.put(
-        `/api/order/payment?id=${id}&payment=${payment}`,
-      );
-      console.log(response);
-
-      // await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
-    } catch (error) {
+      globalMutate(swrKeys.dashboard(date));
+    } catch {
       toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
-      setData((current) => current.filter((item) => item.id !== id));
-      const response = await axios.delete(`/api/order?id=${id}`);
-
-      await mutate(`/api/order?date=${formattedDate}`);
-      await mutate(`/api/dashboard?date=${formattedDate}`);
+      await mutateOrders(
+        async (curr = []) => {
+          await axios.delete(`/api/order?id=${id}`);
+          return curr.filter((item) => item.id !== id);
+        },
+        {
+          optimisticData: (curr = []) => curr.filter((item) => item.id !== id),
+          rollbackOnError: true,
+          revalidate: false,
+          populateCache: true,
+        },
+      );
+      setOrderedIds((ids) => ids.filter((i) => i !== id));
+      globalMutate(swrKeys.dashboard(date));
       toast.success("ลบออเดอร์เสร็จสิ้น");
-      console.log(response);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);

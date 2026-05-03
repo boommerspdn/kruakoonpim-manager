@@ -17,7 +17,7 @@ import { RefreshCcw } from "lucide-react";
 
 const BANKNOTES = [5, 10, 20, 50, 100, 500, 1000] as const;
 
-function CalculatorContent({ totalPrice, onClose }: { totalPrice: number; onClose: () => void }) {
+function CalculatorContent({ totalPrice }: { totalPrice: number }) {
   const [paid, setPaid] = useState<number | "">("");
   const change = typeof paid === "number" ? paid - totalPrice : null;
 
@@ -93,7 +93,6 @@ export const ChangeCalculatorModal = () => {
         <CalculatorContent
           key={`${data?.customerName}-${data?.totalPrice}`}
           totalPrice={data?.totalPrice ?? 0}
-          onClose={onClose}
         />
       </DialogContent>
     </Dialog>
