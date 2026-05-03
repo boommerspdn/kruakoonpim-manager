@@ -23,6 +23,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json("Order updated successfully");
   } catch (error) {
     console.log(error);
-    new NextResponse(`${error}`);
+    return new NextResponse(`${error}`, { status: 500 });
   }
 }
