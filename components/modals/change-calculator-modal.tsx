@@ -84,7 +84,12 @@ export const ChangeCalculatorModal = () => {
   const { isOpen, onClose, data } = useChangeCalculatorModal();
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-[650px]">
         <DialogHeader>
           <DialogTitle>{`คำนวณเงินทอน — ${data?.customerName ?? ""}`}</DialogTitle>

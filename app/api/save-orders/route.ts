@@ -38,75 +38,110 @@ export async function POST(req: NextRequest) {
       data: generateMenuId,
     });
 
+    // Phase 1: Collect all unique input names
+    const uniqueInputNames = [...new Set(orders.map((o) => o.inputName.trim()))];
+
+    // Phase 2: Fetch all matching customers in one query
+    const existingCustomers = await prisma.customer.findMany({
+      where: {
+        name: { in: uniqueInputNames, mode: "insensitive" },
+      },
+      select: { id: true, name: true, aliases: true },
+    });
+
+    const existingMap = new Map(
+      existingCustomers.map((c) => [c.name.toLowerCase(), c])
+    );
+
+    // Phase 3: Split into creates vs updates
+    const toCreate: { id: string; name: string; aliases: string[] }[] = [];
+    const toUpdate: { id: string; inputName: string; aliases: string[] }[] = [];
+    const processedNames = new Set<string>();
+
     for (const order of orders) {
       const inputName = order.inputName.trim();
       const aiDetectedName = order.customerName.trim();
+      const key = inputName.toLowerCase();
 
-      const existingCustomer = await prisma.customer.findFirst({
-        where: {
-          name: {
-            equals: inputName,
-            mode: "insensitive",
-          },
-        },
-        select: { id: true, name: true, aliases: true },
-      });
+      if (processedNames.has(key)) continue;
+      processedNames.add(key);
 
-      let customer;
+      const existing = existingMap.get(key);
 
-      if (existingCustomer) {
-        const alreadyHasAlias =
-          existingCustomer.aliases.includes(aiDetectedName);
-        const isMainName = existingCustomer.name === aiDetectedName;
+      if (existing) {
+        const alreadyHasAlias = existing.aliases.includes(aiDetectedName);
+        const isMainName = existing.name === aiDetectedName;
 
-        customer = await prisma.customer.update({
-          where: { id: existingCustomer.id },
-          data: {
-            name: inputName,
-            aliases:
-              !alreadyHasAlias && !isMainName && aiDetectedName !== inputName
-                ? { push: aiDetectedName }
-                : undefined,
-          },
+        toUpdate.push({
+          id: existing.id,
+          inputName,
+          aliases:
+            !alreadyHasAlias && !isMainName && aiDetectedName !== inputName
+              ? [...existing.aliases, aiDetectedName]
+              : existing.aliases,
         });
       } else {
-        customer = await prisma.customer.create({
-          data: {
-            id: uuidv4(),
-            name: inputName,
-            aliases: aiDetectedName !== inputName ? [aiDetectedName] : [],
-          },
+        toCreate.push({
+          id: uuidv4(),
+          name: inputName,
+          aliases: aiDetectedName !== inputName ? [aiDetectedName] : [],
         });
       }
+    }
 
-      await prisma.order.create({
-        data: {
-          customerId: customer.id,
-          delivery: order.delivery,
-          note: order.note,
-          payment: order.payment,
-          date: new Date(date),
-          sortOrder: order.sortOrder || 0,
-          orderItems: {
-            createMany: {
-              data: order.orderItems.map((item) => {
-                return {
-                  menuId: menuIdMap.get(item.menuId.toString()) || "",
-                  amount: item.amount || 0,
-                };
-              }),
-            },
-          },
-        },
+    // Phase 4: Batch create new customers
+    if (toCreate.length > 0) {
+      await prisma.customer.createMany({ data: toCreate });
+    }
+
+    // Phase 5: Sequential update to avoid race condition on same customer
+    for (const c of toUpdate) {
+      await prisma.customer.update({
+        where: { id: c.id },
+        data: { name: c.inputName, aliases: c.aliases },
       });
     }
+
+    // Phase 6: Re-fetch all customers to build ID map
+    const allCustomers = await prisma.customer.findMany({
+      where: { name: { in: uniqueInputNames, mode: "insensitive" } },
+      select: { id: true, name: true },
+    });
+    const customerIdMap = new Map(
+      allCustomers.map((c) => [c.name.toLowerCase(), c.id])
+    );
+
+    // Phase 7: Create all orders in parallel
+    await Promise.all(
+      orders.map((order) =>
+        prisma.order.create({
+          data: {
+            customerId:
+              customerIdMap.get(order.inputName.trim().toLowerCase()) || "",
+            delivery: order.delivery,
+            note: order.note,
+            payment: order.payment,
+            date: new Date(date),
+            sortOrder: order.sortOrder || 0,
+            orderItems: {
+              createMany: {
+                data: order.orderItems.map((item) => ({
+                  menuId: menuIdMap.get(item.menuId.toString()) || "",
+                  amount: item.amount || 0,
+                })),
+              },
+            },
+          },
+        })
+      )
+    );
 
     return NextResponse.json(
       {
         success: true,
         message: "เพิ่มเมนู/ออเดอร์สำเร็จ",
       },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Save Orders Error:", error);
@@ -115,7 +150,7 @@ export async function POST(req: NextRequest) {
         success: false,
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -1,5 +1,11 @@
 import { Storage } from "@google-cloud/storage";
 import { createPartFromUri, GoogleGenAI } from "@google/genai";
+import { getVercelOidcToken } from "@vercel/oidc";
+import type { GoogleAuthOptions } from "google-auth-library";
+import { ExternalAccountClient } from "google-auth-library";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import sharp from "sharp";
 
 export type GeminiProviderName = "vertex" | "studio";
@@ -8,6 +14,8 @@ type UploadedFilePart = {
   uri: string;
   mimeType: string;
 };
+
+let cachedGoogleApplicationCredentialsPath: string | undefined;
 
 function getGeminiProviderName(): GeminiProviderName {
   const raw = (process.env.GEMINI_PROVIDER ?? "vertex").toLowerCase();
@@ -20,6 +28,116 @@ function requireEnv(name: string, value: string | undefined) {
     throw new Error(`Missing required env var: ${name}`);
   }
   return value;
+}
+
+function ensureGoogleApplicationCredentialsFromJsonEnv() {
+  const raw = process.env.GOOGLE_CLOUD_CREDENTIALS_JSON;
+  if (!raw) return;
+
+  if (cachedGoogleApplicationCredentialsPath) {
+    process.env.GOOGLE_APPLICATION_CREDENTIALS =
+      process.env.GOOGLE_APPLICATION_CREDENTIALS ??
+      cachedGoogleApplicationCredentialsPath;
+    return;
+  }
+
+  // Vercel/serverless: write credentials to a temporary file and let Google SDKs
+  // pick it up via GOOGLE_APPLICATION_CREDENTIALS (ADC-compatible).
+  const parsed = JSON.parse(raw) as { type?: string; client_email?: string; private_key?: string };
+  if (parsed?.type === "external_account") {
+    // Workload Identity Federation / external account JSON.
+  } else if (!parsed?.client_email || !parsed?.private_key) {
+    throw new Error(
+      "Invalid GOOGLE_CLOUD_CREDENTIALS_JSON: expected a service account JSON or external_account JSON.",
+    );
+  }
+
+  const tmpPath = path.join(os.tmpdir(), "google-application-credentials.json");
+
+  if (!fs.existsSync(tmpPath)) {
+    fs.writeFileSync(tmpPath, raw, { encoding: "utf8" });
+  }
+
+  cachedGoogleApplicationCredentialsPath = tmpPath;
+  process.env.GOOGLE_APPLICATION_CREDENTIALS =
+    process.env.GOOGLE_APPLICATION_CREDENTIALS ?? tmpPath;
+}
+
+function resolveVercelOidcJwt(opts?: { vercelOidcToken?: string }) {
+  return (
+    opts?.vercelOidcToken?.trim() ||
+    process.env.VERCEL_OIDC_TOKEN?.trim() ||
+    undefined
+  );
+}
+
+function createVercelWorkloadIdentityAuthClient(opts?: {
+  vercelOidcToken?: string;
+}) {
+  const projectNumber = requireEnv(
+    "GCP_PROJECT_NUMBER",
+    process.env.GCP_PROJECT_NUMBER,
+  );
+  const poolId = requireEnv(
+    "GCP_WORKLOAD_IDENTITY_POOL_ID",
+    process.env.GCP_WORKLOAD_IDENTITY_POOL_ID,
+  );
+  const providerId = requireEnv(
+    "GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID",
+    process.env.GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID,
+  );
+  const serviceAccountEmail = requireEnv(
+    "GCP_SERVICE_ACCOUNT_EMAIL",
+    process.env.GCP_SERVICE_ACCOUNT_EMAIL,
+  );
+
+  const audience = `//iam.googleapis.com/projects/${projectNumber}/locations/global/workloadIdentityPools/${poolId}/providers/${providerId}`;
+
+  const explicitJwt = resolveVercelOidcJwt(opts);
+
+  const authClient = ExternalAccountClient.fromJSON({
+    type: "external_account",
+    audience,
+    subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+    token_url: "https://sts.googleapis.com/v1/token",
+    service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${serviceAccountEmail}:generateAccessToken`,
+    subject_token_supplier: {
+      // Prefer an explicit JWT captured from the incoming request header on Vercel.
+      // Fall back to Vercel's helper (uses VERCEL_OIDC_TOKEN during builds / runtime).
+      getSubjectToken: async () => {
+        if (explicitJwt) return explicitJwt;
+        return await getVercelOidcToken();
+      },
+    },
+  });
+
+  if (!authClient) {
+    throw new Error("Failed to initialize ExternalAccountClient for Workload Identity Federation.");
+  }
+
+  return authClient;
+}
+
+function getVertexGoogleAuthOptions(opts?: {
+  vercelOidcToken?: string;
+}): GoogleAuthOptions | undefined {
+  // Preferred on Vercel: Workload Identity Federation using the Vercel OIDC JWT.
+  if (
+    process.env.GCP_PROJECT_NUMBER &&
+    process.env.GCP_WORKLOAD_IDENTITY_POOL_ID &&
+    process.env.GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID &&
+    process.env.GCP_SERVICE_ACCOUNT_EMAIL
+  ) {
+    const authClient = createVercelWorkloadIdentityAuthClient(opts);
+    return { authClient: authClient as unknown as GoogleAuthOptions["authClient"] };
+  }
+
+  // Local/dev: allow classic key JSON via env, or ambient ADC via GOOGLE_APPLICATION_CREDENTIALS.
+  if (process.env.GOOGLE_CLOUD_CREDENTIALS_JSON) {
+    ensureGoogleApplicationCredentialsFromJsonEnv();
+  }
+
+  return undefined;
 }
 
 async function compressToWebpBuffer(file: File) {
@@ -39,14 +157,19 @@ async function compressToWebpBuffer(file: File) {
     .toBuffer();
 }
 
-async function buildVertexFileParts(files: File[]) {
+async function buildVertexFileParts(files: File[], authOpts?: GoogleAuthOptions) {
   const bucketName = requireEnv(
     "GOOGLE_CLOUD_STORAGE_BUCKET",
     process.env.GOOGLE_CLOUD_STORAGE_BUCKET,
   );
 
-  // Uses ambient GCP credentials (ADC).
-  const storage = new Storage();
+  const storage =
+    authOpts?.authClient
+      ? new Storage({
+          projectId: process.env.GOOGLE_CLOUD_PROJECT,
+          authClient: authOpts.authClient as never,
+        })
+      : new Storage();
 
   async function uploadToGCS(file: File): Promise<UploadedFilePart> {
     const bucket = storage.bucket(bucketName);
@@ -134,7 +257,10 @@ async function buildStudioFileParts(ai: GoogleGenAI, files: File[]) {
   return uploaded.map((f) => createPartFromUri(f.uri, f.mimeType));
 }
 
-export function getGeminiProvider(opts?: { providerOverride?: GeminiProviderName }) {
+export function getGeminiProvider(opts?: {
+  providerOverride?: GeminiProviderName;
+  vercelOidcToken?: string;
+}) {
   const provider = opts?.providerOverride ?? getGeminiProviderName();
 
   if (provider === "studio") {
@@ -151,12 +277,30 @@ export function getGeminiProvider(opts?: { providerOverride?: GeminiProviderName
     } as const;
   }
 
+  const googleAuthOptions = getVertexGoogleAuthOptions({
+    vercelOidcToken: opts?.vercelOidcToken,
+  });
+
+  if (
+    process.env.VERCEL === "1" &&
+    !googleAuthOptions?.authClient &&
+    !process.env.GOOGLE_CLOUD_CREDENTIALS_JSON &&
+    !process.env.GOOGLE_APPLICATION_CREDENTIALS
+  ) {
+    throw new Error(
+      "Vertex on Vercel requires Workload Identity Federation env vars (GCP_PROJECT_NUMBER, GCP_WORKLOAD_IDENTITY_POOL_ID, GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID, GCP_SERVICE_ACCOUNT_EMAIL) or classic credentials via GOOGLE_CLOUD_CREDENTIALS_JSON / GOOGLE_APPLICATION_CREDENTIALS.",
+    );
+  }
+
   // Vertex: relies on GOOGLE_GENAI_USE_VERTEXAI + project/location envs that the SDK reads.
-  const ai = new GoogleGenAI({vertexai: true});
+  const ai = new GoogleGenAI({
+    vertexai: true,
+    googleAuthOptions: googleAuthOptions as never,
+  });
   return {
     provider,
     ai,
-    buildFileParts: (files: File[]) => buildVertexFileParts(files),
+    buildFileParts: (files: File[]) => buildVertexFileParts(files, googleAuthOptions),
   } as const;
 }
 

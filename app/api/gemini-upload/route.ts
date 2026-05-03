@@ -183,8 +183,11 @@ export async function POST(req: NextRequest) {
 
     const { provider: providerFromDb, model, subModel } =
       await getOrCreateGeminiSettings();
+    const vercelOidcToken =
+      req.headers.get("x-vercel-oidc-token") ?? undefined;
     const { ai, buildFileParts, provider } = getGeminiProvider({
       providerOverride: providerFromDb,
+      vercelOidcToken,
     });
     const subsequentModel = subModel || model;
 

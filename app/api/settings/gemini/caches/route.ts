@@ -2,10 +2,15 @@ import { getGeminiProvider } from "@/lib/gemini/provider";
 import { getOrCreateGeminiSettings } from "@/lib/gemini/settings";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const { provider: providerFromDb } = await getOrCreateGeminiSettings();
-    const { ai } = getGeminiProvider({ providerOverride: providerFromDb });
+    const vercelOidcToken =
+      req.headers.get("x-vercel-oidc-token") ?? undefined;
+    const { ai } = getGeminiProvider({
+      providerOverride: providerFromDb,
+      vercelOidcToken,
+    });
 
     const pager = await ai.caches.list({ config: { pageSize: 100 } });
     const caches = (pager.page ?? []).map((c) => ({
@@ -37,7 +42,12 @@ export async function DELETE(req: NextRequest) {
     }
 
     const { provider: providerFromDb } = await getOrCreateGeminiSettings();
-    const { ai } = getGeminiProvider({ providerOverride: providerFromDb });
+    const vercelOidcToken =
+      req.headers.get("x-vercel-oidc-token") ?? undefined;
+    const { ai } = getGeminiProvider({
+      providerOverride: providerFromDb,
+      vercelOidcToken,
+    });
 
     await ai.caches.delete({ name });
     return NextResponse.json({ deleted: name });
