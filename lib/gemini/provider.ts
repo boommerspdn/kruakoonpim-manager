@@ -118,6 +118,23 @@ function createVercelWorkloadIdentityAuthClient(opts?: {
   return authClient;
 }
 
+function wrapAuthClientForGenaiHeadersIterable<
+  T extends { getRequestHeaders: (...args: never[]) => Promise<unknown> },
+>(
+  authClient: T,
+) {
+  const orig = authClient.getRequestHeaders.bind(authClient);
+  return {
+    ...authClient,
+    getRequestHeaders: (async (...args: never[]) => {
+      const headers = await orig(...args);
+      // google-auth-library returns Record<string, string>, while `@google/genai`
+      // expects an iterable of entries.
+      return Object.entries(headers as Record<string, string>);
+    }) as unknown as T["getRequestHeaders"],
+  };
+}
+
 function getVertexGoogleAuthOptions(opts?: {
   vercelOidcToken?: string;
 }): GoogleAuthOptions | undefined {
@@ -129,7 +146,10 @@ function getVertexGoogleAuthOptions(opts?: {
     process.env.GCP_SERVICE_ACCOUNT_EMAIL
   ) {
     const authClient = createVercelWorkloadIdentityAuthClient(opts);
-    return { authClient: authClient as unknown as GoogleAuthOptions["authClient"] };
+    // For GenAI we wrap headers to be iterable; for GCS we must keep the original
+    // google-auth-library semantics (plain object headers) to avoid anonymous calls.
+    const genaiAuthClient = wrapAuthClientForGenaiHeadersIterable(authClient);
+    return { authClient: genaiAuthClient as unknown as GoogleAuthOptions["authClient"] };
   }
 
   // Local/dev: allow classic key JSON via env, or ambient ADC via GOOGLE_APPLICATION_CREDENTIALS.
@@ -167,7 +187,9 @@ async function buildVertexFileParts(files: File[], authOpts?: GoogleAuthOptions)
     authOpts?.authClient
       ? new Storage({
           projectId: process.env.GOOGLE_CLOUD_PROJECT,
-          authClient: authOpts.authClient as never,
+          // GCS client expects google-auth-library style headers (plain object),
+          // so we intentionally do NOT pass the GenAI-wrapped authClient here.
+          authClient: createVercelWorkloadIdentityAuthClient() as never,
         })
       : new Storage();
 
