@@ -318,7 +318,7 @@ const PreviewPage = () => {
         id: toastId,
       });
 
-      // sessionStorage.removeItem("geminiPreviewData");
+      sessionStorage.removeItem("geminiPreviewData");
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =
