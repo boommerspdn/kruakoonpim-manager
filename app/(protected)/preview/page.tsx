@@ -378,9 +378,15 @@ const PreviewPage = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50 border-b">
-                  <TableHead className="w-[40%] py-3 font-semibold">ชื่อเมนู</TableHead>
-                  <TableHead className="w-[25%] py-3 font-semibold">ราคา</TableHead>
-                  <TableHead className="w-[25%] py-3 font-semibold">จำนวน</TableHead>
+                  <TableHead className="w-[40%] py-3 font-semibold border-e-0">
+                    ชื่อเมนู
+                  </TableHead>
+                  <TableHead className="w-[25%] py-3 font-semibold border-e-0">
+                    ราคา
+                  </TableHead>
+                  <TableHead className="w-[25%] py-3 font-semibold border-e-0">
+                    จำนวน
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -64,7 +64,6 @@ const MenuPrompt = () => {
               <ImageUploadDialog
                 open={openDialog}
                 onOpenChange={setOpenDialog}
-                defaultImagePath={["/menu-1.jpg", "/menu-2.jpg"]}
               />
             </div>
           </div>

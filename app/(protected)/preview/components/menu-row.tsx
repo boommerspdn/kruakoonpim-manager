@@ -25,7 +25,7 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
           {...register(`menus.${index}.name`)}
         />
       </TableCell>
-      <TableCell className="py-3">
+      <TableCell className="py-3 border-e-0">
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             ฿
