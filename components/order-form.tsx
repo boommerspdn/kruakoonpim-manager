@@ -1,6 +1,11 @@
 import { Customer } from "@/app/types/customer";
+import { publicDashboard } from "@/app/types/dashboard";
 import { PublicMenu } from "@/app/types/menu";
-import { CreateOrder, createOrderSchema, PublicOrder } from "@/app/types/order";
+import {
+  CreateOrder,
+  createOrderSchema,
+  PublicOrder,
+} from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,7 +21,7 @@ import { swrKeys } from "@/lib/swr-keys";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
-import { Loader2, Save, Truck } from "lucide-react";
+import { Save, Truck } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -69,7 +74,7 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
   const formattedDate = date
     ? format(date, "yyyy-MM-dd")
     : format(new Date(), "yyyy-MM-dd");
-  const { mutate } = useSWRConfig();
+  const { mutate: globalMutate, cache } = useSWRConfig();
 
   const { data: customers } = useSWR<Customer[]>("/api/customers", fetcher);
 
@@ -98,84 +103,146 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
     form.reset(defaultValues);
   }, [menu, form, defaultValues]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     if (!form.formState.isDirty) return;
-    try {
-      if (mode === "CREATE") {
-        await axios.post(`/api/order?date=${formattedDate}`, values);
 
-        await Promise.all([
-          mutate(swrKeys.orders(date)),
-          mutate(swrKeys.dashboard(date)),
-        ]);
-        form.reset(defaultValues);
-        toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
-      }
+    const ordersKey = swrKeys.orders(date);
+    const dashboardKey = swrKeys.dashboard(date);
 
-      if (mode === "EDIT") {
-        const formatOrderItems = initialData.orderItems.map((orderItem) => ({
-          ...orderItem,
-          id: orderItem.id || "",
-        }));
+    if (mode === "CREATE") {
+      // Optimistic: append a placeholder order immediately
+      const prevOrders =
+        (cache.get(ordersKey)?.data as PublicOrder[] | undefined) ?? [];
 
-        const removeInitialZero = formatOrderItems.filter(
-          (orderItem) => !!orderItem.amount,
-        );
+      const optimisticOrder: PublicOrder = {
+        id: `optimistic-${Date.now()}`,
+        customerName: values.customerName,
+        delivery: values.delivery ?? false,
+        note: values.note ?? "",
+        payment: values.payment ?? null,
+        status: values.status ?? "PENDING",
+        orderItems: values.orderItems
+          .filter((i) => !!i.amount)
+          .map((i) => ({
+            id: "",
+            menuId: i.menuId,
+            amount: Number(i.amount),
+          })),
+        totalPrice: values.orderItems
+          .filter((i) => !!i.amount)
+          .reduce((sum, i) => {
+            const menuItem = menu?.find((m) => m.id === i.menuId);
+            return sum + (menuItem?.price ?? 0) * Number(i.amount);
+          }, 0),
+      };
 
-        const formatValues = values.orderItems.map((orderItem) => ({
-          ...orderItem,
-          id: orderItem.id || "",
-        }));
+      globalMutate(ordersKey, [...prevOrders, optimisticOrder], {
+        revalidate: false,
+        populateCache: true,
+      });
 
-        const removeZeroValues = formatValues.filter(
-          (orderItem) => !!orderItem.amount,
-        );
+      form.reset(defaultValues);
+      toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
 
-        const findDifference = easyDiff(removeInitialZero, removeZeroValues);
+      axios
+        .post(`/api/order?date=${formattedDate}`, values)
+        .then(() => {
+          globalMutate(ordersKey);
+          globalMutate(dashboardKey);
+        })
+        .catch((error) => {
+          globalMutate(ordersKey, prevOrders, {
+            revalidate: false,
+            populateCache: true,
+          });
+          toast.error("เกิดข้อผิดพลาด");
+          console.log(error);
+        });
 
-        const patchData = {
-          id: values.id,
-          customerName: values.customerName,
-          delivery: values.delivery,
-          note: values.note,
-          payment: values.payment,
-          status: values.status,
-          orderItems: findDifference,
-        };
+      return;
+    }
 
-        const optimisticOrders = (curr: PublicOrder[] = []) =>
-          curr.map((o) =>
-            o.id === values.id
-              ? {
-                  ...o,
-                  customerName: values.customerName,
-                  delivery: values.delivery ?? o.delivery,
-                  note: values.note ?? o.note,
-                  payment: values.payment ?? o.payment,
-                  status: values.status ?? o.status,
-                }
-              : o,
-          );
+    if (mode === "EDIT") {
+      const prevOrders =
+        (cache.get(ordersKey)?.data as PublicOrder[] | undefined) ?? [];
+      const prevDashboard = cache.get(dashboardKey)?.data as
+        | publicDashboard
+        | undefined;
 
-        await Promise.all([
-          axios.patch(`/api/order?id=${values.id}`, patchData),
-          mutate(
-            swrKeys.orders(date),
-            optimisticOrders,
-            {
-              optimisticData: optimisticOrders,
-              rollbackOnError: true,
-              revalidate: true,
+      // Build next orders optimistically
+      const nextOrders = prevOrders.map((o) =>
+        o.id === values.id
+          ? {
+              ...o,
+              customerName: values.customerName,
+              delivery: values.delivery ?? o.delivery,
+              note: values.note ?? o.note,
+              payment: values.payment ?? o.payment,
+              status: values.status ?? o.status,
+              orderItems: values.orderItems
+                .filter((i) => !!i.amount)
+                .map((i) => ({
+                  id: i.id ?? "",
+                  menuId: i.menuId,
+                  amount: Number(i.amount),
+                })),
+            }
+          : o,
+      );
+
+      globalMutate(ordersKey, nextOrders, {
+        revalidate: false,
+        populateCache: true,
+      });
+
+      toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
+
+      // Build patch payload
+      const formatOrderItems = initialData.orderItems.map((orderItem) => ({
+        ...orderItem,
+        id: orderItem.id || "",
+      }));
+      const removeInitialZero = formatOrderItems.filter(
+        (orderItem) => !!orderItem.amount,
+      );
+      const formatValues = values.orderItems.map((orderItem) => ({
+        ...orderItem,
+        id: orderItem.id || "",
+      }));
+      const removeZeroValues = formatValues.filter(
+        (orderItem) => !!orderItem.amount,
+      );
+      const findDifference = easyDiff(removeInitialZero, removeZeroValues);
+
+      const patchData = {
+        id: values.id,
+        customerName: values.customerName,
+        delivery: values.delivery,
+        note: values.note,
+        payment: values.payment,
+        status: values.status,
+        orderItems: findDifference,
+      };
+
+      axios
+        .patch(`/api/order?id=${values.id}`, patchData)
+        .then(() => {
+          globalMutate(ordersKey);
+          globalMutate(dashboardKey);
+        })
+        .catch((error) => {
+          globalMutate(ordersKey, prevOrders, {
+            revalidate: false,
+            populateCache: true,
+          });
+          if (prevDashboard)
+            globalMutate(dashboardKey, prevDashboard, {
+              revalidate: false,
               populateCache: true,
-            },
-          ),
-          mutate(swrKeys.dashboard(date)),
-        ]);
-        toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
-      }
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
+            });
+          toast.error("เกิดข้อผิดพลาด");
+          console.log(error);
+        });
     }
   }
 
@@ -386,15 +453,9 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  disabled={
-                    !form.formState.isDirty || form.formState.isSubmitting
-                  }
+                  disabled={!form.formState.isDirty}
                 >
-                  {form.formState.isSubmitting ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Save />
-                  )}
+                  <Save />
                   บันทึกรายการ
                 </Button>
               </div>

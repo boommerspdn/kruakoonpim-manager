@@ -22,16 +22,16 @@ const MenuPrompt = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const { date } = useDateStore();
 
-  const { data: menuData } = useSWR<{ id: string }[]>(
+  const { data: menuData, isLoading, isValidating } = useSWR<{ id: string }[]>(
     swrKeys.menu(date),
     fetcher,
   );
 
   useEffect(() => {
-    if (menuData && menuData.length === 0) {
+    if (!isLoading && !isValidating && menuData && menuData.length === 0) {
       setOpenDialog(true);
     }
-  }, [menuData]);
+  }, [isLoading, isValidating, menuData]);
 
   const getRandomItems = () => {
     // Shuffle the array and pick first 10

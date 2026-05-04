@@ -78,10 +78,11 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   useEffect(() => {
     if (firstPageReady && uploadStarted.current) {
       uploadStarted.current = false;
+      onOpenChange(false);
       toast.success("ประมวลผลสำเร็จ! กำลังพาไปหน้าตรวจสอบ");
       router.push("/preview");
     }
-  }, [firstPageReady, router]);
+  }, [firstPageReady, router, onOpenChange]);
 
   useEffect(() => {
     if (error) {

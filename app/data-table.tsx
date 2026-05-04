@@ -60,7 +60,7 @@ import { fetcher } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { swrKeys } from "@/lib/swr-keys";
 import axios from "axios";
-import { PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
 import useSWR, { useSWRConfig } from "swr";
 import { publicDashboard } from "./types/dashboard";
@@ -171,31 +171,32 @@ export function DataTable({
 
   const { date } = useDateStore();
 
-  const { data = EMPTY_ORDERS, mutate: mutateOrders } = useSWR<PublicOrder[]>(
+  const { data, isLoading, isValidating } = useSWR<PublicOrder[]>(
     swrKeys.orders(date),
     fetcher,
-    { fallbackData: EMPTY_ORDERS },
   );
-  const { mutate: globalMutate } = useSWRConfig();
+  const { mutate: globalMutate, cache } = useSWRConfig();
+
+  const orders = data ?? EMPTY_ORDERS;
 
   const [orderedIds, setOrderedIds] = React.useState<string[]>(() =>
-    data.map((o) => o.id),
+    orders.map((o) => o.id),
   );
   React.useEffect(() => {
     setOrderedIds((prev) => {
-      const next = data.map((o) => o.id);
+      const next = orders.map((o) => o.id);
       if (prev.length === next.length && prev.every((id, i) => id === next[i]))
         return prev;
       return next;
     });
-  }, [data]);
+  }, [orders]);
 
   const sortedData = React.useMemo(() => {
-    const map = new Map(data.map((o) => [o.id, o]));
+    const map = new Map(orders.map((o) => [o.id, o]));
     return orderedIds
       .map((id) => map.get(id))
       .filter(Boolean) as PublicOrder[];
-  }, [data, orderedIds]);
+  }, [orders, orderedIds]);
 
   const columns = React.useMemo<
     ColumnDef<z.infer<typeof publicOrderSchema>>[]
@@ -347,127 +348,235 @@ export function DataTable({
         await axios.put("/api/order/swap-row", body);
       } catch {
         toast.error("เกิดข้อผิดพลาดในการเรียงลำดับ");
-        setOrderedIds(data.map((o) => o.id));
+        setOrderedIds(orders.map((o) => o.id));
       }
     }
   }
 
-  const handleConfirm = async (id: string, status: OrderStatus) => {
-    const order = data.find((o) => o.id === id);
+  const handleConfirm = (id: string, status: OrderStatus) => {
+    const ordersKey = swrKeys.orders(date);
+    const dashboardKey = swrKeys.dashboard(date);
 
-    try {
-      // Apply dashboard optimistic update immediately using current cache value
-      const currentDashboard = await globalMutate<publicDashboard>(swrKeys.dashboard(date));
-      if (currentDashboard && order) {
-        const direction = status === "COMPLETED" ? 1 : -1;
-        const optimisticDashboard: publicDashboard = {
-          ...currentDashboard,
-          menuSummary: currentDashboard.menuSummary.map((menu) => {
-            const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
-            if (!orderItem || orderItem.amount == null) return menu;
-            const amt = orderItem.amount * direction;
-            return {
-              ...menu,
-              menuData: {
-                ...menu.menuData,
-                picked: menu.menuData.picked + amt,
-                unpicked: menu.menuData.unpicked - amt,
-                require: menu.menuData.require - amt,
-              },
-            };
-          }),
-        };
-        globalMutate(swrKeys.dashboard(date), optimisticDashboard, { revalidate: false });
-      }
+    const prevOrders =
+      (cache.get(ordersKey)?.data as PublicOrder[] | undefined) ?? orders;
+    const order = prevOrders.find((o) => o.id === id);
+    if (!order) return;
 
-      await Promise.all([
-        mutateOrders(
-          async (curr = []) => {
-            await axios.put(`/api/order/confirm?id=${id}&status=${status}`);
-            return curr.map((item) =>
-              item.id === id ? { ...item, status } : item,
-            );
-          },
-          {
-            optimisticData: (curr = []) =>
-              curr.map((item) =>
-                item.id === id ? { ...item, status } : item,
-              ),
-            rollbackOnError: true,
+    const prevDashboard = cache.get(dashboardKey)?.data as
+      | publicDashboard
+      | undefined;
+
+    const nextOrders = prevOrders.map((item) =>
+      item.id === id ? { ...item, status } : item,
+    );
+    globalMutate(ordersKey, nextOrders, {
+      revalidate: false,
+      populateCache: true,
+    });
+
+    if (prevDashboard) {
+      const direction = status === "COMPLETED" ? 1 : -1;
+      const nextDashboard: publicDashboard = {
+        ...prevDashboard,
+        menuSummary: prevDashboard.menuSummary.map((menu) => {
+          const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
+          if (!orderItem || orderItem.amount == null) return menu;
+          const amt = orderItem.amount * direction;
+          return {
+            ...menu,
+            menuData: {
+              ...menu.menuData,
+              picked: menu.menuData.picked + amt,
+              unpicked: menu.menuData.unpicked - amt,
+              require: menu.menuData.require - amt,
+            },
+          };
+        }),
+      };
+      globalMutate(dashboardKey, nextDashboard, {
+        revalidate: false,
+        populateCache: true,
+      });
+    }
+
+    axios
+      .put(`/api/order/confirm?id=${id}&status=${status}`)
+      .then(() => {
+        globalMutate(ordersKey);
+        globalMutate(dashboardKey);
+      })
+      .catch(() => {
+        globalMutate(ordersKey, prevOrders, {
+          revalidate: false,
+          populateCache: true,
+        });
+        if (prevDashboard)
+          globalMutate(dashboardKey, prevDashboard, {
             revalidate: false,
             populateCache: true,
-          },
-        ),
-        globalMutate(swrKeys.dashboard(date)),
-      ]);
-
-      globalMutate(swrKeys.orders(date));
-    } catch {
-      toast.error("เกิดข้อผิดพลาด");
-    }
+          });
+        toast.error("เกิดข้อผิดพลาด");
+      });
   };
 
-  const handlePayment = async (id: string, payment: Payment) => {
-    try {
-      await mutateOrders(
-        async (curr = []) => {
-          await axios.put(`/api/order/payment?id=${id}&payment=${payment}`);
-          return curr.map((item) =>
-            item.id === id ? { ...item, payment } : item,
-          );
-        },
-        {
-          optimisticData: (curr = []) =>
-            curr.map((item) =>
-              item.id === id ? { ...item, payment } : item,
-            ),
-          rollbackOnError: true,
+  const handlePayment = (id: string, payment: Payment) => {
+    const ordersKey = swrKeys.orders(date);
+    const dashboardKey = swrKeys.dashboard(date);
+
+    const prevOrders =
+      (cache.get(ordersKey)?.data as PublicOrder[] | undefined) ?? orders;
+    const order = prevOrders.find((o) => o.id === id);
+    if (!order) return;
+
+    const prevDashboard = cache.get(dashboardKey)?.data as
+      | publicDashboard
+      | undefined;
+
+    const nextOrders = prevOrders.map((item) =>
+      item.id === id ? { ...item, payment } : item,
+    );
+    globalMutate(ordersKey, nextOrders, {
+      revalidate: false,
+      populateCache: true,
+    });
+
+    if (prevDashboard) {
+      const totalPrice = order.totalPrice ?? 0;
+      const oldPayment = order.payment;
+      const bucketOf = (p: Payment | null | undefined) =>
+        p === "CASH" ? "cash" : p === "ONLINE" ? "online" : p === "UNKNOWN" ? "unknown" : null;
+      const oldBucket = bucketOf(oldPayment);
+      const newBucket = bucketOf(payment);
+
+      if (oldBucket !== newBucket) {
+        const nextFinancial = { ...prevDashboard.financial };
+        if (oldBucket) nextFinancial[oldBucket] -= totalPrice;
+        if (newBucket) nextFinancial[newBucket] += totalPrice;
+        globalMutate(
+          dashboardKey,
+          { ...prevDashboard, financial: nextFinancial },
+          { revalidate: false, populateCache: true },
+        );
+      }
+    }
+
+    axios
+      .put(`/api/order/payment?id=${id}&payment=${payment}`)
+      .then(() => {
+        globalMutate(ordersKey);
+        globalMutate(dashboardKey);
+      })
+      .catch(() => {
+        globalMutate(ordersKey, prevOrders, {
           revalidate: false,
           populateCache: true,
-        },
-      );
-      globalMutate(swrKeys.dashboard(date));
-    } catch {
-      toast.error("เกิดข้อผิดพลาด");
-    }
+        });
+        if (prevDashboard)
+          globalMutate(dashboardKey, prevDashboard, {
+            revalidate: false,
+            populateCache: true,
+          });
+        toast.error("เกิดข้อผิดพลาด");
+      });
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await mutateOrders(
-        async (curr = []) => {
-          await axios.delete(`/api/order?id=${id}`);
-          return curr.filter((item) => item.id !== id);
-        },
-        {
-          optimisticData: (curr = []) => curr.filter((item) => item.id !== id),
-          rollbackOnError: true,
+  const handleDelete = (id: string) => {
+    const ordersKey = swrKeys.orders(date);
+    const dashboardKey = swrKeys.dashboard(date);
+
+    const prevOrders =
+      (cache.get(ordersKey)?.data as PublicOrder[] | undefined) ?? orders;
+    const order = prevOrders.find((o) => o.id === id);
+    if (!order) return;
+
+    const prevDashboard = cache.get(dashboardKey)?.data as
+      | publicDashboard
+      | undefined;
+    const prevOrderedIds = orderedIds;
+
+    const nextOrders = prevOrders.filter((item) => item.id !== id);
+    globalMutate(ordersKey, nextOrders, {
+      revalidate: false,
+      populateCache: true,
+    });
+    setOrderedIds((ids) => ids.filter((i) => i !== id));
+
+    if (prevDashboard) {
+      const totalPrice = order.totalPrice ?? 0;
+      const bucketOf = (p: Payment | null | undefined) =>
+        p === "CASH" ? "cash" : p === "ONLINE" ? "online" : p === "UNKNOWN" ? "unknown" : null;
+      const bucket = bucketOf(order.payment);
+
+      const nextFinancial = {
+        ...prevDashboard.financial,
+        total: prevDashboard.financial.total - totalPrice,
+      };
+      if (bucket) nextFinancial[bucket] -= totalPrice;
+
+      const wasCompleted = order.status === "COMPLETED";
+      const nextDashboard: publicDashboard = {
+        financial: nextFinancial,
+        menuSummary: prevDashboard.menuSummary.map((menu) => {
+          const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
+          if (!orderItem || orderItem.amount == null) return menu;
+          const amt = orderItem.amount;
+          const md = menu.menuData;
+          return {
+            ...menu,
+            menuData: {
+              ...md,
+              ordered: md.ordered - amt,
+              sellable: md.sellable + amt,
+              picked: wasCompleted ? md.picked - amt : md.picked,
+              unpicked: wasCompleted ? md.unpicked : md.unpicked - amt,
+              require: wasCompleted ? md.require + amt : md.require,
+            },
+          };
+        }),
+      };
+      globalMutate(dashboardKey, nextDashboard, {
+        revalidate: false,
+        populateCache: true,
+      });
+    }
+
+    toast.success("ลบออเดอร์เสร็จสิ้น");
+
+    axios
+      .delete(`/api/order?id=${id}`)
+      .then(() => {
+        globalMutate(ordersKey);
+        globalMutate(dashboardKey);
+      })
+      .catch((error) => {
+        globalMutate(ordersKey, prevOrders, {
           revalidate: false,
           populateCache: true,
-        },
-      );
-      setOrderedIds((ids) => ids.filter((i) => i !== id));
-      globalMutate(swrKeys.dashboard(date));
-      toast.success("ลบออเดอร์เสร็จสิ้น");
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด");
-      console.log(error);
-    }
+        });
+        if (prevDashboard)
+          globalMutate(dashboardKey, prevDashboard, {
+            revalidate: false,
+            populateCache: true,
+          });
+        setOrderedIds(prevOrderedIds);
+        toast.error("เกิดข้อผิดพลาด");
+        console.log(error);
+      });
   };
 
-  const allCount = data.length;
+  const allCount = orders.length;
 
   const deliveryCount = React.useMemo(() => {
-    return data.filter((row) => row.delivery === true).length;
-  }, [data]);
+    return orders.filter((row) => row.delivery === true).length;
+  }, [orders]);
 
   const pendingCount = React.useMemo(() => {
-    return data.filter((row) => row.status === "PENDING").length;
-  }, [data]);
+    return orders.filter((row) => row.status === "PENDING").length;
+  }, [orders]);
 
   const completedCount = React.useMemo(() => {
-    return data.filter((row) => row.status === "COMPLETED").length;
-  }, [data]);
+    return orders.filter((row) => row.status === "COMPLETED").length;
+  }, [orders]);
 
   return (
     <div className="space-y-4 pb-4">
@@ -597,7 +706,11 @@ export function DataTable({
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      ไม่มีผลลัพธ์
+                      {isLoading || isValidating || data === undefined ? (
+                        <Loader2 className="mx-auto animate-spin text-muted-foreground" />
+                      ) : (
+                        "ไม่มีผลลัพธ์"
+                      )}
                     </TableCell>
                   </TableRow>
                 )}

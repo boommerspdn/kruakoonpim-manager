@@ -138,6 +138,7 @@ const PreviewPage = () => {
 
   const previewData = streamPreviewData ?? sessionData;
   const isPageLoading = !sessionLoaded && !firstPageReady;
+  const isOrdersLoading = isStreaming && !firstPageReady;
 
   useEffect(() => {
     if (sessionLoaded && !previewData && !firstPageReady && !isStreaming) {
@@ -317,13 +318,11 @@ const PreviewPage = () => {
         id: toastId,
       });
 
-      sessionStorage.removeItem("geminiPreviewData");
+      // sessionStorage.removeItem("geminiPreviewData");
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+        error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการเชื่อมต่อ";
       toast.error(errorMessage, {
         id: toastId,
       });
@@ -394,76 +393,76 @@ const PreviewPage = () => {
           </div>
         </section>
 
-        {allPageNumbers.map((pageNumber) => {
-          const pageData = ordersByPage.find(([pn]) => pn === pageNumber);
+        {isOrdersLoading && <PageLoadingSkeleton pageNumber={1} />}
 
-          if (!pageData) {
+        {!isOrdersLoading &&
+          allPageNumbers.map((pageNumber) => {
+            const pageData = ordersByPage.find(([pn]) => pn === pageNumber);
+
+            if (!pageData) {
+              return (
+                <PageLoadingSkeleton key={pageNumber} pageNumber={pageNumber} />
+              );
+            }
+
+            const [, pageOrders] = pageData;
+            const summary = pageSummaries.get(pageNumber) ?? [];
+
             return (
-              <PageLoadingSkeleton
+              <section
                 key={pageNumber}
-                pageNumber={pageNumber}
-              />
-            );
-          }
+                className="space-y-4 px-2 mt-6 animate-in fade-in duration-500"
+              >
+                <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
+                  <FileText className="h-5 w-5 text-primary" />
+                  หน้า {pageNumber}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({pageOrders.length} ออเดอร์)
+                  </span>
+                </h2>
 
-          const [, pageOrders] = pageData;
-          const summary = pageSummaries.get(pageNumber) ?? [];
-
-          return (
-            <section
-              key={pageNumber}
-              className="space-y-4 px-2 mt-6 animate-in fade-in duration-500"
-            >
-              <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
-                <FileText className="h-5 w-5 text-primary" />
-                หน้า {pageNumber}
-                <span className="text-sm font-normal text-muted-foreground">
-                  ({pageOrders.length} ออเดอร์)
-                </span>
-              </h2>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
-                {summary.map((menu, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col justify-between p-3 rounded-lg border bg-white shadow-sm"
-                  >
-                    <span className="text-sm font-medium text-muted-foreground line-clamp-2">
-                      {menu.name}
-                    </span>
-                    <div className="mt-1 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-bold text-primary">
-                        {menu.totalOrdered}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-4">
+                  {summary.map((menu, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col justify-between p-3 rounded-lg border bg-white shadow-sm"
+                    >
+                      <span className="text-sm font-medium text-muted-foreground line-clamp-2">
+                        {menu.name}
                       </span>
-                      <span className="text-xs text-muted-foreground font-normal">
-                        รายการ
-                      </span>
+                      <div className="mt-1 flex items-baseline gap-1.5">
+                        <span className="text-2xl font-bold text-primary">
+                          {menu.totalOrdered}
+                        </span>
+                        <span className="text-xs text-muted-foreground font-normal">
+                          รายการ
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <div className="bg-white rounded-lg border shadow-sm overflow-hidden px-4 grid gap-4">
-                {pageOrders.map(({ field, index }) => (
-                  <div key={field.id}>
-                    <OrderRow
-                      control={control}
-                      customers={customers?.map((c) => c.name) || []}
-                      index={index}
-                      field={field}
-                      setValue={setValue}
-                      register={register}
-                      siimilarNames={
-                        similarNamesMap.get(field.customerName) || null
-                      }
-                    />
-                    <Separator />
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
+                <div className="bg-white rounded-lg border shadow-sm overflow-hidden px-4 grid gap-4">
+                  {pageOrders.map(({ field, index }) => (
+                    <div key={field.id}>
+                      <OrderRow
+                        control={control}
+                        customers={customers?.map((c) => c.name) || []}
+                        index={index}
+                        field={field}
+                        setValue={setValue}
+                        register={register}
+                        siimilarNames={
+                          similarNamesMap.get(field.customerName) || null
+                        }
+                      />
+                      <Separator />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
 
         {orderFields.length > 0 && !isStreaming && ordersByPage.length > 1 && (
           <section className="space-y-4 px-2 mt-6">
@@ -494,7 +493,7 @@ const PreviewPage = () => {
           </section>
         )}
 
-        {orderFields.length === 0 && !isStreaming && (
+        {orderFields.length === 0 && !isStreaming && !isOrdersLoading && (
           <section className="space-y-4 px-2 mt-6">
             <h2 className="text-xl font-semibold flex items-center gap-2 px-4 pt-4">
               <ListOrdered className="h-5 w-5 text-primary" />
@@ -509,14 +508,14 @@ const PreviewPage = () => {
         <div className="flex justify-end py-6 px-2">
           <Button
             type="submit"
-            disabled={formState.isSubmitting || isStreaming}
+            disabled={formState.isSubmitting || isStreaming || isOrdersLoading}
           >
-            {formState.isSubmitting || isStreaming ? (
+            {formState.isSubmitting || isStreaming || isOrdersLoading ? (
               <Loader2 className="animate-spin" />
             ) : (
               <Save />
             )}
-            {isStreaming ? "รอประมวลผล..." : "บันทึกข้อมูล"}
+            {isOrdersLoading || isStreaming ? "รอประมวลผล..." : "บันทึกข้อมูล"}
           </Button>
         </div>
       </form>
