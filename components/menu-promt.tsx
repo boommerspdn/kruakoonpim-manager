@@ -5,18 +5,33 @@ import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDateStore } from "@/hooks/use-date";
+import { swrKeys } from "@/lib/swr-keys";
 import menuApi from "../public/kruakoonpim_menu_API.json";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 import ImageUploadDialog from "./image-upload-dialog";
 import MenuForm from "./menu-form";
 import { Separator } from "./ui/separator";
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const MenuPrompt = () => {
   const [randomItems, setRandomItems] = useState<{ name: string }[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const { date } = useDateStore();
+
+  const { data: menuData } = useSWR<{ id: string }[]>(
+    swrKeys.menu(date),
+    fetcher,
+  );
+
+  useEffect(() => {
+    if (menuData && menuData.length === 0) {
+      setOpenDialog(true);
+    }
+  }, [menuData]);
 
   const getRandomItems = () => {
     // Shuffle the array and pick first 10
@@ -64,6 +79,7 @@ const MenuPrompt = () => {
               <ImageUploadDialog
                 open={openDialog}
                 onOpenChange={setOpenDialog}
+                defaultImagePath="/menu-1.jpg"
               />
             </div>
           </div>

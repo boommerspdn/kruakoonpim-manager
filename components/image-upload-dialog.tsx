@@ -18,6 +18,7 @@ import { Separator } from "./ui/separator";
 interface ImageUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultImagePath?: string;
 }
 
 const PREVIEW_SESSION_KEY = "geminiPreviewData";
@@ -25,6 +26,7 @@ const PREVIEW_SESSION_KEY = "geminiPreviewData";
 const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
   open,
   onOpenChange,
+  defaultImagePath,
 }) => {
   const [images, setImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -52,6 +54,21 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
       setHasSavedPreview(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !defaultImagePath || images.length > 0) return;
+    fetch(defaultImagePath)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const fileName = defaultImagePath.split("/").pop() ?? "default.jpg";
+        const file = new File([blob], fileName, { type: blob.type });
+        const url = URL.createObjectURL(file);
+        setImages([file]);
+        setPreviewUrls([url]);
+        setCurrentIndex(0);
+      })
+      .catch(() => {});
+  }, [open, defaultImagePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const goToSavedPreview = () => {
     onOpenChange(false);
@@ -102,6 +119,7 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
             accept="image/*"
             multiple
             onChange={handleFileChange}
+            disabled={!!defaultImagePath}
           />
           {previewUrls.length > 0 && (
             <div className="flex flex-col items-center w-full">
