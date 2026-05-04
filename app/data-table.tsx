@@ -355,29 +355,31 @@ export function DataTable({
   const handleConfirm = async (id: string, status: OrderStatus) => {
     const order = data.find((o) => o.id === id);
 
-    const dashboardOptimisticData = (curr: publicDashboard | undefined) => {
-      if (!curr || !order) return curr;
-      const direction = status === "COMPLETED" ? 1 : -1;
-      return {
-        ...curr,
-        menuSummary: curr.menuSummary.map((menu) => {
-          const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
-          if (!orderItem || orderItem.amount == null) return menu;
-          const amt = orderItem.amount * direction;
-          return {
-            ...menu,
-            menuData: {
-              ...menu.menuData,
-              picked: menu.menuData.picked + amt,
-              unpicked: menu.menuData.unpicked - amt,
-              require: menu.menuData.require - amt,
-            },
-          };
-        }),
-      };
-    };
-
     try {
+      // Apply dashboard optimistic update immediately using current cache value
+      const currentDashboard = await globalMutate<publicDashboard>(swrKeys.dashboard(date));
+      if (currentDashboard && order) {
+        const direction = status === "COMPLETED" ? 1 : -1;
+        const optimisticDashboard: publicDashboard = {
+          ...currentDashboard,
+          menuSummary: currentDashboard.menuSummary.map((menu) => {
+            const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
+            if (!orderItem || orderItem.amount == null) return menu;
+            const amt = orderItem.amount * direction;
+            return {
+              ...menu,
+              menuData: {
+                ...menu.menuData,
+                picked: menu.menuData.picked + amt,
+                unpicked: menu.menuData.unpicked - amt,
+                require: menu.menuData.require - amt,
+              },
+            };
+          }),
+        };
+        globalMutate(swrKeys.dashboard(date), optimisticDashboard, { revalidate: false });
+      }
+
       await Promise.all([
         mutateOrders(
           async (curr = []) => {
@@ -396,16 +398,7 @@ export function DataTable({
             populateCache: true,
           },
         ),
-        globalMutate<publicDashboard>(
-          swrKeys.dashboard(date),
-          dashboardOptimisticData,
-          {
-            optimisticData: dashboardOptimisticData,
-            revalidate: true,
-            rollbackOnError: true,
-            populateCache: true,
-          },
-        ),
+        globalMutate(swrKeys.dashboard(date)),
       ]);
 
       globalMutate(swrKeys.orders(date));
