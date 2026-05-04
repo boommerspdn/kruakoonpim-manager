@@ -17,7 +17,7 @@ interface OrderItemProps {
 
 const MenuRow = ({ index, field, register }: OrderItemProps) => {
   return (
-    <TableRow key={field.id} className="border-b">
+    <TableRow key={field.id} className="border-b border-e-0">
       <TableCell className="py-3">
         <Input
           placeholder="เช่น ข้าวผัดหมู"
@@ -25,8 +25,8 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
           {...register(`menus.${index}.name`)}
         />
       </TableCell>
-      <TableCell className="py-3">
-        <div className="relative border-e-0">
+      <TableCell className="py-3 border-e-0">
+        <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             ฿
           </span>
@@ -41,7 +41,7 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
           />
         </div>
       </TableCell>
-      <TableCell className="py-3">
+      <TableCell className="py-3 border-e-0">
         <Input
           type="number"
           inputMode="numeric"
