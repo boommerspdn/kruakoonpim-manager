@@ -355,50 +355,58 @@ export function DataTable({
   const handleConfirm = async (id: string, status: OrderStatus) => {
     const order = data.find((o) => o.id === id);
 
-    try {
-      await mutateOrders(
-        async (curr = []) => {
-          await axios.put(`/api/order/confirm?id=${id}&status=${status}`);
-          return curr.map((item) =>
-            item.id === id ? { ...item, status } : item,
-          );
-        },
-        {
-          optimisticData: (curr = []) =>
-            curr.map((item) =>
-              item.id === id ? { ...item, status } : item,
-            ),
-          rollbackOnError: true,
-          revalidate: false,
-          populateCache: true,
-        },
-      );
-
-      await globalMutate(
-        swrKeys.dashboard(date),
-        (curr: publicDashboard | undefined) => {
-          if (!curr || !order) return curr;
-          const direction = status === "COMPLETED" ? 1 : -1;
+    const dashboardOptimisticData = (curr: publicDashboard | undefined) => {
+      if (!curr || !order) return curr;
+      const direction = status === "COMPLETED" ? 1 : -1;
+      return {
+        ...curr,
+        menuSummary: curr.menuSummary.map((menu) => {
+          const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
+          if (!orderItem || orderItem.amount == null) return menu;
+          const amt = orderItem.amount * direction;
           return {
-            ...curr,
-            menuSummary: curr.menuSummary.map((menu) => {
-              const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
-              if (!orderItem || orderItem.amount == null) return menu;
-              const amt = orderItem.amount * direction;
-              return {
-                ...menu,
-                menuData: {
-                  ...menu.menuData,
-                  picked: menu.menuData.picked + amt,
-                  unpicked: menu.menuData.unpicked - amt,
-                  require: menu.menuData.require - amt,
-                },
-              };
-            }),
+            ...menu,
+            menuData: {
+              ...menu.menuData,
+              picked: menu.menuData.picked + amt,
+              unpicked: menu.menuData.unpicked - amt,
+              require: menu.menuData.require - amt,
+            },
           };
-        },
-        { revalidate: true },
-      );
+        }),
+      };
+    };
+
+    try {
+      await Promise.all([
+        mutateOrders(
+          async (curr = []) => {
+            await axios.put(`/api/order/confirm?id=${id}&status=${status}`);
+            return curr.map((item) =>
+              item.id === id ? { ...item, status } : item,
+            );
+          },
+          {
+            optimisticData: (curr = []) =>
+              curr.map((item) =>
+                item.id === id ? { ...item, status } : item,
+              ),
+            rollbackOnError: true,
+            revalidate: false,
+            populateCache: true,
+          },
+        ),
+        globalMutate(
+          swrKeys.dashboard(date),
+          dashboardOptimisticData,
+          {
+            optimisticData: dashboardOptimisticData,
+            revalidate: true,
+            rollbackOnError: true,
+            populateCache: true,
+          },
+        ),
+      ]);
 
       globalMutate(swrKeys.orders(date));
     } catch {

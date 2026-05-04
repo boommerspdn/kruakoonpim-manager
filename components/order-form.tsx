@@ -143,43 +143,34 @@ const OrderForm = ({ children, initialData, mode, menu }: OrderFormProps) => {
           orderItems: findDifference,
         };
 
-        await axios.patch(`/api/order?id=${values.id}`, patchData);
+        const optimisticOrders = (curr: PublicOrder[] = []) =>
+          curr.map((o) =>
+            o.id === values.id
+              ? {
+                  ...o,
+                  customerName: values.customerName,
+                  delivery: values.delivery ?? o.delivery,
+                  note: values.note ?? o.note,
+                  payment: values.payment ?? o.payment,
+                  status: values.status ?? o.status,
+                }
+              : o,
+          );
 
-        await mutate(
-          swrKeys.orders(date),
-          (curr: PublicOrder[] = []) =>
-            curr.map((o) =>
-              o.id === values.id
-                ? {
-                    ...o,
-                    customerName: values.customerName,
-                    delivery: values.delivery ?? o.delivery,
-                    note: values.note ?? o.note,
-                    payment: values.payment ?? o.payment,
-                    status: values.status ?? o.status,
-                  }
-                : o,
-            ),
-          {
-            optimisticData: (curr: PublicOrder[] = []) =>
-              curr.map((o) =>
-                o.id === values.id
-                  ? {
-                      ...o,
-                      customerName: values.customerName,
-                      delivery: values.delivery ?? o.delivery,
-                      note: values.note ?? o.note,
-                      payment: values.payment ?? o.payment,
-                      status: values.status ?? o.status,
-                    }
-                  : o,
-              ),
-            rollbackOnError: true,
-            revalidate: true,
-            populateCache: true,
-          },
-        );
-        mutate(swrKeys.dashboard(date));
+        await Promise.all([
+          axios.patch(`/api/order?id=${values.id}`, patchData),
+          mutate(
+            swrKeys.orders(date),
+            optimisticOrders,
+            {
+              optimisticData: optimisticOrders,
+              rollbackOnError: true,
+              revalidate: true,
+              populateCache: true,
+            },
+          ),
+          mutate(swrKeys.dashboard(date)),
+        ]);
         toast.success("เพิ่ม/แก้ไขออเดอร์สำเร็จ");
       }
     } catch (error) {

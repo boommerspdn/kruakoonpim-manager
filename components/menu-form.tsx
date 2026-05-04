@@ -132,19 +132,21 @@ const MenuForm = ({ initialData }: MenuForm) => {
     try {
       await axios.delete(`/api/menu?date=${formattedDate}`);
 
-      await globalMutate(swrKeys.menu(date), async () => [], {
-        optimisticData: [],
-        rollbackOnError: true,
-        revalidate: false,
-        populateCache: true,
-      });
-      await globalMutate(swrKeys.orders(date), async () => [], {
-        optimisticData: [],
-        rollbackOnError: true,
-        revalidate: false,
-        populateCache: true,
-      });
-      globalMutate(swrKeys.dashboard(date));
+      await Promise.all([
+        globalMutate(swrKeys.menu(date), async () => [], {
+          optimisticData: [],
+          rollbackOnError: true,
+          revalidate: false,
+          populateCache: true,
+        }),
+        globalMutate(swrKeys.orders(date), async () => [], {
+          optimisticData: [],
+          rollbackOnError: true,
+          revalidate: false,
+          populateCache: true,
+        }),
+        globalMutate(swrKeys.dashboard(date)),
+      ]);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
       console.log(error);
