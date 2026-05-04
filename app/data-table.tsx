@@ -383,7 +383,7 @@ export function DataTable({
             ...curr,
             menuSummary: curr.menuSummary.map((menu) => {
               const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
-              if (!orderItem) return menu;
+              if (!orderItem || orderItem.amount == null) return menu;
               const amt = orderItem.amount * direction;
               return {
                 ...menu,
