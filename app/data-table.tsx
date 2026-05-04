@@ -63,6 +63,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
 import useSWR, { useSWRConfig } from "swr";
+import { publicDashboard } from "./types/dashboard";
 import { PublicMenu } from "./types/menu";
 import {
   OrderStatus,
@@ -352,6 +353,8 @@ export function DataTable({
   }
 
   const handleConfirm = async (id: string, status: OrderStatus) => {
+    const order = data.find((o) => o.id === id);
+
     try {
       await mutateOrders(
         async (curr = []) => {
@@ -371,10 +374,33 @@ export function DataTable({
         },
       );
 
-      await Promise.all([
-        globalMutate(swrKeys.dashboard(date)),
-        globalMutate(swrKeys.orders(date)),
-      ]);
+      await globalMutate(
+        swrKeys.dashboard(date),
+        (curr: publicDashboard | undefined) => {
+          if (!curr || !order) return curr;
+          const direction = status === "COMPLETED" ? 1 : -1;
+          return {
+            ...curr,
+            menuSummary: curr.menuSummary.map((menu) => {
+              const orderItem = order.orderItems.find((i) => i.menuId === menu.id);
+              if (!orderItem) return menu;
+              const amt = orderItem.amount * direction;
+              return {
+                ...menu,
+                menuData: {
+                  ...menu.menuData,
+                  picked: menu.menuData.picked + amt,
+                  unpicked: menu.menuData.unpicked - amt,
+                  require: menu.menuData.require - amt,
+                },
+              };
+            }),
+          };
+        },
+        { revalidate: true },
+      );
+
+      globalMutate(swrKeys.orders(date));
     } catch {
       toast.error("เกิดข้อผิดพลาด");
     }
