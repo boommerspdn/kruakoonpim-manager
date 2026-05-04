@@ -18,7 +18,7 @@ import { Separator } from "./ui/separator";
 interface ImageUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultImagePath?: string;
+  defaultImagePath?: string | string[];
 }
 
 const PREVIEW_SESSION_KEY = "geminiPreviewData";
@@ -57,14 +57,22 @@ const ImageUploadDialog: React.FC<ImageUploadDialogProps> = ({
 
   useEffect(() => {
     if (!open || !defaultImagePath || images.length > 0) return;
-    fetch(defaultImagePath)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const fileName = defaultImagePath.split("/").pop() ?? "default.jpg";
-        const file = new File([blob], fileName, { type: blob.type });
-        const url = URL.createObjectURL(file);
-        setImages([file]);
-        setPreviewUrls([url]);
+    const paths = Array.isArray(defaultImagePath) ? defaultImagePath : [defaultImagePath];
+    Promise.all(
+      paths.map((path) =>
+        fetch(path)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const fileName = path.split("/").pop() ?? "default.jpg";
+            const file = new File([blob], fileName, { type: blob.type });
+            const url = URL.createObjectURL(file);
+            return { file, url };
+          }),
+      ),
+    )
+      .then((results) => {
+        setImages(results.map((r) => r.file));
+        setPreviewUrls(results.map((r) => r.url));
         setCurrentIndex(0);
       })
       .catch(() => {});

@@ -26,7 +26,8 @@ import {
   Utensils,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import useSWR, { Fetcher } from "swr";
+import useSWR, { Fetcher, useSWRConfig } from "swr";
+import { swrKeys } from "@/lib/swr-keys";
 import Loading from "./components/loading";
 import MenuRow from "./components/menu-row";
 import OrderRow from "./components/order-row";
@@ -105,6 +106,7 @@ const PreviewPage = () => {
     firstPageReady,
   } = useGeminiStream();
 
+  const { mutate } = useSWRConfig();
   const fetcher: Fetcher<Customer[], string> = (url) =>
     axios.get(url).then((res) => res.data.data);
   const { data: customers } = useSWR("/api/customers", fetcher);
@@ -319,6 +321,11 @@ const PreviewPage = () => {
       });
 
       sessionStorage.removeItem("geminiPreviewData");
+      await Promise.all([
+        mutate(swrKeys.menu(date)),
+        mutate(swrKeys.orders(date)),
+        mutate(swrKeys.dashboard(date)),
+      ]);
       router.push("/");
     } catch (error: unknown) {
       const errorMessage =

@@ -2,7 +2,6 @@ import { Toaster } from "react-hot-toast";
 import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
-import { SWRProvider } from "@/components/swr-provider";
 import "./globals.css";
 
 const anuphan = Anuphan({
@@ -25,11 +24,9 @@ export default function RootLayout({
       <body
         className={`${anuphan.variable} font-anuphan antialiased h-[100dvh] overflow-y-auto`}
       >
-        <SWRProvider>
-          <SiteHeader />
-          {children}
-          <Toaster position="top-center" />
-        </SWRProvider>
+        <SiteHeader />
+        {children}
+        <Toaster position="top-center" />
       </body>
     </html>
   );

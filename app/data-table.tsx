@@ -171,7 +171,7 @@ export function DataTable({
 
   const { date } = useDateStore();
 
-  const { data, isLoading, isValidating } = useSWR<PublicOrder[]>(
+  const { data, isLoading } = useSWR<PublicOrder[]>(
     swrKeys.orders(date),
     fetcher,
   );
@@ -706,7 +706,7 @@ export function DataTable({
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      {isLoading || isValidating || data === undefined ? (
+                      {isLoading || data === undefined ? (
                         <Loader2 className="mx-auto animate-spin text-muted-foreground" />
                       ) : (
                         "ไม่มีผลลัพธ์"

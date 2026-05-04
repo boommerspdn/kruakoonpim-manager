@@ -18,9 +18,9 @@ const DashboardContent = () => {
   const { date } = useDateStore();
   const [mounted, setMounted] = React.useState(false);
 
-  const { data, isLoading, isValidating } = useSWR<PublicMenu[]>(swrKeys.menu(date), fetcher);
+  const { data, isLoading } = useSWR<PublicMenu[]>(swrKeys.menu(date), fetcher);
 
-  const { data: dashboardData, isLoading: dashboardIsLoading, isValidating: dashboardIsValidating } =
+  const { data: dashboardData, isLoading: dashboardIsLoading } =
     useSWR<publicDashboard>(swrKeys.dashboard(date), fetcher);
 
   React.useEffect(() => {
@@ -47,8 +47,6 @@ const DashboardContent = () => {
             </div>
             <DataTable menu={data} />
           </>
-        ) : isValidating || dashboardIsValidating ? (
-          <Loading />
         ) : (
           <MenuPrompt />
         )}
