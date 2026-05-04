@@ -10,6 +10,13 @@ import { StoreOrder, storeOrderSchema } from "@/app/types/order";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useDateStore } from "@/hooks/use-date";
 import { useGeminiStream } from "@/hooks/use-gemini-stream";
 import { matchAiNamesWithCustomers } from "@/lib/fuzzy-match";
@@ -367,16 +374,16 @@ const PreviewPage = () => {
             <Utensils className="h-5 w-5 text-primary" />
             สรุปรายการเมนู
           </h2>
-          <div className="rounded-lg border shadow-sm overflow-hidden">
-            <table className="w-full text-sm text-left">
-              <thead className="border-b">
-                <tr>
-                  <th className="p-4 w-[40%]">ชื่อเมนู</th>
-                  <th className="p-4 w-[25%]">ราคา</th>
-                  <th className="p-4 w-[25%]">จำนวน</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50 border-b">
+                  <TableHead className="w-[40%] py-3 font-semibold">ชื่อเมนู</TableHead>
+                  <TableHead className="w-[25%] py-3 font-semibold">ราคา</TableHead>
+                  <TableHead className="w-[25%] py-3 font-semibold">จำนวน</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {menuFields.map((field, index) => (
                   <MenuRow
                     key={field.id}
@@ -386,17 +393,17 @@ const PreviewPage = () => {
                   />
                 ))}
                 {menuFields.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={4}
+                  <TableRow>
+                    <TableHead
+                      colSpan={3}
                       className="p-8 text-center text-muted-foreground"
                     >
                       ไม่พบข้อมูลเมนูจากภาพ
-                    </td>
-                  </tr>
+                    </TableHead>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </section>
 
@@ -481,7 +488,7 @@ const PreviewPage = () => {
               {totalSummary.map((menu, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-col justify-between p-4 rounded-lg border bg-white shadow-sm hover:border-primary/50 transition-colors"
+                  className="flex flex-col justify-between p-4 rounded-lg border bg-white shadow-sm"
                 >
                   <span className="text-sm font-medium text-muted-foreground line-clamp-2">
                     {menu.name}

@@ -166,8 +166,8 @@ const MenuForm = ({ initialData }: MenuForm) => {
             render={() => (
               <FormItem>
                 <FormControl>
-                  <div className="grid w-full grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2">
-                    <div className="flex h-9 w-12 shrink-0 items-center justify-center rounded-full bg-primary py-0.5 text-center text-white">
+                  <div className="grid w-full grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-1.5">
+                    <div className="flex h-full aspect-square shrink-0 items-center justify-center rounded-full bg-primary text-xs md:text-sm font-semibold text-white">
                       {index + 1}
                     </div>
                     <div className="min-w-0">
@@ -227,8 +227,7 @@ const MenuForm = ({ initialData }: MenuForm) => {
                       </Badge>
                     </div>
                     <CircleMinus
-                      className="shrink-0 cursor-pointer text-primary"
-                      size={40}
+                      className="shrink-0 cursor-pointer text-primary w-8 h-8 md:w-10 md:h-10"
                       onClick={() => {
                         if (fields.length === 1) return;
                         remove(index);

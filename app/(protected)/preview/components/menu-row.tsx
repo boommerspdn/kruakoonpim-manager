@@ -1,6 +1,7 @@
 import { StoreMenu } from "@/app/types/menu";
 import { StoreOrder } from "@/app/types/order";
 import { Input } from "@/components/ui/input";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { FieldArrayWithId, UseFormRegister } from "react-hook-form";
 
 type StoreMenuOrder = {
@@ -16,17 +17,17 @@ interface OrderItemProps {
 
 const MenuRow = ({ index, field, register }: OrderItemProps) => {
   return (
-    <tr key={field.id} className="border-b last:border-0 hover:bg-slate-50">
-      <td className="p-4 pe-0 md:p-4">
+    <TableRow key={field.id} className="border-b">
+      <TableCell className="py-3">
         <Input
           placeholder="เช่น ข้าวผัดหมู"
           className="bg-white"
           {...register(`menus.${index}.name`)}
         />
-      </td>
-      <td className="p-1 pe-0 md:p-4">
+      </TableCell>
+      <TableCell className="py-3">
         <div className="relative">
-          <span className="absolute left-3 top-2.5 text-muted-foreground">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             ฿
           </span>
           <Input
@@ -39,8 +40,8 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
             {...register(`menus.${index}.price`)}
           />
         </div>
-      </td>
-      <td className="p-1 pe-4 md:p-4">
+      </TableCell>
+      <TableCell className="py-3">
         <Input
           type="number"
           inputMode="numeric"
@@ -50,8 +51,8 @@ const MenuRow = ({ index, field, register }: OrderItemProps) => {
           placeholder="0"
           {...register(`menus.${index}.amount`)}
         />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 };
 
