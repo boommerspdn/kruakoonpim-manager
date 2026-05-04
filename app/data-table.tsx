@@ -396,7 +396,7 @@ export function DataTable({
             populateCache: true,
           },
         ),
-        globalMutate(
+        globalMutate<publicDashboard>(
           swrKeys.dashboard(date),
           dashboardOptimisticData,
           {
