@@ -112,25 +112,24 @@ export async function POST(req: NextRequest) {
     );
 
     // Phase 7: Create all orders + orderItems in 2 bulk queries
-    const ordersWithIds = orders.map((order) => ({
-      id: uuidv4(),
-      customerId: customerIdMap.get(order.inputName.trim().toLowerCase()) || "",
-      delivery: order.delivery,
-      note: order.note,
-      payment: order.payment,
-      date: new Date(date),
-      sortOrder: order.sortOrder || 0,
-      order,
-    }));
+    const orderIds = orders.map(() => uuidv4());
 
     await prisma.order.createMany({
-      data: ordersWithIds.map(({ order: _order, ...rest }) => rest),
+      data: orders.map((order, i) => ({
+        id: orderIds[i],
+        customerId: customerIdMap.get(order.inputName.trim().toLowerCase()) || "",
+        delivery: order.delivery,
+        note: order.note,
+        payment: order.payment,
+        date: new Date(date),
+        sortOrder: order.sortOrder || 0,
+      })),
     });
 
     await prisma.orderItem.createMany({
-      data: ordersWithIds.flatMap(({ id: orderId, order }) =>
+      data: orders.flatMap((order, i) =>
         order.orderItems.map((item) => ({
-          orderId,
+          orderId: orderIds[i],
           menuId: menuIdMap.get(item.menuId.toString()) || "",
           amount: item.amount || 0,
         }))
