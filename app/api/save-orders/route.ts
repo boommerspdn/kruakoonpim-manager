@@ -111,30 +111,31 @@ export async function POST(req: NextRequest) {
       allCustomers.map((c) => [c.name.toLowerCase(), c.id])
     );
 
-    // Phase 7: Create all orders in parallel
-    await Promise.all(
-      orders.map((order) =>
-        prisma.order.create({
-          data: {
-            customerId:
-              customerIdMap.get(order.inputName.trim().toLowerCase()) || "",
-            delivery: order.delivery,
-            note: order.note,
-            payment: order.payment,
-            date: new Date(date),
-            sortOrder: order.sortOrder || 0,
-            orderItems: {
-              createMany: {
-                data: order.orderItems.map((item) => ({
-                  menuId: menuIdMap.get(item.menuId.toString()) || "",
-                  amount: item.amount || 0,
-                })),
-              },
-            },
-          },
-        })
-      )
-    );
+    // Phase 7: Create all orders + orderItems in 2 bulk queries
+    const ordersWithIds = orders.map((order) => ({
+      id: uuidv4(),
+      customerId: customerIdMap.get(order.inputName.trim().toLowerCase()) || "",
+      delivery: order.delivery,
+      note: order.note,
+      payment: order.payment,
+      date: new Date(date),
+      sortOrder: order.sortOrder || 0,
+      order,
+    }));
+
+    await prisma.order.createMany({
+      data: ordersWithIds.map(({ order: _order, ...rest }) => rest),
+    });
+
+    await prisma.orderItem.createMany({
+      data: ordersWithIds.flatMap(({ id: orderId, order }) =>
+        order.orderItems.map((item) => ({
+          orderId,
+          menuId: menuIdMap.get(item.menuId.toString()) || "",
+          amount: item.amount || 0,
+        }))
+      ),
+    });
 
     return NextResponse.json(
       {

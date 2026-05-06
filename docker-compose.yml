@@ -1,6 +1,21 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: postgres-kruakoonpim
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=kruakoonpim
+      - POSTGRES_USER=kruakoonpim
+      - POSTGRES_PASSWORD=Smilez12
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - db-tier
+
   web:
-    build: 
+    build:
       context: .
       args:
         - LOGIN_PASSCODE=${LOGIN_PASSCODE}
@@ -12,8 +27,10 @@ services:
         - GOOGLE_CLOUD_STORAGE_BUCKET=${GOOGLE_CLOUD_STORAGE_BUCKET}
     container_name: kruakoonpim-manager
     ports:
-    - "3000:3000"
+      - "3000:3000"
     restart: unless-stopped
+    depends_on:
+      - db
     env_file:
       - .env
     environment:
@@ -22,14 +39,16 @@ services:
       - DATABASE_URL=${DATABASE_URL_BUILD}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcloud/application_default_credentials.json
     volumes:
-      - "C:/Users/Boomm/AppData/Roaming/gcloud:/app/config/gcloud:ro"
+      - "${HOME}/.config/gcloud:/app/config/gcloud:ro"
     networks:
       - app-tier
-      - db-tier   # <--- Added back so Next.js can see the database
+      - db-tier
+
+volumes:
+  postgres_data:
 
 networks:
   app-tier:
     driver: bridge
-  db-tier:        # <--- Re-linked your external database network
-    external: true
-    name: kruakoonpim-manager_db
+  db-tier:
+    driver: bridge
