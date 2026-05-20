@@ -163,6 +163,7 @@ const PreviewPage = () => {
   >({
     resolver: zodResolver(formSchema),
     defaultValues: { menus: [], orders: [] },
+    shouldFocusError: false,
   });
 
   const { fields: menuFields, replace: replaceMenus } = useFieldArray({
@@ -220,7 +221,7 @@ const PreviewPage = () => {
       );
       if (newPages.length === 0) return;
       const newOrders = newPages.flatMap((pn) => streamOrdersByPage[pn]);
-      appendOrdersRef.current(newOrders);
+      appendOrdersRef.current(newOrders, { shouldFocus: false });
       newPages.forEach((pn) => syncedPagesRef.current.add(pn));
     }
   }, [firstPageReady, streamMenus, streamOrdersByPage]);

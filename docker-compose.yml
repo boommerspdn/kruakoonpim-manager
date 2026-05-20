@@ -21,7 +21,7 @@ services:
         - LOGIN_PASSCODE=${LOGIN_PASSCODE}
         - INTERNAL_API_KEY=${INTERNAL_API_KEY}
         - DATABASE_URL_BUILD=${DATABASE_URL_BUILD}
-        # - GEMINI_API_KEY=${GEMINI_API_KEY}
+        - GEMINI_API_KEY=${GEMINI_STUDIO_API_KEY}
         - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
         - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
         - GOOGLE_CLOUD_STORAGE_BUCKET=${GOOGLE_CLOUD_STORAGE_BUCKET}
@@ -39,7 +39,7 @@ services:
       - DATABASE_URL=${DATABASE_URL_BUILD}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/config/gcloud/application_default_credentials.json
     volumes:
-      - "${HOME}/.config/gcloud:/app/config/gcloud:ro"
+      - "C:/Users/Boomm/AppData/Roaming/gcloud:/app/config/gcloud:ro"
     networks:
       - app-tier
       - db-tier

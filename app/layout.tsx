@@ -23,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${anuphan.variable} font-anuphan antialiased h-[100dvh] overflow-y-auto`}
+        style={{ overflowAnchor: "none" }}
       >
         <SiteHeader />
         {children}

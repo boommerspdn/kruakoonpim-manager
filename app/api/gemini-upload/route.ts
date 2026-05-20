@@ -4,10 +4,12 @@ import {
 } from "@/lib/gemini-response-type";
 import { getGeminiProvider } from "@/lib/gemini/provider";
 import { getOrCreateGeminiSettings } from "@/lib/gemini/settings";
+import prisma from "@/lib/prisma";
 import { createUserContent, GoogleGenAI, Part } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
 type MenuRef = { id: string; name: string; price: number };
+type CustomerRef = { name: string };
 
 type GeminiOrder = {
   customerName: string;
@@ -24,47 +26,55 @@ type FirstPageResult = {
 
 const SHARED_INTRO = `คุณคือผู้เชี่ยวชาญด้าน OCR หน้าที่ของคุณคือแกะตัวหนังสือจากตารางจดออเดอร์อาหารและแปลงเป็น JSON`;
 
+function formatCustomerList(customers: CustomerRef[]): string {
+  if (customers.length === 0) return "";
+  return customers.map((c) => `- ${c.name}`).join("\n");
+}
+
+const FIRST_PAGE_MENU_INSTRUCTIONS = `[เมนู]
+1. แถวบนสุด = ราคา (price)
+2. แถวที่สอง = ยอดคงเหลือ (amount) ให้ยึดตัวเลขที่มากที่สุด
+3. แถวที่สาม = ชื่อเมนู (name) เอาให้อิงจากเมนูอาหารไทยจริง
+4. สร้าง id สำหรับแต่ละเมนู เช่น "menu_1", "menu_2"
+5. ในบางวันจะมีเมนูผัดหอยลาย เผา/เทียม ให้แยกเป็น 2 เมนู เช่น ผัดหอยลาย (เผา) และ ผัดหอยลาย (กระเทียม)`;
+
 const ORDER_RULES = `
 [ออเดอร์ - ชื่อลูกค้า]
 1. คอลัมน์แรกสุดคือชื่อลูกค้า (customerName) โดยจะมีคำนำหน้าชื่อลูกค้าเช่น K', P' หรือ N' หรืออาจจะไม่มีคำนำหน้าเลยก็ได้
-3. ตัดตัวเลขยอดรวมที่ติดท้ายชื่อออก (เช่น "P'อ๊อด 200" → "P'อ๊อด")
+2. ตัดตัวเลขยอดรวมที่ติดท้ายชื่อออก (เช่น "P'อ๊อด 200" → "P'อ๊อด")
+3. ชื่อลูกค้าอาจมีความคลุมเครือจากการเขียน ให้พยายามอ่านให้ถูกต้องที่สุดเท่าที่จะเป็นไปได้
 
 [ออเดอร์ - รายละเอียด]
 1. ระวังบรรทัด: กวาดสายตาซ้ายไปขวาอย่างระมัดระวัง ห้ามให้ตัวเลขสลับบรรทัด ในบางกรณีอาจมีการรวบยอดออเดอร์ในช่องออเดอร์แต่จะไม่ใช่การสั่งอาหารของลูกค้า โดยมักจะมีตัวเลขสูง ถึง 10+ มักจะเขียนด้วยปากกาสีแดง
 2. delivery: true หากมีเครื่องหมายติ๊กถูก อยู่บริเวณชื่อลูกค้าบางทีอาจอยู่ในคอลัมน์ของเมนูแรก ให้ดูให้ดี เครื่องหมายติ๊กถูกไม่ใช้ตัวเลข
-3. amount: อ่านเฉพาะตัวเลข ห้ามใส่จุด (.) หรือสัญลักษณ์อื่น
+3. amount: อ่านเฉพาะตัวเลข ห้ามใส่จุด (.) หรือสัญลักษณ์อื่น อ่านให้ชัดเจนเพราะตัวเลขสำคัญมาก
 4. note: ถ้ามีข้อความในช่องเมนู (เช่น "แยกน้ำ") ให้ใส่ใน note เป็นชื่อเมนูที่ข้อความอยู่ เช่น ไข่พะโล้: ไข่ 3 ใบ ถ้าหากมีหลายเมนูให้คั่นด้วย , ถ้าไม่มีให้เป็น null แต่ถ้าเป็นคำว่า "หมด" ไม่ต้องสนใจ
-5. payment: คืนค่า "ONLINE" เฉพาะเมื่อพบคำว่า "โอนแล้ว" เท่านั้น
+5. payment: คืนค่า "ONLINE" เฉพาะเมื่อพบคำว่า "โอนแล้ว" เท่านั้น ระวังให้ไม่สับสนกับรหัสออเดอร์หรือข้อมูลอื่น
 
 [orderItems]
+- ห้ามให้ตัวเลขสลับคอลัมน์เด็ดขาด เช็คตัวเลขออเดอร์ให้ดีก่อนไป Map กับเมนู
 - ใส่เฉพาะเมนูที่ลูกค้าสั่ง (amount > 0) โดยใช้ menuId ตามที่กำหนด อ่านตัวเลขให้ดี ห้ามผิดเด็ดขาด คอลัมน์ไหนไม่มีเลขคือลูกค้าไม่ได้สั่งเมนูนั้น
+- ตรวจสอบการจัดตำแหน่งของตัวเลขกับเมนูให้แม่นยำ เพราะนี่คือข้อมูลที่สำคัญที่สุด
+
+[ข้อห้าม]
+- ห้ามเดาหรือสมมติ ถ้าไม่แน่ใจให้ปล่อยว่างหรือใส่ 0
+- ห้ามเปลี่ยนชื่อเมนูที่กำหนด ใช้ตามรายการเมนูเท่านั้น
+- ห้ามมีข้อมูลที่ไม่อ่านออกมาจากภาพ
 
 ตอบกลับเป็น JSON อย่างเดียว ห้ามมีข้อความอื่น/Markdown/โค้ดเฟนซ์`;
 
-function buildFirstPagePrompt(): string {
+function buildSharedInstruction(customers: CustomerRef[]): string {
+  const customerSection = formatCustomerList(customers);
   return `${SHARED_INTRO}
-
-[เมนู]
-1. แถวบนสุด = ราคา (price)
-2. แถวที่สอง = ยอดคงเหลือ (amount) ให้ยึดตัวเลขที่มากที่สุด
-3. แถวที่สาม = ชื่อเมนู (name)
-4. สร้าง id สำหรับแต่ละเมนู เช่น "menu_1", "menu_2"
-5. ในบางวันจะมีเมนูผัดหอยลาย เผา/เทียม ให้แยกเป็น 2 เมนู เช่น ผัดหอยลาย (เผา) และ ผัดหอยลาย (กระเทียม)
+${customerSection ? `\n[รายชื่อลูกค้าที่รู้จัก] (ไม่บังคับ) หากชื่อในภาพใกล้เคียงกับชื่อในรายการนี้ ให้ใช้ชื่อในรายการแทน แต่ถ้าไม่แน่ใจให้ใช้ชื่อที่อ่านได้จากภาพตามปกติ:\n${customerSection}` : ""}
 ${ORDER_RULES}`;
 }
 
-function buildSubsequentPagePrompt(
-  menus: MenuRef[],
-): string {
+function buildMenuListMessage(menus: MenuRef[]): string {
   const menuList = menus
     .map((m) => `- ${m.id}: ${m.name} (${m.price} บาท)`)
     .join("\n");
-
-  return `${SHARED_INTRO}
-
-[เมนูที่ใช้ (จากหน้าแรก)] ใช้ menuId ตามรายการนี้เท่านั้น:
-${menuList}
-${ORDER_RULES}`;
+  return `[เมนูที่ใช้ (จากหน้าแรก)] ใช้ menuId ตามรายการนี้เท่านั้น:\n${menuList}`;
 }
 
 async function deleteCacheSilently(ai: GoogleGenAI, name: string) {
@@ -84,7 +94,11 @@ async function createPromptCache(
   schema: object,
   ttl = "300s",
 ): Promise<string | null> {
-  const allSchemas = JSON.stringify({ responseSchema, ordersOnlyResponseSchema }, null, 2);
+  const allSchemas = JSON.stringify(
+    { responseSchema, ordersOnlyResponseSchema },
+    null,
+    2,
+  );
   const fullInstruction = `${systemInstruction}\n\n[Response JSON Schema]\n${JSON.stringify(schema, null, 2)}\n\n[All Schemas Reference]\n${allSchemas}`;
   try {
     const cache = await ai.caches.create({
@@ -110,12 +124,16 @@ async function processFirstPage(
   ai: GoogleGenAI,
   model: string,
   filePart: Part,
+  customers: CustomerRef[],
+  cacheName: string | null,
 ): Promise<FirstPageResult> {
   const response = await ai.models.generateContent({
     model,
-    contents: createUserContent([filePart]),
+    contents: createUserContent([FIRST_PAGE_MENU_INSTRUCTIONS, filePart]),
     config: {
-      systemInstruction: buildFirstPagePrompt(),
+      ...(cacheName
+        ? { cachedContent: cacheName }
+        : { systemInstruction: buildSharedInstruction(customers) }),
       temperature: 1,
       responseMimeType: "application/json",
       responseSchema: responseSchema,
@@ -129,15 +147,16 @@ async function processSubsequentPage(
   model: string,
   filePart: Part,
   menus: MenuRef[],
+  customers: CustomerRef[],
   cacheName: string | null,
 ): Promise<{ orders: GeminiOrder[] }> {
   const response = await ai.models.generateContent({
     model,
-    contents: createUserContent([filePart]),
+    contents: createUserContent([buildMenuListMessage(menus), filePart]),
     config: {
       ...(cacheName
         ? { cachedContent: cacheName }
-        : { systemInstruction: buildSubsequentPagePrompt(menus) }),
+        : { systemInstruction: buildSharedInstruction(customers) }),
       temperature: 1,
       responseMimeType: "application/json",
       responseSchema: ordersOnlyResponseSchema,
@@ -181,36 +200,51 @@ export async function POST(req: NextRequest) {
       throw new Error("files size combined are too large");
     }
 
-    const { provider: providerFromDb, model, subModel } =
-      await getOrCreateGeminiSettings();
-    const vercelOidcToken =
-      req.headers.get("x-vercel-oidc-token") ?? undefined;
+    const {
+      provider: providerFromDb,
+      model,
+      subModel,
+    } = await getOrCreateGeminiSettings();
+    const vercelOidcToken = req.headers.get("x-vercel-oidc-token") ?? undefined;
     const { ai, buildFileParts, provider } = getGeminiProvider({
       providerOverride: providerFromDb,
       vercelOidcToken,
     });
     const subsequentModel = subModel || model;
 
+    const customers = await prisma.customer.findMany({
+      select: { name: true },
+      orderBy: { name: "asc" },
+    });
+
+    const sharedInstruction = buildSharedInstruction(customers);
+    console.log("[Cache] Creating shared instruction cache...");
+    const sharedCacheName = await createPromptCache(
+      ai,
+      model,
+      sharedInstruction,
+      "ocr-shared-instruction",
+      responseSchema,
+    );
+
     const [firstFilePart] = await buildFileParts([files[0]]);
     console.log("[LOG]: First image uploaded", {
       provider,
       model,
       subsequentModel,
+      cacheCreated: !!sharedCacheName,
     });
 
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
-        const send = (text: string) =>
-          controller.enqueue(encoder.encode(text));
+        const send = (text: string) => controller.enqueue(encoder.encode(text));
 
         try {
           send(
             `PROGRESS:กำลังประมวลผลหน้า 1 จาก ${files.length} หน้า (เมนู + ออเดอร์)...\n`,
           );
-          console.log(
-            `[Start] Page 1 at: ${new Date().toLocaleTimeString()}`,
-          );
+          console.log(`[Start] Page 1 at: ${new Date().toLocaleTimeString()}`);
 
           const remainingUploadPromise =
             files.length > 1
@@ -221,6 +255,8 @@ export async function POST(req: NextRequest) {
             ai,
             model,
             firstFilePart,
+            customers,
+            sharedCacheName,
           );
           send(
             `PROGRESS:หน้า 1 เสร็จสิ้น — พบ ${firstPageResult.menus.length} เมนู, ${firstPageResult.orders.length} ออเดอร์\n`,
@@ -237,18 +273,7 @@ export async function POST(req: NextRequest) {
               price: m.price,
             }));
 
-            const subsequentPrompt = buildSubsequentPagePrompt(menuRefs);
-            send(`PROGRESS:กำลังสร้าง cache สำหรับหน้าถัดไป...\n`);
-            const subsequentCacheName = await createPromptCache(
-              ai,
-              subsequentModel,
-              subsequentPrompt,
-              "ocr-subsequent-pages",
-              ordersOnlyResponseSchema,
-            );
-            if (subsequentCacheName) {
-              send(`PROGRESS:สร้าง cache สำเร็จ ✓\n`);
-            }
+            send(`PROGRESS:ใช้ cache สำหรับหน้าถัดไป ✓\n`);
 
             send(
               `PROGRESS:กำลังประมวลผลหน้า 2-${files.length} พร้อมกัน (${remainingFileParts.length} หน้า)...\n`,
@@ -269,7 +294,8 @@ export async function POST(req: NextRequest) {
                           subsequentModel,
                           fp,
                           menuRefs,
-                          subsequentCacheName,
+                          customers,
+                          sharedCacheName,
                         ),
                       3,
                       `Page ${pageNumber}`,
@@ -298,8 +324,8 @@ export async function POST(req: NextRequest) {
                 }),
               );
             } finally {
-              if (subsequentCacheName) {
-                deleteCacheSilently(ai, subsequentCacheName);
+              if (sharedCacheName) {
+                deleteCacheSilently(ai, sharedCacheName);
               }
             }
 
